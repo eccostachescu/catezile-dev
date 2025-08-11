@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "./supabaseClient";
-import { ADMIN_ALLOWLIST } from "./adminAllowlist";
+
 import { toast } from "@/components/ui/use-toast";
 
 interface AuthContextValue {
@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -35,7 +36,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const isAdmin = !!user?.email && ADMIN_ALLOWLIST.includes(user.email);
+  useEffect(() => {
+    async function check() {
+      if (!user) { setIsAdmin(false); return; }
+      const { data } = await supabase.rpc('is_admin');
+      setIsAdmin(!!data);
+    }
+    // Defer to avoid doing work synchronously in auth change
+    setTimeout(check, 0);
+  }, [user]);
 
   const signInWithEmail = async (email: string) => {
     setLoading(true);
@@ -56,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
   };
 
-  const value = useMemo(() => ({ user, session, loading, isAdmin, signInWithEmail, signOut }), [user, session, loading]);
+  const value = useMemo(() => ({ user, session, loading, isAdmin, signInWithEmail, signOut }), [user, session, loading, isAdmin]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
