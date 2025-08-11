@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 0 0% 100%;
+  --fg: 222.2 47.4% 11.2%;
+  --card: 0 0% 100%;
+  --ring: 221.2 83.2% 53.3%;
+  --brand: 221.2 83.2% 53.3%;
+  --accent: 210 40% 96.1%;
+  --muted: 210 40% 96.1%;
+  --success: 142.1 76.2% 36.3%;
+  --warning: 45.4 93.4% 47.5%;
+  --danger: 0 72% 51%;
+}
+
+.dark {
+  --bg: 222.2 84% 4.9%;
+  --fg: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --ring: 217.2 91.2% 59.8%;
+  --brand: 217.2 91.2% 59.8%;
+  --accent: 217.2 32.6% 17.5%;
+  --muted: 217.2 32.6% 17.5%;
+  --success: 142.1 70.6% 45.3%;
+  --warning: 47.9 95.8% 53.1%;
+  --danger: 0 84.2% 60.2%;
+}
+
+html { color-scheme: light dark; }
+body { @apply bg-background text-foreground; }

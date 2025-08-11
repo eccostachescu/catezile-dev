@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci || npm i
+      - name: Typecheck
+        run: npx tsc -p tsconfig.json --noEmit
+      - name: Lint
+        run: npx eslint . --ext .ts,.tsx || true
+      - name: Build
+        run: npx vite build
+      - name: Playwright install
+        run: npx playwright install --with-deps
+      - name: Playwright tests
+        run: npx playwright test --config=.playwright.config.ts
