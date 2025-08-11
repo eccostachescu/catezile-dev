@@ -2,6 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { SEOProvider } from '../src/seo/SEOProvider';
+import { AuthProvider } from '../src/lib/auth';
 import Layout from '../src/app/layout/Layout';
 import Home from '../src/app/pages/Home';
 import Event from '../src/app/pages/Event';
@@ -41,11 +42,13 @@ export async function prerender({ url }: { url: string }) {
   const { pathname } = new URL(url, 'http://localhost');
   const app = (
     <SEOProvider>
-      <StaticRouter location={pathname}>
-        <Layout>
-          {resolveElement(pathname)}
-        </Layout>
-      </StaticRouter>
+      <AuthProvider>
+        <StaticRouter location={pathname}>
+          <Layout>
+            {resolveElement(pathname)}
+          </Layout>
+        </StaticRouter>
+      </AuthProvider>
     </SEOProvider>
   );
   const html = renderToString(app);
