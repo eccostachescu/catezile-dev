@@ -5,14 +5,16 @@ import { Helmet } from "react-helmet-async";
 import { sportsEventJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
+import { useLocation } from "react-router-dom";
 
 export default function Match() {
   const homeTeam = "FCSB";
   const awayTeam = "CFR Cluj";
   const when = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000);
+  const { pathname } = useLocation();
   return (
     <>
-      <SEO title="Meci" path={location.pathname} />
+      <SEO title="Meci" path={pathname} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(sportsEventJsonLd({ name: `${homeTeam} vs ${awayTeam}` , homeTeam, awayTeam, startDate: when }))}</script>
       </Helmet>

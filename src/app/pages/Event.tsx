@@ -5,12 +5,14 @@ import { Helmet } from "react-helmet-async";
 import { eventJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
+import { useLocation } from "react-router-dom";
 
 export default function Event() {
   const when = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+  const { pathname } = useLocation();
   return (
     <>
-      <SEO title="Eveniment" path={location.pathname} />
+      <SEO title="Eveniment" path={pathname} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(eventJsonLd({ name: "Untold Festival", startDate: when }))}</script>
       </Helmet>
