@@ -1,33 +1,67 @@
 import { Helmet } from "react-helmet-async";
-import { getCanonicalUrl } from "./canonical";
+import { buildCanonical, buildHreflangs } from "./canonical";
 import { organizationJsonLd, websiteJsonLd } from "./jsonld";
+import { routeRobots } from "./robots";
+import { buildOgUrl } from "./og";
+import { truncateForMeta } from "./snippet";
 
-interface SEOProps {
+export interface SEOProps {
+  kind?: 'home'|'event'|'match'|'movie'|'category'|'generic';
+  slug?: string;
   title?: string;
   description?: string;
+  h1?: string;
+  imageUrl?: string;
   path?: string;
-  noIndex?: boolean;
+  noindex?: boolean;
+  noIndex?: boolean; // backward-compat
 }
+
 
 const DEFAULT_TITLE = "CateZile.ro — Câte zile până…";
 const DEFAULT_DESC = "Cronometre și countdown-uri pentru evenimente populare în limba română.";
 
-export const SEO = ({ title, description, path, noIndex }: SEOProps) => {
-  const canonical = getCanonicalUrl(path);
-  const pageTitle = title ? `${title} | CateZile.ro` : DEFAULT_TITLE;
-  const desc = description || DEFAULT_DESC;
+export const SEO = ({ kind = 'generic', slug, title, description, path, noindex, noIndex, imageUrl }: SEOProps) => {
+  const canonical = buildCanonical(path);
+  const pageTitle = title ? `${title} — CateZile.ro` : DEFAULT_TITLE;
+  const desc = truncateForMeta(description || DEFAULT_DESC);
+  const robots = (noindex || noIndex) ? "noindex,nofollow" : routeRobots(path || (typeof window !== 'undefined' ? window.location.pathname : '/'));
+  const ogImage = imageUrl || buildOgUrl({ type: kind, slug, title });
+  const hreflangs = buildHreflangs(canonical);
 
   return (
     <Helmet prioritizeSeoTags>
       <html lang="ro" />
       <title>{pageTitle}</title>
       <meta name="description" content={desc} />
-      <link rel="canonical" href={canonical} />
-      <link rel="alternate" hrefLang="ro" href={canonical} />
-      {noIndex && <meta name="robots" content="noindex,nofollow" />}
+      <meta name="robots" content={robots} />
 
-      <script type="application/ld+json">{JSON.stringify(organizationJsonLd())}</script>
-      <script type="application/ld+json">{JSON.stringify(websiteJsonLd())}</script>
+      <link rel="canonical" href={canonical} />
+      {hreflangs.map((h) => (
+        <link key={h.hrefLang} rel="alternate" hrefLang={h.hrefLang} href={h.href} />
+      ))}
+
+      <meta property="og:site_name" content="CateZile.ro" />
+      <meta property="og:title" content={pageTitle} />
+      <meta property="og:description" content={desc} />
+      <meta property="og:url" content={canonical} />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:description" content={desc} />
+      <meta name="twitter:image" content={ogImage} />
+
+      {kind === 'home' && (
+        <>
+          <script type="application/ld+json">{JSON.stringify(organizationJsonLd())}</script>
+          <script type="application/ld+json">{JSON.stringify(websiteJsonLd())}</script>
+        </>
+      )}
     </Helmet>
   );
 };
+

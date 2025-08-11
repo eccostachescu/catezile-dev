@@ -7,3 +7,9 @@ export const formatRo = (date: Date | number, fmt = "PPP") => format(date, fmt, 
 export const inRoTz = (date: Date | number, timeZone: string = "Europe/Bucharest") => toZonedTime(date, timeZone);
 
 export const fromNowRo = (date: Date | number) => formatDistanceToNow(date, { addSuffix: true, locale: ro });
+
+export const formatRoDate = (date: Date | number, withTime = true) => {
+  const d = inRoTz(date);
+  return withTime ? format(d, "dd MMM yyyy, HH:mm", { locale: ro }) : format(d, "dd MMM yyyy", { locale: ro });
+};
+
