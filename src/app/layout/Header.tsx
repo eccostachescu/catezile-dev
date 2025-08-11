@@ -6,6 +6,7 @@ import { routes } from "@/lib/routes";
 import { Button } from "@/components/Button";
 import CookieBannerStub from "@/components/CookieBannerStub";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function Header() {
   const { user, isAdmin, loading, signInWithEmail, signOut } = useAuth();
@@ -30,6 +31,23 @@ export default function Header() {
         </div>
 
         <nav aria-label="Acțiuni" className="flex items-center gap-2">
+          {/* Mobile search opens a dialog */}
+          <div className="sm:hidden">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" aria-haspopup="dialog" aria-label="Deschide căutarea">
+                  Caută
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Caută</DialogTitle>
+                </DialogHeader>
+                <SearchBar />
+              </DialogContent>
+            </Dialog>
+          </div>
+
           <ThemeSwitchStub />
 
           {!user ? (
@@ -59,9 +77,6 @@ export default function Header() {
         </nav>
       </div>
 
-      <div className="sm:hidden px-4 py-2 border-t">
-        <SearchBar compact />
-      </div>
 
       <CookieBannerStub />
     </header>

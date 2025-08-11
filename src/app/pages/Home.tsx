@@ -1,14 +1,26 @@
 import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
+import CountdownTimer from "@/components/CountdownTimer";
 
 export default function Home() {
+  const target = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   return (
     <>
-      <SEO title="Câte zile până…" path="/" />
-      <section className="py-10">
+      <SEO title="Câte zile până… | CateZile.ro" path="/" />
+      <section className="bg-hero">
+        <Container className="py-16">
+          <div className="mx-auto max-w-3xl rounded-xl border bg-card/90 backdrop-blur shadow-lg p-8 text-center">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3">Câte zile până la următoarele evenimente?</h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">Descoperă countdown‑uri clare pentru sărbători, examene, sport și filme.</p>
+            <div className="mt-8">
+              <CountdownTimer target={target} ariaLabel="Exemplu countdown 30 de zile" />
+            </div>
+          </div>
+        </Container>
+      </section>
+      <section className="py-12">
         <Container>
-          <h1 className="text-3xl font-bold mb-2">CateZile.ro</h1>
-          <p className="text-muted-foreground">În curând: countdown‑uri pentru evenimente populare.</p>
+          <h2 className="sr-only">Secțiuni populare</h2>
         </Container>
       </section>
     </>
