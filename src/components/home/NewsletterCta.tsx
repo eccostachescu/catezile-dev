@@ -16,7 +16,7 @@ export default function NewsletterCta() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.from('newsletter_subscriber').insert({ email });
+    const { error } = await (supabase as any).from('newsletter_subscriber').insert({ email });
     setLoading(false);
     if (error) {
       toast({ title: 'Eroare', description: error.message });
