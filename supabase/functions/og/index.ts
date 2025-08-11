@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import React from "https://esm.sh/react@18.3.1";
 import satori, { init as satoriInit } from "https://esm.sh/satori@0.10.13/wasm";
 import initYoga from "https://esm.sh/yoga-wasm-web@0.3.3";
-import { Resvg } from "https://esm.sh/@resvg/resvg-js@2.6.2";
+import initSvg2Png, { svg2png } from "https://esm.sh/svg2png-wasm@1.4.1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.54.0";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 import { buildBase } from "./templates/base.tsx";
@@ -25,6 +25,14 @@ async function ensureYoga() {
     })();
   }
   await yogaReady;
+}
+
+let s2pReady: Promise<void> | null = null;
+async function ensureSvg2png() {
+  if (!s2pReady) {
+    s2pReady = initSvg2Png(fetch('https://unpkg.com/svg2png-wasm@1.4.1/svg2png_wasm_bg.wasm'));
+  }
+  await s2pReady;
 }
 
 const schema = z.object({
@@ -156,9 +164,8 @@ serve(async (req) => {
       ],
     });
 
-    const resvg = new Resvg(svg);
-    const pngData = resvg.render();
-    const png = pngData.asPng();
+    await ensureSvg2png();
+    const png = await svg2png(svg, { width, height });
 
     const tag = await etagFor(JSON.stringify({
       q: pick(q as any, ["type","slug","id","merchant","theme","w","h","v","title"] as any),
@@ -174,9 +181,9 @@ serve(async (req) => {
   } catch (err) {
     console.error("OG error", err);
     const message = "OG error";
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='420'><rect width='100%' height='100%' fill='#111'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#fff' font-family='Arial' font-size='32'>${message}</text></svg>`;
-    const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 800 } });
-    const png = resvg.render().asPng();
+    const fallbackSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='420'><rect width='100%' height='100%' fill='#111'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#fff' font-family='Arial' font-size='32'>${message}</text></svg>`;
+    await ensureSvg2png();
+    const png = await svg2png(fallbackSvg, { width: 800, height: 420 });
     return new Response(png, { status: 500, headers: { ...corsHeaders, "content-type": "image/png" } });
   }
 });
