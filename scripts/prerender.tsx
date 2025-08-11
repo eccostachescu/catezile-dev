@@ -11,7 +11,7 @@ import Movies from '../src/app/pages/Movies';
 import Movie from '../src/app/pages/Movie';
 import Category from '../src/app/pages/Category';
 import BlackFriday from '../src/app/pages/BlackFriday';
-import { loadEvent, loadMatch, loadMovie, loadCategory } from '../src/ssg/loader';
+import { loadEvent, loadMatch, loadMovie, loadCategory, loadHome } from '../src/ssg/loader';
 
 function resolveElement(pathname: string) {
   if (pathname === '/') return <Home />;
@@ -53,14 +53,13 @@ export async function prerender({ url }: { url: string }) {
     </SEOProvider>
   );
   let data = buildInitialData(pathname);
-  // Enrich with DB payloads to avoid client refetch
   if (data.kind === 'home') {
-    const { loadHome } = await import('../src/ssg/loader');
     data = { ...data, home: await loadHome() };
   }
   if (data.kind === 'event' && data.slug) data = { ...data, item: await loadEvent(data.slug) };
   if (data.kind === 'match' && data.id) data = { ...data, item: await loadMatch(data.id) };
   if (data.kind === 'movie' && data.id) data = { ...data, item: await loadMovie(data.id) };
   if (data.kind === 'category' && data.slug) data = { ...data, item: await loadCategory(data.slug) };
+  const html = renderToString(app);
   return { html, data };
 }
