@@ -60,6 +60,16 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## OG Image Edge Function
+
+- Endpoint: /og (public). Query params: type=event|match|movie|bf, slug/id/merchant, theme=T1|T2|T3, optional w/h (1200x630 default; also 1080x1080, 1080x1920).
+- Caching: ETag + Cache-Control; supports 304 with If-None-Match.
+- Fonts embedded (Inter, DM Sans). Images whitelisted (e.g., image.tmdb.org).
+
+Testing locally (Playwright):
+- pnpm test:e2e or run the included test tests/e2e/og.spec.ts.
+- Manual: open /og?type=bf&merchant=emag and verify Content-Type: image/png.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/6c2cf79d-16af-4504-bd96-dddd1d495ad1) and click on Share -> Publish.
