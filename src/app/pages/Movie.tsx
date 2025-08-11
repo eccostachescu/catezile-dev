@@ -6,15 +6,18 @@ import { movieJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
 import { useLocation } from "react-router-dom";
+import { getInitialData } from "@/ssg/serialize";
 
 export default function Movie() {
   const title = "Moromeții 3";
   const inCinemas = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
   const onNetflix = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
   const { pathname } = useLocation();
+  const initial = getInitialData<{ kind: string; item?: any }>();
+  const noindex = typeof window !== 'undefined' && !initial;
   return (
     <>
-      <SEO title="Film" path={pathname} />
+      <SEO title="Film" path={pathname} noindex={noindex} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(movieJsonLd({ name: title, releaseDate: inCinemas }))}</script>
       </Helmet>

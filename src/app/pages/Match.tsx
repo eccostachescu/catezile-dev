@@ -6,15 +6,18 @@ import { sportsEventJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
 import { useLocation } from "react-router-dom";
+import { getInitialData } from "@/ssg/serialize";
 
 export default function Match() {
   const homeTeam = "FCSB";
   const awayTeam = "CFR Cluj";
   const when = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000);
   const { pathname } = useLocation();
+  const initial = getInitialData<{ kind: string; item?: any }>();
+  const noindex = typeof window !== 'undefined' && !initial;
   return (
     <>
-      <SEO title="Meci" path={pathname} />
+      <SEO title="Meci" path={pathname} noindex={noindex} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(sportsEventJsonLd({ name: `${homeTeam} vs ${awayTeam}` , homeTeam, awayTeam, startDate: when }))}</script>
       </Helmet>

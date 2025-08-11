@@ -11,25 +11,25 @@ const MovieSchema = z.object({ id: z.string().uuid(), title: z.string(), poster_
 const CategorySchema = z.object({ slug: z.string(), name: z.string(), sort: z.number().nullable().optional() });
 
 export async function loadEvent(slug: string) {
-  const { data, error } = await supabase.from('event').select('*').eq('slug', slug).eq('status','PUBLISHED').single();
+  const { data, error } = await supabase.from('event').select('*').eq('slug', slug).eq('status','PUBLISHED').maybeSingle();
   if (error || !data) return null;
   return EventSchema.parse(data);
 }
 
 export async function loadMatch(id: string) {
-  const { data, error } = await supabase.from('match').select('*').eq('id', id).single();
+  const { data, error } = await supabase.from('match').select('*').eq('id', id).maybeSingle();
   if (error || !data) return null;
   return MatchSchema.parse(data);
 }
 
 export async function loadMovie(id: string) {
-  const { data, error } = await supabase.from('movie').select('*').eq('id', id).single();
+  const { data, error } = await supabase.from('movie').select('*').eq('id', id).maybeSingle();
   if (error || !data) return null;
   return MovieSchema.parse(data);
 }
 
 export async function loadCategory(slug: string) {
-  const { data, error } = await supabase.from('category').select('*').eq('slug', slug).single();
+  const { data, error } = await supabase.from('category').select('*').eq('slug', slug).maybeSingle();
   if (error || !data) return null;
   return CategorySchema.parse(data);
 }

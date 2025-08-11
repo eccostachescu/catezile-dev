@@ -6,13 +6,16 @@ import { eventJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
 import { useLocation } from "react-router-dom";
+import { getInitialData } from "@/ssg/serialize";
 
 export default function Event() {
   const when = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
   const { pathname } = useLocation();
+  const initial = getInitialData<{ kind: string; item?: any }>();
+  const noindex = typeof window !== 'undefined' && !initial;
   return (
     <>
-      <SEO title="Eveniment" path={pathname} />
+      <SEO title="Eveniment" path={pathname} noindex={noindex} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(eventJsonLd({ name: "Untold Festival", startDate: when }))}</script>
       </Helmet>
