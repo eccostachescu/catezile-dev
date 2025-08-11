@@ -6,7 +6,7 @@ export default function Home() {
   const target = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   return (
     <>
-      <SEO title="Câte zile până… | CateZile.ro" path="/" />
+      <SEO title="Câte zile până…" path="/" />
       <section className="bg-hero">
         <Container className="py-16">
           <div className="mx-auto max-w-3xl rounded-xl border bg-card/90 backdrop-blur shadow-lg p-8 text-center">
