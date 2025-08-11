@@ -5,16 +5,32 @@ import { Helmet } from "react-helmet-async";
 import { sportsEventJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { getInitialData } from "@/ssg/serialize";
+import { useEffect, useState } from "react";
+import { loadMatch } from "@/ssg/loader";
 
 export default function Match() {
   const homeTeam = "FCSB";
   const awayTeam = "CFR Cluj";
   const when = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000);
   const { pathname } = useLocation();
+  const { matchId } = useParams();
   const initial = getInitialData<{ kind: string; item?: any }>();
-  const noindex = typeof window !== 'undefined' && !initial;
+  const [loaded, setLoaded] = useState(!!initial);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      try { if (!initial && matchId) await loadMatch(matchId); } catch {}
+      if (!cancelled) setLoaded(true);
+    }
+    if (!initial) run();
+    return () => { cancelled = true; };
+  }, [initial, matchId]);
+
+  const noindex = typeof window !== 'undefined' && !initial && !loaded;
+
   return (
     <>
       <SEO title="Meci" path={pathname} noindex={noindex} />

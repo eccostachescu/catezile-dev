@@ -1,9 +1,12 @@
 import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
 import CountdownTimer from "@/components/CountdownTimer";
+import { getInitialData } from "@/ssg/serialize";
 
 export default function Home() {
   const target = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  // Consume initialData to avoid any client refetch pattern (reserved for future data)
+  const _initial = getInitialData<{ kind: string }>();
   return (
     <>
       <SEO title="Câte zile până…" path="/" />

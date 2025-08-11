@@ -5,16 +5,32 @@ import { Helmet } from "react-helmet-async";
 import { movieJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { getInitialData } from "@/ssg/serialize";
+import { useEffect, useState } from "react";
+import { loadMovie } from "@/ssg/loader";
 
 export default function Movie() {
   const title = "Moromeții 3";
   const inCinemas = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
   const onNetflix = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
   const { pathname } = useLocation();
+  const { id } = useParams();
   const initial = getInitialData<{ kind: string; item?: any }>();
-  const noindex = typeof window !== 'undefined' && !initial;
+  const [loaded, setLoaded] = useState(!!initial);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      try { if (!initial && id) await loadMovie(id); } catch {}
+      if (!cancelled) setLoaded(true);
+    }
+    if (!initial) run();
+    return () => { cancelled = true; };
+  }, [initial, id]);
+
+  const noindex = typeof window !== 'undefined' && !initial && !loaded;
+
   return (
     <>
       <SEO title="Film" path={pathname} noindex={noindex} />
