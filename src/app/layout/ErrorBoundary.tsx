@@ -1,7 +1,10 @@
 import { Component, ReactNode } from "react";
 
-export class ErrorBoundary extends Component<{ fallback: ReactNode }, { hasError: boolean }> {
-  constructor(props: { fallback: ReactNode }) {
+type Props = { fallback: ReactNode; children?: ReactNode };
+type State = { hasError: boolean };
+
+export class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
@@ -16,6 +19,6 @@ export class ErrorBoundary extends Component<{ fallback: ReactNode }, { hasError
 
   render() {
     if (this.state.hasError) return this.props.fallback;
-    return this.props.children as any;
+    return this.props.children ?? null;
   }
 }
