@@ -31,7 +31,7 @@ export default function Event() {
 
   return (
     <>
-      <SEO title="Eveniment" path={pathname} noindex={noindex} />
+      <SEO kind="event" slug={slug} title="Eveniment" path={pathname} noindex={noindex} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(eventJsonLd({ name: "Untold Festival", startDate: when }))}</script>
       </Helmet>

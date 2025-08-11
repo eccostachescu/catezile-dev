@@ -6,7 +6,7 @@ export default function BlackFriday() {
   const _initial = getInitialData<{ kind: string }>();
   return (
     <>
-      <SEO title="Black Friday" path="/black-friday" />
+      <SEO kind="bf" merchant="generic" title="Black Friday" path="/black-friday" />
       <Container>
         <h1 className="text-2xl font-semibold">Black Friday</h1>
       </Container>

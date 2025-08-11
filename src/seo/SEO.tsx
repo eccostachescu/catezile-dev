@@ -6,8 +6,10 @@ import { buildOgUrl } from "./og";
 import { truncateForMeta } from "./snippet";
 
 export interface SEOProps {
-  kind?: 'home'|'event'|'match'|'movie'|'category'|'generic';
+  kind?: 'home'|'event'|'match'|'movie'|'category'|'generic'|'bf';
   slug?: string;
+  id?: string;
+  merchant?: string;
   title?: string;
   description?: string;
   h1?: string;
@@ -21,12 +23,12 @@ export interface SEOProps {
 const DEFAULT_TITLE = "CateZile.ro — Câte zile până…";
 const DEFAULT_DESC = "Cronometre și countdown-uri pentru evenimente populare în limba română.";
 
-export const SEO = ({ kind = 'generic', slug, title, description, path, noindex, noIndex, imageUrl }: SEOProps) => {
+export const SEO = ({ kind = 'generic', slug, id, merchant, title, description, path, noindex, noIndex, imageUrl }: SEOProps) => {
   const canonical = buildCanonical(path);
   const pageTitle = title ? `${title} — CateZile.ro` : DEFAULT_TITLE;
   const desc = truncateForMeta(description || DEFAULT_DESC);
   const robots = (noindex || noIndex) ? "noindex,nofollow" : routeRobots(path || (typeof window !== 'undefined' ? window.location.pathname : '/'));
-  const ogImage = imageUrl || buildOgUrl({ type: kind, slug, title });
+  const ogImage = imageUrl || buildOgUrl({ type: kind, slug, id, merchant, title });
   const hreflangs = buildHreflangs(canonical);
 
   return (

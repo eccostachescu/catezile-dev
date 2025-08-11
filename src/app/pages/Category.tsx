@@ -19,7 +19,7 @@ export default function Category() {
   const noindex = typeof window !== 'undefined' && !initial && !loaded;
   return (
     <>
-      <SEO title="Categorie" path={pathname} noindex={noindex} />
+      <SEO kind="category" slug={slug} title="Categorie" path={pathname} noindex={noindex} />
       <Container>
         <h1 className="text-2xl font-semibold">Categorie</h1>
       </Container>

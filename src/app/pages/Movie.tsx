@@ -33,7 +33,7 @@ export default function Movie() {
 
   return (
     <>
-      <SEO title="Film" path={pathname} noindex={noindex} />
+      <SEO kind="movie" id={id} title="Film" path={pathname} noindex={noindex} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(movieJsonLd({ name: title, releaseDate: inCinemas }))}</script>
       </Helmet>

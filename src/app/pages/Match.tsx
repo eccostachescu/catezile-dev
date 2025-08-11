@@ -33,7 +33,7 @@ export default function Match() {
 
   return (
     <>
-      <SEO title="Meci" path={pathname} noindex={noindex} />
+      <SEO kind="match" id={matchId} title="Meci" path={pathname} noindex={noindex} />
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(sportsEventJsonLd({ name: `${homeTeam} vs ${awayTeam}` , homeTeam, awayTeam, startDate: when }))}</script>
       </Helmet>
