@@ -11,7 +11,9 @@ import Movies from '../src/app/pages/Movies';
 import Movie from '../src/app/pages/Movie';
 import Category from '../src/app/pages/Category';
 import BlackFriday from '../src/app/pages/BlackFriday';
-import { loadEvent, loadMatch, loadMovie, loadCategory, loadHome } from '../src/ssg/loader';
+import Countdown from '../src/app/pages/Countdown';
+import Embed from '../src/app/pages/Embed';
+import { loadEvent, loadMatch, loadMovie, loadCategory, loadHome, loadCountdown } from '../src/ssg/loader';
 
 function resolveElement(pathname: string) {
   if (pathname === '/') return <Home />;
@@ -21,6 +23,8 @@ function resolveElement(pathname: string) {
   if (/^\/sport\//.test(pathname)) return <Match />;
   if (/^\/filme\//.test(pathname)) return <Movie />;
   if (/^\/categorii\//.test(pathname)) return <Category />;
+  if (/^\/c\//.test(pathname)) return <Countdown />;
+  if (/^\/embed\//.test(pathname)) return <Embed />;
   return <Home />;
 }
 
@@ -36,6 +40,10 @@ function buildInitialData(pathname: string) {
   if (m3) return { kind: 'movie', id: m3[1] };
   const m4 = pathname.match(/^\/categorii\/(.+)$/);
   if (m4) return { kind: 'category', slug: m4[1] };
+  const m5 = pathname.match(/^\/c\/(.+)$/);
+  if (m5) return { kind: 'countdown', id: m5[1] };
+  const m6 = pathname.match(/^\/embed\/(.+)$/);
+  if (m6) return { kind: 'embed', id: m6[1] };
   return { kind: 'generic' };
 }
 
@@ -60,6 +68,7 @@ export async function prerender({ url }: { url: string }) {
   if (data.kind === 'match' && data.id) data = { ...data, item: await loadMatch(data.id) };
   if (data.kind === 'movie' && data.id) data = { ...data, item: await loadMovie(data.id) };
   if (data.kind === 'category' && data.slug) data = { ...data, item: await loadCategory(data.slug) };
+  if (data.kind === 'countdown' && (data as any).id) data = { ...data, item: await loadCountdown((data as any).id) };
   const html = renderToString(app);
   return { html, data };
 }

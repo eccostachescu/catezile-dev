@@ -11,9 +11,62 @@ const MovieSchema = z.object({ id: z.string().uuid(), title: z.string(), poster_
 const CategorySchema = z.object({ slug: z.string(), name: z.string(), sort: z.number().nullable().optional() });
 
 export async function loadEvent(slug: string) {
-  const { data, error } = await supabase.from('event').select('*').eq('slug', slug).eq('status','PUBLISHED').maybeSingle();
-  if (error || !data) return null;
-  return EventSchema.parse(data);
+  // Base event
+  const { data: ev } = await supabase
+    .from('event')
+    .select('id, slug, title, description, start_at, end_at, timezone, city, category_id, image_url, official_site, status, seo_title, seo_description, seo_h1, seo_faq, og_theme, updated_at')
+    .eq('slug', slug)
+    .eq('status','PUBLISHED')
+    .maybeSingle();
+  if (!ev) return null;
+
+  // Offers (event_offer -> affiliate_link)
+  const { data: offerLinks } = await supabase
+    .from('event_offer')
+    .select('affiliate_link_id')
+    .eq('event_id', ev.id);
+  let offers: Array<{ id: string; partner: string; url: string }> = [];
+  if (offerLinks && offerLinks.length) {
+    const ids = offerLinks.map((o: any) => o.affiliate_link_id);
+    const { data: affiliates } = await supabase
+      .from('affiliate_link')
+      .select('id, partner, url')
+      .in('id', ids)
+      .eq('active', true);
+    offers = (affiliates ?? []) as any;
+  }
+
+  // Breadcrumbs: Category -> Event
+  let breadcrumbs: Array<{ label: string; url: string }> = [];
+  if (ev.category_id) {
+    const { data: cat } = await supabase
+      .from('category')
+      .select('name, slug')
+      .eq('id', ev.category_id)
+      .maybeSingle();
+    if (cat) {
+      breadcrumbs = [
+        { label: cat.name, url: `/categorii/${cat.slug}` },
+        { label: ev.title, url: `/evenimente/${ev.slug}` },
+      ];
+    }
+  }
+
+  // Compute temporal state relative to Europe/Bucharest
+  const now = new Date();
+  const start = ev.start_at ? new Date(ev.start_at).getTime() : 0;
+  const end = ev.end_at ? new Date(ev.end_at).getTime() : start;
+  const sameDay = (a: Date, b: Date) => {
+    const fmt = new Intl.DateTimeFormat('ro-RO', { timeZone: ev.timezone || 'Europe/Bucharest', year: 'numeric', month: '2-digit', day: '2-digit' });
+    return fmt.format(a) === fmt.format(b);
+  };
+  let state: 'upcoming'|'today'|'ongoing'|'past' = 'upcoming';
+  if (now.getTime() > end) state = 'past';
+  else if (now.getTime() >= start && now.getTime() <= end) state = 'ongoing';
+  else if (sameDay(now, new Date(start))) state = 'today';
+  else state = 'upcoming';
+
+  return { ...ev, offers, breadcrumbs, state } as const;
 }
 
 export async function loadMatch(id: string) {
@@ -143,3 +196,43 @@ export async function loadHome() {
     trending,
   };
 }
+
+// Countdown loader (public-approved only for SSG)
+export async function loadCountdown(id: string) {
+  const { data } = await supabase
+    .from('countdown')
+    .select('id, slug, title, target_at, privacy, status, owner_id, theme, image_url, city, seo_title, seo_description, seo_h1')
+    .eq('id', id)
+    .eq('status', 'APPROVED')
+    .eq('privacy', 'PUBLIC')
+    .maybeSingle();
+  if (!data) return null;
+  return data;
+}
+
+// Related events: same category in ±90 days (excludes current)
+export async function loadRelated(eventId: string, categoryId: string | null) {
+  if (!categoryId) return [] as any[];
+  // Get anchor date
+  const { data: anchor } = await supabase
+    .from('event')
+    .select('start_at')
+    .eq('id', eventId)
+    .maybeSingle();
+  if (!anchor?.start_at) return [] as any[];
+  const startAt = new Date(anchor.start_at);
+  const minus = new Date(startAt.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString();
+  const plus = new Date(startAt.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await supabase
+    .from('event')
+    .select('id,slug,title,start_at,seo_title,seo_description,seo_h1,image_url,city,status')
+    .eq('status','PUBLISHED')
+    .eq('category_id', categoryId)
+    .neq('id', eventId)
+    .gte('start_at', minus)
+    .lte('start_at', plus)
+    .order('start_at', { ascending: true })
+    .limit(6);
+  return data ?? [];
+}
+
