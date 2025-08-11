@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import VitePrerender from "vite-prerender-plugin";
+import { vitePrerenderPlugin } from "vite-prerender-plugin";
 import { generateRoutes } from "./src/ssg/generateRoutes";
 
 // https://vitejs.dev/config/
@@ -16,7 +16,7 @@ export default defineConfig(async ({ mode }) => {
     plugins: [
       react(),
       mode === 'development' && componentTagger(),
-      VitePrerender({
+      vitePrerenderPlugin({
         prerenderScript: path.resolve(__dirname, 'scripts/prerender.ts'),
         additionalPrerenderRoutes: prerenderRoutes,
       }),

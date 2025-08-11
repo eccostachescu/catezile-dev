@@ -21,6 +21,21 @@ function resolveElement(pathname: string) {
   return <Home />;
 }
 
+function buildInitialData(pathname: string) {
+  if (pathname === '/') return { kind: 'home' };
+  if (pathname === '/black-friday') return { kind: 'black-friday' };
+  if (pathname === '/filme') return { kind: 'movies' };
+  const m1 = pathname.match(/^\/evenimente\/(.+)$/);
+  if (m1) return { kind: 'event', slug: m1[1] };
+  const m2 = pathname.match(/^\/sport\/(.+)$/);
+  if (m2) return { kind: 'match', id: m2[1] };
+  const m3 = pathname.match(/^\/filme\/(.+)$/);
+  if (m3) return { kind: 'movie', id: m3[1] };
+  const m4 = pathname.match(/^\/categorii\/(.+)$/);
+  if (m4) return { kind: 'category', slug: m4[1] };
+  return { kind: 'generic' };
+}
+
 export async function prerender({ url }: { url: string }) {
   const { pathname } = new URL(url, 'http://localhost');
   const app = (
@@ -33,5 +48,6 @@ export async function prerender({ url }: { url: string }) {
     </SEOProvider>
   );
   const html = renderToString(app);
-  return { html };
+  const data = buildInitialData(pathname);
+  return { html, data };
 }
