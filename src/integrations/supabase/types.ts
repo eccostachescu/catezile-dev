@@ -14,13 +14,804 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ad_slot: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+        }
+        Relationships: []
+      }
+      admin_emails: {
+        Row: {
+          email: string
+        }
+        Insert: {
+          email: string
+        }
+        Update: {
+          email?: string
+        }
+        Relationships: []
+      }
+      affiliate_link: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          partner: string
+          tracking_key: string | null
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          partner: string
+          tracking_key?: string | null
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          partner?: string
+          tracking_key?: string | null
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      category: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+          sort: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      click: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          id: number
+          ip_hash: string | null
+          kind: string
+          referrer: string | null
+          user_agent: string | null
+          utm: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          id?: number
+          ip_hash?: string | null
+          kind: string
+          referrer?: string | null
+          user_agent?: string | null
+          utm?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          id?: number
+          ip_hash?: string | null
+          kind?: string
+          referrer?: string | null
+          user_agent?: string | null
+          utm?: Json | null
+        }
+        Relationships: []
+      }
+      competition: {
+        Row: {
+          area: string | null
+          code: string
+          created_at: string | null
+          external: Json | null
+          id: string
+          name: string
+          season: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          area?: string | null
+          code: string
+          created_at?: string | null
+          external?: Json | null
+          id?: string
+          name: string
+          season?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          area?: string | null
+          code?: string
+          created_at?: string | null
+          external?: Json | null
+          id?: string
+          name?: string
+          season?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      countdown: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          owner_id: string | null
+          privacy: string
+          seo_description: string | null
+          seo_h1: string | null
+          seo_title: string | null
+          slug: string | null
+          status: string
+          target_at: string
+          theme: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          owner_id?: string | null
+          privacy?: string
+          seo_description?: string | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          status?: string
+          target_at: string
+          theme?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          owner_id?: string | null
+          privacy?: string
+          seo_description?: string | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          status?: string
+          target_at?: string
+          theme?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      event: {
+        Row: {
+          category_id: string | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          description: string | null
+          end_at: string | null
+          id: string
+          image_url: string | null
+          official_site: string | null
+          og_theme: string | null
+          seo_description: string | null
+          seo_faq: Json | null
+          seo_h1: string | null
+          seo_title: string | null
+          slug: string
+          start_at: string
+          status: string
+          timezone: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          image_url?: string | null
+          official_site?: string | null
+          og_theme?: string | null
+          seo_description?: string | null
+          seo_faq?: Json | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug: string
+          start_at: string
+          status?: string
+          timezone?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          image_url?: string | null
+          official_site?: string | null
+          og_theme?: string | null
+          seo_description?: string | null
+          seo_faq?: Json | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug?: string
+          start_at?: string
+          status?: string
+          timezone?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_offer: {
+        Row: {
+          affiliate_link_id: string
+          event_id: string
+        }
+        Insert: {
+          affiliate_link_id: string
+          event_id: string
+        }
+        Update: {
+          affiliate_link_id?: string
+          event_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_offer_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_link"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_offer_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follow: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ingestion_log: {
+        Row: {
+          id: number
+          message: string | null
+          ran_at: string | null
+          rows: number | null
+          source: string | null
+          status: string | null
+        }
+        Insert: {
+          id?: number
+          message?: string | null
+          ran_at?: string | null
+          rows?: number | null
+          source?: string | null
+          status?: string | null
+        }
+        Update: {
+          id?: number
+          message?: string | null
+          ran_at?: string | null
+          rows?: number | null
+          source?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      match: {
+        Row: {
+          away: string
+          city: string | null
+          competition_id: string | null
+          created_at: string | null
+          home: string
+          id: string
+          is_derby: boolean | null
+          kickoff_at: string
+          round: string | null
+          score: Json | null
+          seo_description: string | null
+          seo_h1: string | null
+          seo_title: string | null
+          slug: string | null
+          stadium: string | null
+          status: string
+          tv_channels: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          away: string
+          city?: string | null
+          competition_id?: string | null
+          created_at?: string | null
+          home: string
+          id?: string
+          is_derby?: boolean | null
+          kickoff_at: string
+          round?: string | null
+          score?: Json | null
+          seo_description?: string | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          stadium?: string | null
+          status?: string
+          tv_channels?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          away?: string
+          city?: string | null
+          competition_id?: string | null
+          created_at?: string | null
+          home?: string
+          id?: string
+          is_derby?: boolean | null
+          kickoff_at?: string
+          round?: string | null
+          score?: Json | null
+          seo_description?: string | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          stadium?: string | null
+          status?: string
+          tv_channels?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competition"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_offer: {
+        Row: {
+          affiliate_link_id: string
+          match_id: string
+        }
+        Insert: {
+          affiliate_link_id: string
+          match_id: string
+        }
+        Update: {
+          affiliate_link_id?: string
+          match_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_offer_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_link"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_offer_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "match"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movie: {
+        Row: {
+          cinema_release_ro: string | null
+          created_at: string | null
+          id: string
+          netflix_date: string | null
+          poster_url: string | null
+          prime_date: string | null
+          seo_description: string | null
+          seo_h1: string | null
+          seo_title: string | null
+          slug: string | null
+          status: string
+          title: string
+          tmdb_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          cinema_release_ro?: string | null
+          created_at?: string | null
+          id?: string
+          netflix_date?: string | null
+          poster_url?: string | null
+          prime_date?: string | null
+          seo_description?: string | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          status?: string
+          title: string
+          tmdb_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          cinema_release_ro?: string | null
+          created_at?: string | null
+          id?: string
+          netflix_date?: string | null
+          poster_url?: string | null
+          prime_date?: string | null
+          seo_description?: string | null
+          seo_h1?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          status?: string
+          title?: string
+          tmdb_id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profile: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          role: string
+          theme_pref: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          role?: string
+          theme_pref?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          role?: string
+          theme_pref?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reminder: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          offset_days: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          offset_days: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          offset_days?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seo_template: {
+        Row: {
+          code: string
+          entity_type: string
+          faq: Json | null
+          h1_tmpl: string
+          is_default: boolean | null
+          meta_desc_tmpl: string
+          og_theme: string | null
+          title_tmpl: string
+        }
+        Insert: {
+          code: string
+          entity_type: string
+          faq?: Json | null
+          h1_tmpl: string
+          is_default?: boolean | null
+          meta_desc_tmpl: string
+          og_theme?: string | null
+          title_tmpl: string
+        }
+        Update: {
+          code?: string
+          entity_type?: string
+          faq?: Json | null
+          h1_tmpl?: string
+          is_default?: boolean | null
+          meta_desc_tmpl?: string
+          og_theme?: string | null
+          title_tmpl?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      ugc_queue: {
+        Row: {
+          created_at: string | null
+          date_at: string | null
+          id: string | null
+          kind: string | null
+          owner_id: string | null
+          status: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date_at?: string | null
+          id?: string | null
+          kind?: never
+          owner_id?: string | null
+          status?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date_at?: string | null
+          id?: string | null
+          kind?: never
+          owner_id?: string | null
+          status?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      citext: {
+        Args: { "": boolean } | { "": string } | { "": unknown }
+        Returns: string
+      }
+      citext_hash: {
+        Args: { "": string }
+        Returns: number
+      }
+      citextin: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextout: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      citextrecv: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      citextsend: {
+        Args: { "": string }
+        Returns: string
+      }
+      compute_event_seo: {
+        Args: { e: Database["public"]["Tables"]["event"]["Row"] }
+        Returns: {
+          category_id: string | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          description: string | null
+          end_at: string | null
+          id: string
+          image_url: string | null
+          official_site: string | null
+          og_theme: string | null
+          seo_description: string | null
+          seo_faq: Json | null
+          seo_h1: string | null
+          seo_title: string | null
+          slug: string
+          start_at: string
+          status: string
+          timezone: string
+          title: string
+          updated_at: string | null
+        }
+      }
+      compute_match_seo: {
+        Args: { m: Database["public"]["Tables"]["match"]["Row"] }
+        Returns: {
+          away: string
+          city: string | null
+          competition_id: string | null
+          created_at: string | null
+          home: string
+          id: string
+          is_derby: boolean | null
+          kickoff_at: string
+          round: string | null
+          score: Json | null
+          seo_description: string | null
+          seo_h1: string | null
+          seo_title: string | null
+          slug: string | null
+          stadium: string | null
+          status: string
+          tv_channels: string[] | null
+          updated_at: string | null
+        }
+      }
+      compute_movie_seo: {
+        Args: { x: Database["public"]["Tables"]["movie"]["Row"] }
+        Returns: {
+          cinema_release_ro: string | null
+          created_at: string | null
+          id: string
+          netflix_date: string | null
+          poster_url: string | null
+          prime_date: string | null
+          seo_description: string | null
+          seo_h1: string | null
+          seo_title: string | null
+          slug: string | null
+          status: string
+          title: string
+          tmdb_id: number
+          updated_at: string | null
+        }
+      }
+      current_user_email: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      render_template: {
+        Args: { tmpl: string; vars: Json }
+        Returns: string
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
+      }
+      slugify: {
+        Args: { txt: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
