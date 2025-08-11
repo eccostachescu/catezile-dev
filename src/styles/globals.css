@@ -63,4 +63,11 @@
 
   /* Pulse utility */
   .pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .hover-scale { transition: none !important; }
+    .hover-scale:hover { transform: none !important; }
+    .story-link::after { transition: none !important; }
+  }
 }
