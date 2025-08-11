@@ -37,9 +37,7 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold mb-2">Legal</h3>
           <ul className="space-y-1 text-muted-foreground">
-            <li><a href="#" className="story-link">Termeni</a></li>
-            <li><a href="#" className="story-link">Confidențialitate</a></li>
-            <li><button className="underline underline-offset-4">Setări cookie</button></li>
+            <li><button className="underline underline-offset-4" onClick={() => window.dispatchEvent(new CustomEvent('open-cookie-settings'))}>Setări cookie</button></li>
           </ul>
         </div>
       </div>

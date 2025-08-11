@@ -17,3 +17,32 @@ export const websiteJsonLd = () => ({
     "query-input": "required name=search_term_string",
   },
 });
+
+export const eventJsonLd = (opts: { name: string; startDate: Date | string | number; url?: string }) => ({
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: opts.name,
+  startDate: new Date(opts.startDate).toISOString(),
+  eventStatus: "https://schema.org/EventScheduled",
+  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
+});
+
+export const sportsEventJsonLd = (opts: { name: string; homeTeam: string; awayTeam: string; startDate: Date | string | number; url?: string }) => ({
+  "@context": "https://schema.org",
+  "@type": "SportsEvent",
+  name: opts.name,
+  startDate: new Date(opts.startDate).toISOString(),
+  homeTeam: { "@type": "SportsTeam", name: opts.homeTeam },
+  awayTeam: { "@type": "SportsTeam", name: opts.awayTeam },
+  url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
+});
+
+export const movieJsonLd = (opts: { name: string; releaseDate?: Date | string | number; url?: string }) => ({
+  "@context": "https://schema.org",
+  "@type": "Movie",
+  name: opts.name,
+  datePublished: opts.releaseDate ? new Date(opts.releaseDate).toISOString() : undefined,
+  url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
+});
+

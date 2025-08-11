@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function CookieBannerStub({ onConsentChange }: { onConsentChange?: (consented: boolean) => void }) {
   const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const open = () => setVisible(true);
+    window.addEventListener('open-cookie-settings', open as EventListener);
+    return () => window.removeEventListener('open-cookie-settings', open as EventListener);
+  }, []);
 
   if (!visible) return null;
 
@@ -14,7 +20,7 @@ export default function CookieBannerStub({ onConsentChange }: { onConsentChange?
         <div className="flex gap-2">
           <button className="h-9 px-3 rounded-md border" onClick={() => { onConsentChange?.(false); setVisible(false); }}>Respinge</button>
           <button className="h-9 px-3 rounded-md border" onClick={() => { onConsentChange?.(true); setVisible(false); }}>Acceptă</button>
-          <button className="h-9 px-3 rounded-md border">Setări</button>
+          <button className="h-9 px-3 rounded-md border" onClick={() => setVisible(true)}>Setări</button>
         </div>
       </div>
     </div>
