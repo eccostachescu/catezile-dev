@@ -52,9 +52,12 @@ export async function prerender({ url }: { url: string }) {
       </AuthProvider>
     </SEOProvider>
   );
-  const html = renderToString(app);
   let data = buildInitialData(pathname);
   // Enrich with DB payloads to avoid client refetch
+  if (data.kind === 'home') {
+    const { loadHome } = await import('../src/ssg/loader');
+    data = { ...data, home: await loadHome() };
+  }
   if (data.kind === 'event' && data.slug) data = { ...data, item: await loadEvent(data.slug) };
   if (data.kind === 'match' && data.id) data = { ...data, item: await loadMatch(data.id) };
   if (data.kind === 'movie' && data.id) data = { ...data, item: await loadMovie(data.id) };
