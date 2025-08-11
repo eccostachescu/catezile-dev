@@ -11,7 +11,7 @@ import { EventTemplate } from "./templates/event.tsx";
 import { MatchTemplate } from "./templates/match.tsx";
 import { MovieTemplate } from "./templates/movie.tsx";
 import { BfTemplate } from "./templates/bf.tsx";
-import { THEMES } from "../og/theme.ts";
+import { THEMES } from "./theme.ts";
 import { corsHeaders, etagFor, formatRoDate, getFont, imageToDataURL, okDimensions, pick } from "./utils.ts";
 
 let yogaReady: Promise<void> | null = null;

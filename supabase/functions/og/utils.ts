@@ -1,4 +1,4 @@
-import { createHash } from "https://deno.land/std@0.224.0/hash/mod.ts";
+
 
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,9 +24,11 @@ export function okDimensions(w: number, h: number) {
 }
 
 export async function etagFor(s: string) {
-  const hash = createHash('sha1');
-  hash.update(s);
-  return `W/"${hash.toString()}"`;
+  const data = new TextEncoder().encode(s);
+  const digest = await crypto.subtle.digest("SHA-1", data);
+  const bytes = Array.from(new Uint8Array(digest));
+  const hex = bytes.map(b => b.toString(16).padStart(2, '0')).join('');
+  return `W/"${hex}"`;
 }
 
 export function formatRoDate(input?: string | number | Date | null, withTime?: boolean) {
