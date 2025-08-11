@@ -17,8 +17,9 @@ export default defineConfig(async ({ mode }) => {
       react(),
       mode === 'development' && componentTagger(),
       vitePrerenderPlugin({
-        prerenderScript: path.resolve(__dirname, 'scripts/prerender.ts'),
+        prerenderScript: path.resolve(__dirname, 'scripts/prerender.tsx'),
         additionalPrerenderRoutes: prerenderRoutes,
+        renderTarget: '#root',
       }),
     ].filter(Boolean),
     resolve: {
