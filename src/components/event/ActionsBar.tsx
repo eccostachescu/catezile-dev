@@ -5,7 +5,7 @@ import { Share2, CalendarPlus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { buildIcs } from "@/lib/ics";
 
-export default function ActionsBar({ title, start, end }: { title: string; start: Date; end?: Date | null }) {
+export default function ActionsBar({ id, kind = 'event', title, start, end }: { id?: string; kind?: 'event'|'match'|'movie'|'countdown'; title: string; start: Date; end?: Date | null }) {
   const share = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : '';
     try {
@@ -30,7 +30,7 @@ export default function ActionsBar({ title, start, end }: { title: string; start
   return (
     <div className="flex flex-wrap items-center gap-2">
       <FollowButton />
-      <ReminderButton when={start} />
+      <ReminderButton when={start} kind={kind} entityId={id} />
       <Button variant="outline" onClick={share} aria-label="Distribuie">
         <Share2 />
         Share

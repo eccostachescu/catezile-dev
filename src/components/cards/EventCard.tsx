@@ -7,13 +7,15 @@ import ReminderButton from "@/components/ReminderButton";
 import AffiliateButton from "@/components/AffiliateButton";
 
 export interface EventCardProps {
+  id?: string;
   title: string;
   datetime: Date | string | number;
   category?: string;
   affiliateUrl?: string;
+  kind?: 'event' | 'match' | 'movie' | 'countdown';
 }
 
-export default function EventCard({ title, datetime, category, affiliateUrl }: EventCardProps) {
+export default function EventCard({ id, title, datetime, category, affiliateUrl, kind = 'event' }: EventCardProps) {
   const date = new Date(datetime);
   return (
     <Card className="hover-scale">
@@ -30,7 +32,7 @@ export default function EventCard({ title, datetime, category, affiliateUrl }: E
         <CountdownTimer target={date} />
         <div className="flex flex-wrap gap-2">
           <FollowButton />
-          <ReminderButton when={date} />
+          <ReminderButton when={date} kind={kind} entityId={id} />
           {affiliateUrl && <AffiliateButton href={affiliateUrl}>Cumpără bilete</AffiliateButton>}
         </div>
       </CardContent>

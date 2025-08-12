@@ -1,8 +1,10 @@
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/Card";
 import { Badge } from "@/components/Badge";
+import ReminderButton from "@/components/ReminderButton";
 
 export interface MovieCardProps {
+  id?: string;
   title: string;
   posterUrl?: string;
   inCinemasAt?: Date | string | number;
@@ -10,7 +12,8 @@ export interface MovieCardProps {
   onPrimeAt?: Date | string | number;
 }
 
-export default function MovieCard({ title, posterUrl = "/placeholder.svg", inCinemasAt, onNetflixAt, onPrimeAt }: MovieCardProps) {
+export default function MovieCard({ id, title, posterUrl = "/placeholder.svg", inCinemasAt, onNetflixAt, onPrimeAt }: MovieCardProps) {
+  const when = inCinemasAt || onNetflixAt || onPrimeAt;
   return (
     <Card className="hover-scale overflow-hidden">
       <div className="grid grid-cols-3 gap-0">
@@ -29,6 +32,11 @@ export default function MovieCard({ title, posterUrl = "/placeholder.svg", inCin
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">Ține aproape pentru detalii și oferte.</p>
+            {when && (
+              <div className="pt-2">
+                <ReminderButton when={new Date(when)} kind="movie" entityId={id} />
+              </div>
+            )}
           </CardContent>
         </div>
       </div>

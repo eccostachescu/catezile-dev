@@ -2,8 +2,10 @@ import { format } from "date-fns";
 import { Badge } from "@/components/Badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/Card";
 import CountdownTimer from "@/components/CountdownTimer";
+import ReminderButton from "@/components/ReminderButton";
 
 export interface MatchCardProps {
+  id?: string;
   homeTeam: string;
   awayTeam: string;
   datetime: Date | string | number;
@@ -11,7 +13,7 @@ export interface MatchCardProps {
   isDerby?: boolean;
 }
 
-export default function MatchCard({ homeTeam, awayTeam, datetime, tv = [], isDerby }: MatchCardProps) {
+export default function MatchCard({ id, homeTeam, awayTeam, datetime, tv = [], isDerby }: MatchCardProps) {
   const date = new Date(datetime);
   return (
     <Card className="hover-scale">
@@ -34,6 +36,9 @@ export default function MatchCard({ homeTeam, awayTeam, datetime, tv = [], isDer
             ))}
           </div>
         )}
+        <div className="pt-2">
+          <ReminderButton when={date} kind="match" entityId={id} />
+        </div>
       </CardContent>
     </Card>
   );
