@@ -64,6 +64,9 @@ export async function prerender({ url }: { url: string }) {
   if (data.kind === 'home') {
     data = { ...data, home: await loadHome() };
   }
+  if (data.kind === 'movies') {
+    data = { ...data, movies: await loadMovies({}) };
+  }
   if (data.kind === 'event' && data.slug) data = { ...data, item: await loadEvent(data.slug) };
   if (data.kind === 'match' && data.id) data = { ...data, item: await loadMatch(data.id) };
   if (data.kind === 'movie' && data.id) data = { ...data, item: await loadMovie(data.id) };

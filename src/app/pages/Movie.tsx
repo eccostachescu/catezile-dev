@@ -9,42 +9,55 @@ import { useLocation, useParams } from "react-router-dom";
 import { getInitialData } from "@/ssg/serialize";
 import { useEffect, useState } from "react";
 import { loadMovie } from "@/ssg/loader";
+import MovieHero from "@/components/movies/MovieHero";
+import TrailerEmbed from "@/components/movies/TrailerEmbed";
+import ActionsBar from "@/components/movies/ActionsBar";
 
 export default function Movie() {
-  const title = "Moromeții 3";
-  const inCinemas = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
-  const onNetflix = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
   const { pathname } = useLocation();
   const { id } = useParams();
   const initial = getInitialData<{ kind: string; item?: any }>();
-  const [loaded, setLoaded] = useState(!!initial);
+  const [item, setItem] = useState<any | null>(initial?.item || null);
+  const [loaded, setLoaded] = useState(!!initial?.item);
 
   useEffect(() => {
     let cancelled = false;
     async function run() {
-      try { if (!initial && id) await loadMovie(id); } catch {}
+      try { if (!initial?.item && id) { const x = await loadMovie(id); if (!cancelled) setItem(x); } } catch {}
       if (!cancelled) setLoaded(true);
     }
-    if (!initial) run();
+    if (!initial?.item) run();
     return () => { cancelled = true; };
   }, [initial, id]);
 
-  const noindex = typeof window !== 'undefined' && !initial && !loaded;
+  const noindex = typeof window !== 'undefined' && !initial?.item && !loaded;
+  const m = item || initial?.item;
+
+  const title = m?.title || "Film";
+  const release = m?.cinema_release_ro || undefined;
 
   return (
     <>
-      <SEO kind="movie" id={id} title="Film" path={pathname} noindex={noindex} />
+      <SEO kind="movie" id={id} title={m?.seo_title || title} description={m?.seo_description} h1={m?.seo_h1} path={pathname} noindex={noindex} />
       <Helmet>
-        <script type="application/ld+json">{JSON.stringify(movieJsonLd({ name: title, releaseDate: inCinemas }))}</script>
+        <script type="application/ld+json">{JSON.stringify(movieJsonLd({ name: title, releaseDate: release }))}</script>
       </Helmet>
-      <Container className="py-8">
+      <Container className="py-8 space-y-6">
         <Breadcrumbs items={[{ label: "Acasă", href: routes.home() }, { label: "Filme", href: routes.movies() }, { label: title }]} />
-        <h1 className="text-3xl font-semibold mb-4">Film</h1>
-        <section aria-labelledby="movie-info" className="space-y-6">
-          <h2 id="movie-info" className="sr-only">Detalii film</h2>
-          <MovieCard title={title} inCinemasAt={inCinemas} onNetflixAt={onNetflix} />
-        </section>
       </Container>
+      {m && (
+        <>
+          <MovieHero movie={m} />
+          <Container className="py-6 space-y-6">
+            <section aria-labelledby="movie-info" className="space-y-4">
+              <h2 id="movie-info" className="sr-only">Detalii film</h2>
+              <ActionsBar url={typeof window !== 'undefined' ? window.location.href : ''} cinemaDate={m.cinema_release_ro} netflixDate={m.netflix_date} primeDate={m.prime_date} />
+              {m.overview && <p className="text-muted-foreground max-w-3xl">{m.overview}</p>}
+              <TrailerEmbed youtubeKey={m.trailer_youtube_key} />
+            </section>
+          </Container>
+        </>
+      )}
     </>
   );
 }

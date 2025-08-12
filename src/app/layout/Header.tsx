@@ -31,6 +31,7 @@ export default function Header() {
         </div>
 
         <nav aria-label="Acțiuni" className="flex items-center gap-2">
+          <Link to={routes.movies()} className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Filme</Link>
           {/* Mobile search opens a dialog */}
           <div className="sm:hidden">
             <Dialog>
