@@ -2,3 +2,9 @@ project_id = "ibihfzhrsllndxhfwgvb"
 
 [functions.og]
 verify_jwt = false
+
+[functions.create_countdown]
+verify_jwt = true
+
+[functions.moderate_countdown]
+verify_jwt = true
