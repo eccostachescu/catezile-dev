@@ -652,6 +652,32 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_channel: {
+        Row: {
+          channel_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_channel_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "tv_channel"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ingestion_log: {
         Row: {
           id: number
@@ -1306,22 +1332,37 @@ export type Database = {
       }
       tv_channel: {
         Row: {
+          active: boolean | null
           created_at: string | null
           id: string
+          logo_url: string | null
           name: string
+          owner: string | null
+          priority: number | null
           slug: string
+          website: string | null
         }
         Insert: {
+          active?: boolean | null
           created_at?: string | null
           id?: string
+          logo_url?: string | null
           name: string
+          owner?: string | null
+          priority?: number | null
           slug: string
+          website?: string | null
         }
         Update: {
+          active?: boolean | null
           created_at?: string | null
           id?: string
+          logo_url?: string | null
           name?: string
+          owner?: string | null
+          priority?: number | null
           slug?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -1345,6 +1386,72 @@ export type Database = {
           priority?: number
         }
         Relationships: []
+      }
+      tv_program: {
+        Row: {
+          channel_id: string
+          city: string | null
+          competition: string | null
+          created_at: string | null
+          ends_at: string | null
+          id: string
+          kind: string
+          match_id: string | null
+          source: string
+          starts_at: string
+          status: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          channel_id: string
+          city?: string | null
+          competition?: string | null
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string
+          kind?: string
+          match_id?: string | null
+          source?: string
+          starts_at: string
+          status?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          channel_id?: string
+          city?: string | null
+          competition?: string | null
+          created_at?: string | null
+          ends_at?: string | null
+          id?: string
+          kind?: string
+          match_id?: string | null
+          source?: string
+          starts_at?: string
+          status?: string | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tv_program_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "tv_channel"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tv_program_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "match"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ugc_quota: {
         Row: {
