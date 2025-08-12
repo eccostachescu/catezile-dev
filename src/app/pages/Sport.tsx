@@ -7,6 +7,7 @@ import Filters from "@/components/sport/Filters";
 import DayGroup from "@/components/sport/DayGroup";
 import SportAdRail from "@/components/sport/SportAdRail";
 import { track } from "@/lib/analytics";
+import { filterMatch } from "@/components/sport/filter";
 
 export default function Sport() {
   const initial = getInitialData<{ days: any[]; filters: { teams: string[]; tv: string[] } }>();
@@ -16,6 +17,7 @@ export default function Sport() {
   const [tab, setTab] = useState<'today'|'tomorrow'|'weekend'|'all'>('today');
   const [team, setTeam] = useState<string | null>(null);
   const [tv, setTv] = useState<string[]>([]);
+  const [q, setQ] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
@@ -49,14 +51,10 @@ export default function Sport() {
     else if (tab === 'tomorrow') days = days.filter((d: any) => d.date === tomorrowKey);
     else if (tab === 'weekend') days = days.filter((d: any) => inWeekend(d.date));
 
-    const matchesFilter = (m: any) => {
-      const teamOk = team ? (m.home === team || m.away === team) : true;
-      const tvOk = tv.length ? (m.tv_channels || []).some((c: string) => tv.includes(c)) : true;
-      return teamOk && tvOk;
-    };
+    const matchesFilter = (m: any) => filterMatch(m, team, tv, q);
 
     return days.map((g: any) => ({ ...g, matches: g.matches.filter(matchesFilter) })).filter((g: any) => g.matches.length > 0);
-  }, [data, tab, team, tv]);
+  }, [data, tab, team, tv, q]);
 
   return (
     <>
@@ -67,7 +65,8 @@ export default function Sport() {
           tabs={{ value: tab, onChange: setTab }}
           team={{ value: team, onChange: (t) => { setTeam(t); track('team_filter_apply', { team: t }); } , options: data?.filters.teams || [] }}
           tv={{ value: tv, onChange: (v) => { setTv(v); track('tv_filter_change', { tv: v }); }, options: data?.filters.tv || [] }}
-          onReset={() => { setTab('today'); setTeam(null); setTv([]); }}
+          search={{ value: q, onChange: (v) => { setQ(v); } }}
+          onReset={() => { setTab('today'); setTeam(null); setTv([]); setQ(''); }}
         />
 
         {!loaded ? (

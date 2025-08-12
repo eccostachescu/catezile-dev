@@ -18,6 +18,8 @@ import TicketCTA from "@/components/event/TicketCTA";
 import ActionsBar from "@/components/event/ActionsBar";
 import { supabase } from "@/integrations/supabase/client";
 import { buildOgUrl } from "@/seo/og";
+import MatchCard from "@/components/sport/MatchCard";
+import { loadSportList } from "@/ssg/loader";
 
 export default function Match() {
   const { pathname } = useLocation();
@@ -25,6 +27,7 @@ export default function Match() {
   const initial = getInitialData<any>();
   const [data, setData] = useState<any>(initial);
   const [loaded, setLoaded] = useState(!!initial);
+  const [related, setRelated] = useState<any[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,6 +52,21 @@ export default function Match() {
     }, 60000);
     return () => { cancelled = true; clearInterval(t); };
   }, [data?.id, data?.status]);
+
+  // Related matches (same day)
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!data?.kickoff_at) return;
+        const res = await loadSportList({ days: 3 });
+        const tz = new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest' });
+        const key = tz.format(new Date(data.kickoff_at));
+        const day = (res as any)?.days?.find((d: any) => d.date === key);
+        const others = (day?.matches || []).filter((m: any) => m.id !== data.id).slice(0, 6);
+        setRelated(others);
+      } catch {}
+    })();
+  }, [data?.kickoff_at, data?.id]);
 
   const noindex = typeof window !== 'undefined' && !initial && !loaded;
   const tv = data?.tv_channels ?? [];
@@ -80,6 +98,16 @@ export default function Match() {
           <div className="mt-4"><TicketCTA offers={data.offers} /></div>
         )}
         <div className="mt-4"><ActionsBar title={title} start={when} /></div>
+        {related.length > 0 && (
+          <section className="mt-8" aria-labelledby="related-matches">
+            <h2 id="related-matches" className="text-lg font-semibold mb-3">Meciuri apropiate</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {related.map((m) => (
+                <MatchCard key={m.id} m={m} />
+              ))}
+            </div>
+          </section>
+        )}
       </Container>
     </>
   );

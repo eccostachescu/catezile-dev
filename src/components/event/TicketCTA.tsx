@@ -36,7 +36,7 @@ export default function TicketCTA({ offers }: { offers?: Offer[] }) {
           <DropdownMenuSeparator />
           {offers.map((o) => (
             <DropdownMenuItem key={o.id} asChild>
-              <a href={`/out/${o.id}`}>{o.partner}</a>
+              <a href={`/out/${o.id}`} rel="sponsored">{o.partner}</a>
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
