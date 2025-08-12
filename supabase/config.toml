@@ -96,3 +96,14 @@ verify_jwt = false
 
 [functions.indexnow_submit]
 verify_jwt = false
+
+# Black Friday
+[functions.bf_import_offers]
+verify_jwt = false
+
+[functions.bf_score_offers]
+verify_jwt = false
+
+[functions.bf_admin_export]
+verify_jwt = false
+

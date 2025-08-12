@@ -353,6 +353,32 @@ export async function loadHome() {
     if (d) hero = { kind: 'derby', payload: d };
   }
 
+  // BF Top Offers (for homepage band) when active
+  const bfActive = bfEligible || (settingsMap['bf_enabled'] === true) || (hero.kind === 'bf');
+  let bf_top_offers: Array<any> = [];
+  if (bfActive) {
+    const { data: bfOffers } = await supabase
+      .from('bf_offer')
+      .select('id,title,subtitle,price,price_old,discount_percent,image_url,affiliate_link_id,product_url,merchant_id')
+      .eq('status','LIVE')
+      .order('score', { ascending: false })
+      .limit(10);
+    const mids = Array.from(new Set((bfOffers||[]).map((o: any)=>o.merchant_id))).filter(Boolean);
+    const { data: merchants } = await supabase.from('bf_merchant').select('id,name,slug,logo_url').in('id', mids);
+    const mMap = new Map<string, any>((merchants||[]).map((m:any)=>[m.id, m] as const));
+    bf_top_offers = (bfOffers||[]).map((o:any)=>({
+      id: o.id,
+      title: o.title,
+      subtitle: o.subtitle,
+      price: o.price,
+      price_old: o.price_old,
+      discount_percent: o.discount_percent,
+      image_url: o.image_url,
+      href: o.affiliate_link_id ? `/out/${o.affiliate_link_id}` : (o.product_url || '#'),
+      merchant: mMap.get(o.merchant_id) || null,
+    }));
+  }
+
   return {
     nowIso,
     tz,
@@ -367,6 +393,7 @@ export async function loadHome() {
     },
     discovery,
     sections_order: Array.isArray(settingsMap['home_sections_order']) ? settingsMap['home_sections_order'] : undefined,
+    bf_top_offers,
   } as const;
 }
 

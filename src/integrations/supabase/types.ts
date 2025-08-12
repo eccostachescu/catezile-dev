@@ -125,28 +125,67 @@ export type Database = {
         }
         Relationships: []
       }
-      bf_merchant: {
+      bf_category: {
         Row: {
-          affiliate_link_id: string | null
           created_at: string | null
           id: string
           name: string
           slug: string
-          updated_at: string | null
         }
         Insert: {
-          affiliate_link_id?: string | null
           created_at?: string | null
           id?: string
           name: string
           slug: string
-          updated_at?: string | null
         }
         Update: {
-          affiliate_link_id?: string | null
           created_at?: string | null
           id?: string
           name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      bf_merchant: {
+        Row: {
+          active: boolean | null
+          affiliate_base_url: string | null
+          affiliate_link_id: string | null
+          created_at: string | null
+          epc_estimate: number | null
+          id: string
+          logo_url: string | null
+          name: string
+          priority: number | null
+          program_url: string | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          affiliate_base_url?: string | null
+          affiliate_link_id?: string | null
+          created_at?: string | null
+          epc_estimate?: number | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          priority?: number | null
+          program_url?: string | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          affiliate_base_url?: string | null
+          affiliate_link_id?: string | null
+          created_at?: string | null
+          epc_estimate?: number | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          priority?: number | null
+          program_url?: string | null
           slug?: string
           updated_at?: string | null
         }
@@ -156,6 +195,88 @@ export type Database = {
             columns: ["affiliate_link_id"]
             isOneToOne: false
             referencedRelation: "affiliate_link"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bf_offer: {
+        Row: {
+          affiliate_link_id: string | null
+          category_id: string | null
+          created_at: string | null
+          discount_percent: number | null
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          merchant_id: string
+          price: number | null
+          price_old: number | null
+          product_url: string | null
+          score: number | null
+          starts_at: string | null
+          status: string
+          subtitle: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_link_id?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          discount_percent?: number | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          merchant_id: string
+          price?: number | null
+          price_old?: number | null
+          product_url?: string | null
+          score?: number | null
+          starts_at?: string | null
+          status?: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_link_id?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          discount_percent?: number | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          merchant_id?: string
+          price?: number | null
+          price_old?: number | null
+          product_url?: string | null
+          score?: number | null
+          starts_at?: string | null
+          status?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bf_offer_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_link"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bf_offer_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "bf_category"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bf_offer_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "bf_merchant"
             referencedColumns: ["id"]
           },
         ]
