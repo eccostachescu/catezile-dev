@@ -42,7 +42,7 @@ export default function CreateForm({ onSuccess }: { onSuccess: (v: { id: string;
       privacy: "PUBLIC",
       theme: "T2",
       honeypot: "",
-      tos: false,
+      tos: true,
     },
     mode: "onChange",
   });
