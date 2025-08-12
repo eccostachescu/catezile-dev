@@ -12,3 +12,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://catezile.ro/sitemaps/sitemap-sarbatori.xml
+Sitemap: https://catezile.ro/sitemaps/sitemap-examene.xml
+Sitemap: https://catezile.ro/sitemaps/sitemap-festivaluri.xml

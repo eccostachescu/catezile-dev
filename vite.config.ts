@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { vitePrerenderPlugin } from "vite-prerender-plugin";
 import { generateRoutes } from "./src/ssg/generateRoutes";
+import { generateSitemaps } from "./scripts/generate-sitemaps";
 
 // https://vitejs.dev/config/
 export default defineConfig(async ({ mode }) => {
@@ -21,6 +22,15 @@ export default defineConfig(async ({ mode }) => {
         additionalPrerenderRoutes: prerenderRoutes,
         renderTarget: '#root',
       }),
+      {
+        name: 'sitemaps-generator',
+        async buildStart() {
+          try { await generateSitemaps(); } catch {}
+        },
+        configureServer() {
+          generateSitemaps().catch(() => {});
+        },
+      },
     ].filter(Boolean),
     resolve: {
       alias: {
