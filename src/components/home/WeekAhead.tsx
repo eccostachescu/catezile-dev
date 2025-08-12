@@ -5,6 +5,7 @@ import MovieCard from "@/components/cards/MovieCard";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function WeekAhead({ trending }: { trending: any[] }) {
   const { user } = useAuth();
@@ -28,16 +29,16 @@ export default function WeekAhead({ trending }: { trending: any[] }) {
       ]);
       if (cancelled) return;
       const out: any[] = [];
-      (ev.data||[]).forEach((e:any)=>out.push({ kind:'event', sort:new Date(e.start_at).getTime(), node: <a key={e.slug} href={`/evenimente/${e.slug}`}><EventCard title={e.title} datetime={e.start_at} /></a> }));
-      (mt.data||[]).forEach((m:any)=>out.push({ kind:'match', sort:new Date(m.kickoff_at).getTime(), node: <a key={m.id} href={`/sport/${m.id}`}><MatchCard homeTeam={m.home} awayTeam={m.away} datetime={m.kickoff_at} /></a> }));
-      (mv.data||[]).forEach((m:any)=>out.push({ kind:'movie', sort:new Date(m.cinema_release_ro).getTime(), node: <a key={m.id} href={`/filme/${m.id}`}><MovieCard title={m.title} inCinemasAt={m.cinema_release_ro} /></a> }));
+      (ev.data||[]).forEach((e:any)=>out.push({ kind:'event', sort:new Date(e.start_at).getTime(), node: <Link key={e.slug} to={`/evenimente/${e.slug}`}><EventCard title={e.title} datetime={e.start_at} /></Link> }));
+      (mt.data||[]).forEach((m:any)=>out.push({ kind:'match', sort:new Date(m.kickoff_at).getTime(), node: <Link key={m.id} to={`/sport/${m.id}`}><MatchCard homeTeam={m.home} awayTeam={m.away} datetime={m.kickoff_at} /></Link> }));
+      (mv.data||[]).forEach((m:any)=>out.push({ kind:'movie', sort:new Date(m.cinema_release_ro).getTime(), node: <Link key={m.id} to={`/filme/${m.id}`}><MovieCard title={m.title} inCinemasAt={m.cinema_release_ro} /></Link> }));
       setItems(out.sort((a,b)=>a.sort-b.sort).slice(0,8));
     }
     load();
     return ()=>{ cancelled = true };
   }, [user?.id]);
 
-  const list = items ?? trending?.map((e:any)=>({ kind:'event', node: <a key={e.slug} href={`/evenimente/${e.slug}`}><EventCard title={e.title} datetime={e.start_at} /></a> }));
+  const list = items ?? trending?.map((e:any)=>({ kind:'event', node: <Link key={e.slug} to={`/evenimente/${e.slug}`}><EventCard title={e.title} datetime={e.start_at} /></Link> }));
 
   return (
     <section className="py-8">
