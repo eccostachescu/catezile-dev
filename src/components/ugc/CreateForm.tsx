@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { DateTimePicker } from "@/components/DateTimePicker";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import PreviewCard from "./PreviewCard";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";

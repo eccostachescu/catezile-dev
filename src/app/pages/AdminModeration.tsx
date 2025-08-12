@@ -57,18 +57,31 @@ export default function AdminModeration() {
   }, []);
 
   const updateStatus = async (id: string, status: "APPROVED" | "REJECTED") => {
-    const { error } = await supabase
-      .from("countdown")
-      .update({ status })
-      .eq("id", id);
+    let reason: string | undefined;
+    if (status === "REJECTED") {
+      const input = window.prompt("Motivul respingerii (minim 10 caractere):", "");
+      if (!input || input.trim().length < 10) {
+        toast({ title: "Respins", description: "Introduce un motiv valid (min. 10 caractere)." });
+        return;
+      }
+      reason = input.trim();
+    }
+
+    const { error } = await supabase.functions.invoke("moderate_countdown", {
+      body: {
+        id,
+        action: status === "APPROVED" ? "APPROVE" : "REJECT",
+        reason,
+      },
+    });
+
     if (error) {
-      toast({ title: "Acțiune eșuată", description: error.message });
+      toast({ title: "Acțiune eșuată", description: (error as any)?.message || String(error) });
     } else {
       toast({ title: "Salvat", description: `Status: ${status}` });
       setItems((prev) => prev.map((x) => (x.id === id ? { ...x, status } : x)));
     }
   };
-
   const removeItem = async (id: string) => {
     const { error } = await supabase.from("countdown").delete().eq("id", id);
     if (error) {
