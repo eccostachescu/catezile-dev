@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import {
   Breadcrumb,
@@ -20,8 +21,8 @@ export default function Breadcrumbs({ items }: { items: CrumbItem[] }) {
         {items.map((item, i) => {
           const isLast = i === items.length - 1;
           return (
-            <>
-              <BreadcrumbItem key={i}>
+            <Fragment key={item.href || `${i}-${item.label}`}>
+              <BreadcrumbItem>
                 {isLast || !item.href ? (
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
@@ -31,7 +32,7 @@ export default function Breadcrumbs({ items }: { items: CrumbItem[] }) {
                 )}
               </BreadcrumbItem>
               {!isLast && <BreadcrumbSeparator />}
-            </>
+            </Fragment>
           );
         })}
       </BreadcrumbList>
