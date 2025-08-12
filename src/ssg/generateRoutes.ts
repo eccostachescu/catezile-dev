@@ -26,5 +26,11 @@ export async function generateRoutes() {
   const { data: movies } = await supabase.from('movie').select('id').order('cinema_release_ro', { ascending: false, nullsFirst: false }).limit(5000);
   movies?.forEach((m: any) => routes.add(`/filme/${m.id}`));
 
+  // Discovery pages
+  const { data: tags } = await supabase.from('tag').select('slug').limit(2000);
+  tags?.forEach((t: any) => routes.add(`/tag/${t.slug}`));
+  const { data: channels } = await supabase.from('tv_channel').select('slug').limit(2000);
+  channels?.forEach((c: any) => routes.add(`/tv/${c.slug}`));
+
   return Array.from(routes);
 }

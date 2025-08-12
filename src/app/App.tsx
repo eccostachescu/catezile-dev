@@ -22,6 +22,10 @@ import AdminMetrics from "./pages/AdminMetrics";
 import AdminEmails from "./pages/AdminEmails";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
+import SearchPage from "./pages/Search";
+import TagPage from "./pages/Tag";
+import TeamPage from "./pages/Team";
+import TVChannelPage from "./pages/TVChannel";
 import { SEOProvider } from "@/seo/SEOProvider";
 import { AuthProvider } from "@/lib/auth";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -57,6 +61,12 @@ const AppShell = () => {
                 <Route path="/out/:id" element={<OutRedirect />} />
                 <Route path="/despre" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
+
+                {/* Search & discovery */}
+                <Route path="/cauta" element={<SearchPage />} />
+                <Route path="/tag/:slug" element={<TagPage />} />
+                <Route path="/echipa/:teamSlug" element={<TeamPage />} />
+                <Route path="/tv/:channelSlug" element={<TVChannelPage />} />
 
                 {/* Auth */}
                 <Route path="/auth/login" element={<AuthLogin />} />

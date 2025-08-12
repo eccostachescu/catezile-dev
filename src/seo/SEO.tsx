@@ -6,7 +6,7 @@ import { buildOgUrl } from "./og";
 import { truncateForMeta } from "./snippet";
 
 export interface SEOProps {
-  kind?: 'home'|'event'|'match'|'movie'|'category'|'generic'|'bf';
+  kind?: 'home'|'event'|'match'|'movie'|'category'|'generic'|'bf'|'search'|'tag'|'tv'|'team';
   slug?: string;
   id?: string;
   merchant?: string;
@@ -28,7 +28,9 @@ export const SEO = ({ kind = 'generic', slug, id, merchant, title, description, 
   const pageTitle = title ? `${title} — CateZile.ro` : DEFAULT_TITLE;
   const desc = truncateForMeta(description || DEFAULT_DESC);
   const robots = (noindex || noIndex) ? "noindex,nofollow" : routeRobots(path || (typeof window !== 'undefined' ? window.location.pathname : '/'));
-  const ogImage = imageUrl || buildOgUrl({ type: kind, slug, id, merchant, title });
+  const allowedKinds = ['home','event','match','movie','category','generic','bf'] as const;
+  const safeKind = (allowedKinds as readonly string[]).includes(kind) ? (kind as typeof allowedKinds[number]) : 'generic';
+  const ogImage = imageUrl || buildOgUrl({ type: safeKind, slug, id, merchant, title });
   const hreflangs = buildHreflangs(canonical);
 
   return (

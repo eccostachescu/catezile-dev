@@ -13,7 +13,7 @@ export const websiteJsonLd = () => ({
   url: typeof window !== "undefined" ? window.location.origin : "https://catezile.ro",
   potentialAction: {
     "@type": "SearchAction",
-    target: `${typeof window !== "undefined" ? window.location.origin : "https://catezile.ro"}/?q={search_term_string}`,
+    target: `${typeof window !== "undefined" ? window.location.origin : "https://catezile.ro"}/cauta?q={search_term_string}`,
     "query-input": "required name=search_term_string",
   },
 });

@@ -1,5 +1,5 @@
 import Container from "@/components/Container";
-import SearchBar from "@/components/SearchBar";
+import SearchBox from "@/components/search/SearchBox";
 
 export default function Hero({ onOpenSearch }: { onOpenSearch: () => void }) {
   return (
@@ -12,7 +12,7 @@ export default function Hero({ onOpenSearch }: { onOpenSearch: () => void }) {
           </p>
           <div className="mt-6">
             <div className="hidden sm:block">
-              <SearchBar />
+              <SearchBox />
             </div>
             <div className="sm:hidden">
               <button className="h-10 px-4 rounded-md border" onClick={onOpenSearch} aria-label="Deschide căutarea">
