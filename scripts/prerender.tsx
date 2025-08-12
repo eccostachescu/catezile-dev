@@ -13,7 +13,7 @@ import Category from '../src/app/pages/Category';
 import BlackFriday from '../src/app/pages/BlackFriday';
 import Countdown from '../src/app/pages/Countdown';
 import Embed from '../src/app/pages/Embed';
-import { loadEvent, loadMatch, loadMovie, loadMovies, loadCategory, loadHome, loadCountdown } from '../src/ssg/loader';
+import { loadEvent, loadMatch, loadMovie, loadMovies, loadCategory, loadCategoryHub, loadHome, loadCountdown } from '../src/ssg/loader';
 
 function resolveElement(pathname: string) {
   if (pathname === '/') return <Home />;
@@ -29,22 +29,24 @@ function resolveElement(pathname: string) {
 }
 
 function buildInitialData(pathname: string) {
-  if (pathname === '/') return { kind: 'home' };
-  if (pathname === '/black-friday') return { kind: 'black-friday' };
-  if (pathname === '/filme') return { kind: 'movies' };
+  if (pathname === '/') return { kind: 'home' } as any;
+  if (pathname === '/black-friday') return { kind: 'black-friday' } as any;
+  if (pathname === '/filme') return { kind: 'movies' } as any;
   const m1 = pathname.match(/^\/evenimente\/(.+)$/);
-  if (m1) return { kind: 'event', slug: m1[1] };
+  if (m1) return { kind: 'event', slug: m1[1] } as any;
   const m2 = pathname.match(/^\/sport\/(.+)$/);
-  if (m2) return { kind: 'match', id: m2[1] };
+  if (m2) return { kind: 'match', id: m2[1] } as any;
   const m3 = pathname.match(/^\/filme\/(.+)$/);
-  if (m3) return { kind: 'movie', id: m3[1] };
-  const m4 = pathname.match(/^\/categorii\/(.+)$/);
-  if (m4) return { kind: 'category', slug: m4[1] };
+  if (m3) return { kind: 'movie', id: m3[1] } as any;
+  const m4y = pathname.match(/^\/categorii\/([^/]+)\/(\d{4})$/);
+  if (m4y) return { kind: 'category', slug: m4y[1], year: Number(m4y[2]) } as any;
+  const m4 = pathname.match(/^\/categorii\/([^/]+)$/);
+  if (m4) return { kind: 'category', slug: m4[1] } as any;
   const m5 = pathname.match(/^\/c\/(.+)$/);
-  if (m5) return { kind: 'countdown', id: m5[1] };
+  if (m5) return { kind: 'countdown', id: m5[1] } as any;
   const m6 = pathname.match(/^\/embed\/(.+)$/);
-  if (m6) return { kind: 'embed', id: m6[1] };
-  return { kind: 'generic' };
+  if (m6) return { kind: 'embed', id: m6[1] } as any;
+  return { kind: 'generic' } as any;
 }
 
 export async function prerender({ url }: { url: string }) {
@@ -70,7 +72,7 @@ export async function prerender({ url }: { url: string }) {
   if (data.kind === 'event' && data.slug) data = { ...data, item: await loadEvent(data.slug) };
   if (data.kind === 'match' && data.id) data = { ...data, item: await loadMatch(data.id) };
   if (data.kind === 'movie' && data.id) data = { ...data, item: await loadMovie(data.id) };
-  if (data.kind === 'category' && data.slug) data = { ...data, item: await loadCategory(data.slug) };
+  if (data.kind === 'category' && (data as any).slug) data = { ...data, item: await loadCategoryHub((data as any).slug, { year: (data as any).year }) };
   if (data.kind === 'countdown' && (data as any).id) data = { ...data, item: await loadCountdown((data as any).id) };
   const html = renderToString(app);
   return { html, data };

@@ -308,11 +308,16 @@ export type Database = {
           country: string | null
           created_at: string | null
           description: string | null
+          editorial_status: string | null
           end_at: string | null
           id: string
           image_url: string | null
+          is_recurring: boolean | null
+          location_city: string | null
           official_site: string | null
+          official_source_url: string | null
           og_theme: string | null
+          rrule: string | null
           seo_description: string | null
           seo_faq: Json | null
           seo_h1: string | null
@@ -323,6 +328,7 @@ export type Database = {
           timezone: string
           title: string
           updated_at: string | null
+          verified_at: string | null
         }
         Insert: {
           category_id?: string | null
@@ -330,11 +336,16 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           description?: string | null
+          editorial_status?: string | null
           end_at?: string | null
           id?: string
           image_url?: string | null
+          is_recurring?: boolean | null
+          location_city?: string | null
           official_site?: string | null
+          official_source_url?: string | null
           og_theme?: string | null
+          rrule?: string | null
           seo_description?: string | null
           seo_faq?: Json | null
           seo_h1?: string | null
@@ -345,6 +356,7 @@ export type Database = {
           timezone?: string
           title: string
           updated_at?: string | null
+          verified_at?: string | null
         }
         Update: {
           category_id?: string | null
@@ -352,11 +364,16 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           description?: string | null
+          editorial_status?: string | null
           end_at?: string | null
           id?: string
           image_url?: string | null
+          is_recurring?: boolean | null
+          location_city?: string | null
           official_site?: string | null
+          official_source_url?: string | null
           og_theme?: string | null
+          rrule?: string | null
           seo_description?: string | null
           seo_faq?: Json | null
           seo_h1?: string | null
@@ -367,6 +384,7 @@ export type Database = {
           timezone?: string
           title?: string
           updated_at?: string | null
+          verified_at?: string | null
         }
         Relationships: [
           {
@@ -857,11 +875,16 @@ export type Database = {
           country: string | null
           created_at: string | null
           description: string | null
+          editorial_status: string | null
           end_at: string | null
           id: string
           image_url: string | null
+          is_recurring: boolean | null
+          location_city: string | null
           official_site: string | null
+          official_source_url: string | null
           og_theme: string | null
+          rrule: string | null
           seo_description: string | null
           seo_faq: Json | null
           seo_h1: string | null
@@ -872,6 +895,7 @@ export type Database = {
           timezone: string
           title: string
           updated_at: string | null
+          verified_at: string | null
         }
       }
       compute_match_seo: {

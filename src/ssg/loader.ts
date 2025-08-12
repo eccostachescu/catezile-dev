@@ -14,7 +14,7 @@ export async function loadEvent(slug: string) {
   // Base event
   const { data: ev } = await supabase
     .from('event')
-    .select('id, slug, title, description, start_at, end_at, timezone, city, category_id, image_url, official_site, status, seo_title, seo_description, seo_h1, seo_faq, og_theme, updated_at')
+    .select('id, slug, title, description, start_at, end_at, timezone, city, category_id, image_url, official_site, status, seo_title, seo_description, seo_h1, seo_faq, og_theme, updated_at, official_source_url, verified_at, editorial_status')
     .eq('slug', slug)
     .eq('status','PUBLISHED')
     .maybeSingle();
@@ -152,6 +152,65 @@ export async function loadCategory(slug: string) {
   if (error || !data) return null;
   return CategorySchema.parse(data);
 }
+
+export async function loadCategoryHub(slug: string, opts: { year?: number } = {}) {
+  const cat = await loadCategory(slug);
+  if (!cat) return null as any;
+  const catId = await getCategoryId(slug);
+  const year = opts.year || new Date().getFullYear();
+  const startOfYear = new Date(Date.UTC(year, 0, 1)).toISOString();
+  const endOfYear = new Date(Date.UTC(year, 11, 31, 23, 59, 59)).toISOString();
+
+  // Featured slugs per category
+  const featuredBySlug = (y: number) => {
+    if (slug === 'sarbatori') return [`paste-${y}`, `craciun-${y}`, `anul-nou-${y}`, `ziua-nationala-a-romaniei-${y}`];
+    if (slug === 'examene') return [`bac-${y}`, `evaluare-nationala-${y}`];
+    if (slug === 'festivaluri') return [`untold-${y}`, `electric-castle-${y}`];
+    return [] as string[];
+  };
+
+  const now = new Date().toISOString();
+  const in90 = new Date(Date.now() + 90*24*3600*1000).toISOString();
+
+  const [featuredQ, upcomingQ, byYearQ, sourcesQ] = await Promise.all([
+    supabase.from('event').select('slug,title,start_at,seo_title,seo_description,seo_h1,image_url,city,status').eq('status','PUBLISHED').eq('category_id', catId).in('slug', featuredBySlug(year)).limit(8),
+    supabase.from('event').select('slug,title,start_at,seo_title,seo_description,seo_h1,image_url,city,status').eq('status','PUBLISHED').eq('category_id', catId).gte('start_at', now).lte('start_at', in90).order('start_at', { ascending: true }).limit(16),
+    supabase.from('event').select('slug,title,start_at,seo_title,seo_description,seo_h1,image_url,city,status').eq('status','PUBLISHED').eq('category_id', catId).gte('start_at', startOfYear).lte('start_at', endOfYear).order('start_at', { ascending: true }).limit(60),
+    supabase.from('event').select('official_source_url, verified_at, updated_at').eq('status','PUBLISHED').eq('category_id', catId).gte('start_at', startOfYear).lte('start_at', endOfYear),
+  ]);
+
+  const faqDefaults: Record<string, Array<{ q: string; a: string }>> = {
+    sarbatori: [
+      { q: `Când pică Paștele în ${year}?`, a: 'Vezi mai sus cele mai importante sărbători și datele exacte.' },
+      { q: 'Zile libere legale', a: `Consultă lista pentru ${year} și planifică-ți vacanțele.` },
+    ],
+    examene: [
+      { q: `Calendar Bacalaureat ${year}`, a: 'Perioadele de înscriere, probele și afișarea rezultatelor.' },
+      { q: `Evaluare Națională ${year}`, a: 'Datele probelor scrise și rezultatele.' },
+    ],
+    festivaluri: [
+      { q: 'Bilete și program', a: 'Linkuri către organizatori și ghiduri utile.' },
+    ],
+  };
+
+  // Sources distinct
+  const sourcesSet = new Map<string, string>();
+  (sourcesQ.data ?? []).forEach((r: any) => { if (r.official_source_url) sourcesSet.set(r.official_source_url, r.verified_at || r.updated_at); });
+  const sources = Array.from(sourcesSet.entries()).map(([url, last]) => ({ url, lastVerified: last }));
+
+  const hub = {
+    category: { slug: cat.slug, name: cat.name },
+    featured: (featuredQ.data ?? []).map((e: any) => EventSchema.parse(e)),
+    upcoming: (upcomingQ.data ?? []).map((e: any) => EventSchema.parse(e)),
+    byYear: (byYearQ.data ?? []).map((e: any) => EventSchema.parse(e)),
+    faq: faqDefaults[slug] || [],
+    sources,
+    year,
+  } as const;
+
+  return hub;
+}
+
 
 async function getCategoryId(slug: string): Promise<string | null> {
   const { data } = await supabase.from('category').select('id').eq('slug', slug).maybeSingle();
