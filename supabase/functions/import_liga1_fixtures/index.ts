@@ -168,7 +168,7 @@ serve(async (req: Request) => {
       const teams = f.teams || {};
       const goals = f.goals || {};
       const score = f.score || {};
-      const broadcasts = (f.broadcasts || f.tv ?? []) as Array<{ network?: string; channel?: string }> | string[];
+      const broadcasts = (f.broadcasts ?? f.tv ?? []) as Array<{ network?: string; channel?: string }> | string[];
 
       const kickoffIso = parseIsoToUtcString(fx.date);
       const homeName = normalizeTeam(teams.home?.name || "Home", teamMap);
