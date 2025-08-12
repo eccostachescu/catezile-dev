@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import CookieBannerStub from "@/components/CookieBannerStub";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function Header() {
   const { user, isAdmin, loading, signInWithEmail, signOut } = useAuth();
@@ -53,9 +54,12 @@ export default function Header() {
 
           {!user ? (
             <>
-              <Button variant="outline" size="sm" onClick={() => setOpen(true)} aria-haspopup>
-                Autentificare
-              </Button>
+              <Link to={routes.authLogin()}>
+                <Button variant="outline" size="sm" aria-haspopup>
+                  Autentificare
+                </Button>
+              </Link>
+              {/* Keep inline magic-link dialog as fallback */}
               {open && (
                 <form onSubmit={handleSignIn} className="absolute right-4 top-14 bg-popover border rounded-md p-3 shadow-md w-72">
                   <label htmlFor="email" className="block text-sm mb-1">Email</label>
@@ -69,6 +73,12 @@ export default function Header() {
             </>
           ) : (
             <div className="flex items-center gap-2">
+              <Link to={routes.account()} className="flex items-center gap-2 px-2">
+                <Avatar>
+                  <AvatarFallback>{user.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline text-sm">Contul meu</span>
+              </Link>
               {isAdmin && (
                 <Link to={routes.admin()} className="text-sm underline-offset-4 hover:underline">Admin</Link>
               )}
@@ -83,3 +93,4 @@ export default function Header() {
     </header>
   );
 }
+

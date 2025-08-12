@@ -25,6 +25,13 @@ import { SEOProvider } from "@/seo/SEOProvider";
 import { AuthProvider } from "@/lib/auth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import "@/styles/tailwind.css";
+import AuthLogin from "./pages/AuthLogin";
+import AuthCallback from "./pages/AuthCallback";
+import Account from "./pages/Account";
+import RequireAuth from "@/components/common/RequireAuth";
+import LegalTerms from "./pages/LegalTerms";
+import LegalPrivacy from "./pages/LegalPrivacy";
+import LegalCookies from "./pages/LegalCookies";
 
 const AppShell = () => {
   return (
@@ -50,6 +57,14 @@ const AppShell = () => {
                 <Route path="/despre" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
 
+                {/* Auth */}
+                <Route path="/auth/login" element={<AuthLogin />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+
+                {/* Account */}
+                <Route path="/account" element={<Account />} />
+
+                {/* Admin */}
                 <Route
                   path="/admin"
                   element={
@@ -82,6 +97,11 @@ const AppShell = () => {
                     </ProtectedRoute>
                   }
                 />
+
+                {/* Legal */}
+                <Route path="/legal/terms" element={<LegalTerms />} />
+                <Route path="/legal/privacy" element={<LegalPrivacy />} />
+                <Route path="/legal/cookies" element={<LegalCookies />} />
 
                 <Route path="/500" element={<ServerError />} />
                 <Route path="/404" element={<NotFound />} />

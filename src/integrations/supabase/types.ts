@@ -301,6 +301,27 @@ export type Database = {
         }
         Relationships: []
       }
+      email_unsub: {
+        Row: {
+          created_at: string | null
+          kind: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          kind?: string
+          token?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          kind?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event: {
         Row: {
           category_id: string | null
@@ -670,27 +691,42 @@ export type Database = {
       }
       profile: {
         Row: {
+          avatar_url: string | null
           created_at: string | null
+          display_name: string | null
           email: string | null
+          handle: string | null
           id: string
+          locale: string | null
           role: string
           theme_pref: string | null
+          timezone: string | null
           updated_at: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string | null
+          display_name?: string | null
           email?: string | null
+          handle?: string | null
           id: string
+          locale?: string | null
           role?: string
           theme_pref?: string | null
+          timezone?: string | null
           updated_at?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string | null
+          display_name?: string | null
           email?: string | null
+          handle?: string | null
           id?: string
+          locale?: string | null
           role?: string
           theme_pref?: string | null
+          timezone?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -829,6 +865,36 @@ export type Database = {
           created_at?: string | null
           id?: number
           kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string | null
+          email_digest: boolean | null
+          email_reminders: boolean | null
+          marketing_emails: boolean | null
+          pushes: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_digest?: boolean | null
+          email_reminders?: boolean | null
+          marketing_emails?: boolean | null
+          pushes?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_digest?: boolean | null
+          email_reminders?: boolean | null
+          marketing_emails?: boolean | null
+          pushes?: boolean | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

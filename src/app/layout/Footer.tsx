@@ -13,9 +13,9 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold mb-2">Categorii populare</h3>
           <ul className="space-y-1 text-muted-foreground">
-            <li><a href="#" className="story-link">Black Friday</a></li>
-            <li><a href="#" className="story-link">Sport</a></li>
-            <li><a href="#" className="story-link">Filme</a></li>
+            <li><a href="/black-friday" className="story-link">Black Friday</a></li>
+            <li><a href="/sport" className="story-link">Sport</a></li>
+            <li><a href="/filme" className="story-link">Filme</a></li>
           </ul>
         </div>
         <div>
@@ -37,7 +37,11 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold mb-2">Legal</h3>
           <ul className="space-y-1 text-muted-foreground">
+            <li><a href="/legal/terms" className="story-link">Termeni</a></li>
+            <li><a href="/legal/privacy" className="story-link">Confidențialitate</a></li>
+            <li><a href="/legal/cookies" className="story-link">Cookie‑uri</a></li>
             <li><button className="underline underline-offset-4" onClick={() => window.dispatchEvent(new CustomEvent('open-cookie-settings'))}>Setări cookie</button></li>
+            <li><a href="https://anpc.ro/" target="_blank" rel="noopener" className="story-link">ANPC</a></li>
           </ul>
         </div>
       </div>
@@ -47,3 +51,4 @@ export default function Footer() {
     </footer>
   );
 }
+
