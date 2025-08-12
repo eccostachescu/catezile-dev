@@ -9,6 +9,7 @@ import MovieStrip from "@/components/movies/MovieStrip";
 import { GridSkeleton } from "@/components/movies/Skeletons";
 import { routes } from "@/lib/routes";
 import { track } from "@/lib/analytics";
+import { toast } from "@/hooks/use-toast";
 
 const months = ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Noi", "Dec"];
 
@@ -55,6 +56,27 @@ export default function Movies() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [month, year, genre, status]);
+
+  useEffect(() => {
+    const runImport = params.get('import');
+    if (runImport === '1') {
+      (async () => {
+        try {
+          toast({ title: 'Import TMDB pornit', description: 'Se importă filme…' });
+          await supabase.functions.invoke('import_tmdb_movies', { body: { pages: 3 } });
+          await supabase.functions.invoke('update_movie_providers', { body: {} as any });
+          toast({ title: 'Gata', description: 'Filmele au fost importate/actualizate.' });
+        } catch (e) {
+          toast({ title: 'Eroare la import', description: String((e as any)?.message || e), variant: 'destructive' as any });
+        } finally {
+          const next = new URLSearchParams(params);
+          next.delete('import');
+          setParams(next, { replace: true });
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
 
   function updateParam(key: string, value?: string) {
     const next = new URLSearchParams(params);
