@@ -2,7 +2,7 @@ import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function TagPage() {
   const { slug } = useParams();
@@ -37,6 +37,14 @@ export default function TagPage() {
       <SEO kind="generic" title={`#${tag?.name || slug}`} description={`Evenimente pentru #${tag?.name || slug}`} path={`/tag/${slug}`} />
       <Container className="py-8">
         <h1 className="text-2xl font-bold mb-4">#{tag?.name || slug}</h1>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context":"https://schema.org",
+          "@type":"BreadcrumbList",
+          itemListElement: [
+            { "@type":"ListItem", position: 1, name: "Acasă", item: (typeof window!=="undefined"?window.location.origin:"https://catezile.ro") },
+            { "@type":"ListItem", position: 2, name: `#${tag?.name || slug}`, item: (typeof window!=="undefined"?window.location.origin:"https://catezile.ro")+`/tag/${slug}` }
+          ]
+        })}</script>
         <div className="grid gap-3">
           {events.map((e:any)=> (
             <a key={e.slug} href={`/evenimente/${e.slug}`} className="p-3 rounded-md border hover:bg-muted">

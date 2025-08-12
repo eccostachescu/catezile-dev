@@ -22,16 +22,20 @@ serve(async (req: Request) => {
     const cronHeader = req.headers.get('x-admin-cron');
     const cronSecret = Deno.env.get('ADMIN_CRON_SECRET');
     if (cronSecret && cronHeader !== cronSecret) {
-      // continue but note in log; this endpoint is safe (idempotent)
+      // continue; idempotent
     }
 
-    // Rebuild basic unified index
+    // Preload category map
+    const { data: cats } = await supabase.from('category').select('id,slug');
+    const catMap = new Map<string,string>();
+    (cats||[]).forEach((c:any)=>{ if (c.id && c.slug) catMap.set(c.id, c.slug); });
+
     const batch: any[] = [];
 
     // Events
     const { data: events } = await supabase
       .from('event')
-      .select('id,slug,title,description,start_at,city,status')
+      .select('id,slug,title,description,start_at,city,status,category_id')
       .eq('status','PUBLISHED')
       .limit(5000);
     for (const e of events || []) {
@@ -42,6 +46,8 @@ serve(async (req: Request) => {
         subtitle, when_at: e.start_at, tv: null, popularity: 0,
         search_text: normalize(`${title} ${e.description || ''} ${subtitle || ''}`),
         search_tsv: null,
+        genres: null,
+        category_slug: e.category_id ? catMap.get(e.category_id) || null : null,
       });
     }
 
@@ -58,6 +64,8 @@ serve(async (req: Request) => {
         subtitle, when_at: m.kickoff_at, tv: m.tv_channels || [], popularity: 0,
         search_text: normalize(`${title} ${subtitle || ''}`),
         search_tsv: null,
+        genres: null,
+        category_slug: null,
       });
     }
 
@@ -74,6 +82,8 @@ serve(async (req: Request) => {
         subtitle, when_at: mv.cinema_release_ro, tv: null, popularity: 0,
         search_text: normalize(`${title} ${mv.original_title || ''} ${(mv.genres||[]).join(' ')}`),
         search_tsv: null,
+        genres: (mv.genres || []) as any,
+        category_slug: null,
       });
     }
 
@@ -90,23 +100,24 @@ serve(async (req: Request) => {
         subtitle: undefined, when_at: c.target_at, tv: null, popularity: 0,
         search_text: normalize(`${c.title}`),
         search_tsv: null,
+        genres: null,
+        category_slug: null,
       });
     }
 
     // Tags
     const { data: tags } = await supabase.from('tag').select('id,slug,name').limit(2000);
     for (const t of tags || []) {
-      batch.push({ kind: 'tag', entity_id: t.id, slug: t.slug, title: t.name, subtitle: undefined, when_at: null, tv: null, popularity: 0, search_text: normalize(`${t.name}`), search_tsv: null });
+      batch.push({ kind: 'tag', entity_id: t.id, slug: t.slug, title: t.name, subtitle: undefined, when_at: null, tv: null, popularity: 0, search_text: normalize(`${t.name}`), search_tsv: null, genres: null, category_slug: null });
     }
 
     // TV channels
     const { data: tvs } = await supabase.from('tv_channel').select('id,slug,name').limit(2000);
     for (const tv of tvs || []) {
-      batch.push({ kind: 'tv', entity_id: tv.id, slug: tv.slug, title: tv.name, subtitle: undefined, when_at: null, tv: null, popularity: 0, search_text: normalize(`${tv.name}`), search_tsv: null });
+      batch.push({ kind: 'tv', entity_id: tv.id, slug: tv.slug, title: tv.name, subtitle: undefined, when_at: null, tv: null, popularity: 0, search_text: normalize(`${tv.name}`), search_tsv: null, genres: null, category_slug: null });
     }
 
     if (batch.length) {
-      // Upsert by (kind, entity_id)
       const chunks = (arr: any[], size: number) => Array.from({ length: Math.ceil(arr.length / size) }, (_, i) => arr.slice(i * size, (i + 1) * size));
       for (const chunk of chunks(batch, 1000)) {
         const { error } = await supabase.from('search_index').upsert(chunk as any, { onConflict: 'kind,entity_id' });

@@ -954,7 +954,9 @@ export type Database = {
       }
       search_index: {
         Row: {
+          category_slug: string | null
           entity_id: string | null
+          genres: string[] | null
           id: string
           kind: string
           popularity: number | null
@@ -968,7 +970,9 @@ export type Database = {
           when_at: string | null
         }
         Insert: {
+          category_slug?: string | null
           entity_id?: string | null
+          genres?: string[] | null
           id?: string
           kind: string
           popularity?: number | null
@@ -982,7 +986,9 @@ export type Database = {
           when_at?: string | null
         }
         Update: {
+          category_slug?: string | null
           entity_id?: string | null
+          genres?: string[] | null
           id?: string
           kind?: string
           popularity?: number | null

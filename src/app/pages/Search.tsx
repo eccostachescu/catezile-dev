@@ -12,6 +12,11 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [kind, setKind] = useState<'all'|'event'|'match'|'movie'|'countdown'>('all');
   const [sort, setSort] = useState<'relevance'|'soon'|'popular'>('relevance');
+  const [dateFrom, setDateFrom] = useState<string | undefined>(sp.get('dateFrom') || undefined);
+  const [dateTo, setDateTo] = useState<string | undefined>(sp.get('dateTo') || undefined);
+  const [tv, setTv] = useState<string>(sp.get('tv') || '');
+  const [genre, setGenre] = useState<string>(sp.get('genre') || '');
+  const [category, setCategory] = useState<string>(sp.get('category') || '');
 
   useEffect(()=>{ setQ(initialQ); }, [initialQ]);
 
@@ -19,7 +24,7 @@ export default function SearchPage() {
     let cancel = false;
     async function run(){
       setLoading(true);
-      const { data } = await supabase.functions.invoke('search', { body: { q, kind, sort, page: 1, pageSize: 20 } });
+      const { data } = await supabase.functions.invoke('search', { body: { q, kind, sort, page: 1, pageSize: 20, dateFrom, dateTo, tv: tv || undefined, genre: genre || undefined, category: category || undefined } });
       if (!cancel) {
         setItems((data as any)?.items || []);
         setTotal((data as any)?.total || 0);
@@ -28,7 +33,7 @@ export default function SearchPage() {
     }
     run();
     return ()=>{ cancel = true };
-  }, [q, kind, sort]);
+  }, [q, kind, sort, dateFrom, dateTo, tv, genre, category]);
 
   return (
     <main>
@@ -49,6 +54,11 @@ export default function SearchPage() {
             <option value="soon">În curând</option>
             <option value="popular">Cele mai populare</option>
           </select>
+          <input type="date" value={dateFrom||''} onChange={(e)=>setDateFrom(e.target.value||undefined)} className="h-10 px-3 rounded-md border" />
+          <input type="date" value={dateTo||''} onChange={(e)=>setDateTo(e.target.value||undefined)} className="h-10 px-3 rounded-md border" />
+          <input value={tv} onChange={(e)=>setTv(e.target.value)} placeholder="TV" className="h-10 px-3 rounded-md border w-24" />
+          <input value={genre} onChange={(e)=>setGenre(e.target.value)} placeholder="Gen" className="h-10 px-3 rounded-md border w-24" />
+          <input value={category} onChange={(e)=>setCategory(e.target.value)} placeholder="Categorie (slug)" className="h-10 px-3 rounded-md border" />
           <div className="text-sm text-muted-foreground">{loading ? 'Se caută…' : `${total} rezultate`}</div>
         </div>
         <div className="grid gap-3">

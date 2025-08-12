@@ -30,6 +30,14 @@ export default function TVChannelPage() {
       <SEO kind="generic" title={`Meciuri pe ${channel?.name || channelSlug}`} description={`Program TV pentru ${channel?.name || channelSlug}`} path={`/tv/${channelSlug}`} />
       <Container className="py-8">
         <h1 className="text-2xl font-bold mb-4">{channel?.name || channelSlug}</h1>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context":"https://schema.org",
+          "@type":"BreadcrumbList",
+          itemListElement: [
+            { "@type":"ListItem", position: 1, name: "Acasă", item: (typeof window!=="undefined"?window.location.origin:"https://catezile.ro") },
+            { "@type":"ListItem", position: 2, name: (channel?.name || channelSlug), item: (typeof window!=="undefined"?window.location.origin:"https://catezile.ro")+`/tv/${channelSlug}` }
+          ]
+        })}</script>
         <div className="grid gap-3">
           {matches.map((m:any)=> (
             <a key={m.id} href={`/sport/${m.id}`} className="p-3 rounded-md border hover:bg-muted">

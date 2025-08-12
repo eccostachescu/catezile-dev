@@ -72,10 +72,18 @@ serve(async (req: Request) => {
       .ilike('name', `%${q}%`)
       .limit(4);
 
+    // Tags
+    const { data: tags } = await supabase
+      .from('tag')
+      .select('slug,name')
+      .or(`name.ilike.${q}%,slug.ilike.${q}%`)
+      .limit(4);
+
     const items = [
       ...((ents ?? []).map((e: any) => ({ kind: e.kind, id: e.entity_id, slug: e.slug, title: e.title, subtitle: e.subtitle, when_at: e.when_at, tv: e.tv }))),
       ...teams,
       ...((channels ?? []).map((c: any) => ({ kind: 'tv', slug: c.slug, title: c.name }))),
+      ...((tags ?? []).map((t: any) => ({ kind: 'tag', slug: t.slug, title: `#${t.name}` }))),
     ].slice(0, limit);
 
     return new Response(JSON.stringify({ items }), { headers: { 'Content-Type': 'application/json', ...corsHeaders } });

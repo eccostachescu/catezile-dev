@@ -2,7 +2,7 @@ import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function TeamPage() {
   const { teamSlug } = useParams();
@@ -27,6 +27,14 @@ export default function TeamPage() {
       <SEO kind="generic" title={`Program ${teamName}`} description={`Meciuri pentru ${teamName}`} path={`/echipa/${teamSlug}`} />
       <Container className="py-8">
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context":"https://schema.org",
+          "@type":"BreadcrumbList",
+          itemListElement: [
+            { "@type":"ListItem", position: 1, name: "Acasă", item: (typeof window!=="undefined"?window.location.origin:"https://catezile.ro") },
+            { "@type":"ListItem", position: 2, name: teamName, item: (typeof window!=="undefined"?window.location.origin:"https://catezile.ro")+`/echipa/${teamSlug}` }
+          ]
+        })}</script>
         <div className="grid gap-3">
           {matches.map((m:any)=> (
             <a key={m.id} href={`/sport/${m.id}`} className="p-3 rounded-md border hover:bg-muted">
