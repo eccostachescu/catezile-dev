@@ -277,6 +277,7 @@ export type Database = {
           owner_id: string | null
           privacy: string
           reject_reason: string | null
+          search_tsv: unknown | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
@@ -295,6 +296,7 @@ export type Database = {
           owner_id?: string | null
           privacy?: string
           reject_reason?: string | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -313,6 +315,7 @@ export type Database = {
           owner_id?: string | null
           privacy?: string
           reject_reason?: string | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -363,6 +366,7 @@ export type Database = {
           official_source_url: string | null
           og_theme: string | null
           rrule: string | null
+          search_tsv: unknown | null
           seo_description: string | null
           seo_faq: Json | null
           seo_h1: string | null
@@ -391,6 +395,7 @@ export type Database = {
           official_source_url?: string | null
           og_theme?: string | null
           rrule?: string | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_faq?: Json | null
           seo_h1?: string | null
@@ -419,6 +424,7 @@ export type Database = {
           official_source_url?: string | null
           og_theme?: string | null
           rrule?: string | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_faq?: Json | null
           seo_h1?: string | null
@@ -467,6 +473,36 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "event"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_tag: {
+        Row: {
+          event_id: string
+          tag_id: string
+        }
+        Insert: {
+          event_id: string
+          tag_id: string
+        }
+        Update: {
+          event_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tag_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_tag_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tag"
             referencedColumns: ["id"]
           },
         ]
@@ -534,6 +570,7 @@ export type Database = {
           kickoff_at: string
           round: string | null
           score: Json | null
+          search_tsv: unknown | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
@@ -554,6 +591,7 @@ export type Database = {
           kickoff_at: string
           round?: string | null
           score?: Json | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -574,6 +612,7 @@ export type Database = {
           kickoff_at?: string
           round?: string | null
           score?: Json | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -666,6 +705,7 @@ export type Database = {
           poster_url: string | null
           prime_date: string | null
           provider: Json | null
+          search_tsv: unknown | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
@@ -689,6 +729,7 @@ export type Database = {
           poster_url?: string | null
           prime_date?: string | null
           provider?: Json | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -712,6 +753,7 @@ export type Database = {
           poster_url?: string | null
           prime_date?: string | null
           provider?: Json | null
+          search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -910,6 +952,69 @@ export type Database = {
           },
         ]
       }
+      search_index: {
+        Row: {
+          entity_id: string | null
+          id: string
+          kind: string
+          popularity: number | null
+          search_text: string
+          search_tsv: unknown | null
+          slug: string | null
+          subtitle: string | null
+          title: string
+          tv: string[] | null
+          updated_at: string | null
+          when_at: string | null
+        }
+        Insert: {
+          entity_id?: string | null
+          id?: string
+          kind: string
+          popularity?: number | null
+          search_text: string
+          search_tsv?: unknown | null
+          slug?: string | null
+          subtitle?: string | null
+          title: string
+          tv?: string[] | null
+          updated_at?: string | null
+          when_at?: string | null
+        }
+        Update: {
+          entity_id?: string | null
+          id?: string
+          kind?: string
+          popularity?: number | null
+          search_text?: string
+          search_tsv?: unknown | null
+          slug?: string | null
+          subtitle?: string | null
+          title?: string
+          tv?: string[] | null
+          updated_at?: string | null
+          when_at?: string | null
+        }
+        Relationships: []
+      }
+      search_synonym: {
+        Row: {
+          canonical: string
+          created_at: string | null
+          term: string
+        }
+        Insert: {
+          canonical: string
+          created_at?: string | null
+          term: string
+        }
+        Update: {
+          canonical?: string
+          created_at?: string | null
+          term?: string
+        }
+        Relationships: []
+      }
       seo_template: {
         Row: {
           code: string
@@ -958,6 +1063,30 @@ export type Database = {
           key?: string
           updated_at?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      tag: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1021,6 +1150,27 @@ export type Database = {
           reasons?: Json
           score?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      tv_channel: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
         }
         Relationships: []
       }
@@ -1148,6 +1298,7 @@ export type Database = {
           official_source_url: string | null
           og_theme: string | null
           rrule: string | null
+          search_tsv: unknown | null
           seo_description: string | null
           seo_faq: Json | null
           seo_h1: string | null
@@ -1174,6 +1325,7 @@ export type Database = {
           kickoff_at: string
           round: string | null
           score: Json | null
+          search_tsv: unknown | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
@@ -1198,6 +1350,7 @@ export type Database = {
           poster_url: string | null
           prime_date: string | null
           provider: Json | null
+          search_tsv: unknown | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
@@ -1218,6 +1371,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      normalize_text: {
+        Args: { input: string }
+        Returns: string
+      }
       render_template: {
         Args: { tmpl: string; vars: Json }
         Returns: string
@@ -1229,6 +1386,14 @@ export type Database = {
       ugc_quota_exceeded: {
         Args: { p_user: string; p_kind?: string }
         Returns: boolean
+      }
+      unaccent: {
+        Args: { "": string }
+        Returns: string
+      }
+      unaccent_init: {
+        Args: { "": unknown }
+        Returns: unknown
       }
     }
     Enums: {
