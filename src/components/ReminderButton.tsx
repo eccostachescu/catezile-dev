@@ -7,7 +7,7 @@ import { Input } from "@/components/Input";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/lib/auth";
 import { formatRoDate } from "@/lib/date";
-
+import { track } from "@/lib/analytics";
 export type ReminderKind = "event" | "match" | "movie" | "countdown";
 
 interface Props {
@@ -30,6 +30,7 @@ export default function ReminderButton({ when, kind, entityId }: Props) {
   const doSave = async () => {
     if (!kind || !entityId) {
       setSet(true);
+      track('reminder_set', { kind: kind || 'unknown', entityId: entityId || undefined, offset_days: days, offset_hours: hours });
       toast({ title: "Reminder setat", description: "Îți vom reaminti înainte de eveniment." });
       setOpen(false);
       return;
@@ -48,6 +49,7 @@ export default function ReminderButton({ when, kind, entityId }: Props) {
       setSet(true);
       setOpen(false);
       setNextFireAt(data?.next_fire_at || null);
+      track('reminder_set', { kind, entityId, offset_days: days, offset_hours: hours });
       toast({ title: "Reminder activ", description: data?.next_fire_at ? `Îți scriem ${formatRoDate(new Date(data.next_fire_at), true)}.` : undefined });
     } catch (e: any) {
       setSaving(false);

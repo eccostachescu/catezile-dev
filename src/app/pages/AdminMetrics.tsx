@@ -16,6 +16,7 @@ export default function AdminMetrics() {
   const [loading, setLoading] = useState(false);
   const [metrics, setMetrics] = useState<any[]>([]);
   const [aff, setAff] = useState<any[]>([]);
+  const [trending, setTrending] = useState<any[]>([]);
 
   const daysBack = range === '7d' ? 7 : range === '30d' ? 30 : 90;
   const startISO = useMemo(() => new Date(Date.now() - daysBack*24*60*60*1000).toISOString().slice(0,10), [daysBack]);
@@ -24,12 +25,14 @@ export default function AdminMetrics() {
     if (!isAdmin) return;
     const load = async () => {
       setLoading(true);
-      const [mRes, aRes] = await Promise.all([
+      const [mRes, aRes, tRes] = await Promise.all([
         supabase.from('metric_daily').select('*').gte('day', startISO).order('day', { ascending: true }),
         supabase.from('affiliate_kpi_daily').select('*').gte('day', startISO).order('day', { ascending: true }),
+        supabase.from('trending').select('*').order('score', { ascending: false }).limit(30),
       ]);
       setMetrics(mRes.data || []);
       setAff(aRes.data || []);
+      setTrending(tRes.data || []);
       setLoading(false);
     };
     load();
@@ -65,6 +68,18 @@ export default function AdminMetrics() {
 
   const revenueSeries = useMemo(() => seriesByDay.map((d:any)=>({ day:d.day, est: Number(d.revenue_ads) + Number(d.revenue_aff) })), [seriesByDay]);
 
+  const exportCsv = async () => {
+    const { data, error } = await supabase.functions.invoke('export_metrics_csv', { body: { start: startISO } });
+    if (error) return;
+    const blob = new Blob([data as any], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `metrics-${startISO}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <SEO title="Admin Analytics" path="/admin/metrics" noIndex />
@@ -80,6 +95,7 @@ export default function AdminMetrics() {
                 <SelectItem value="90d">Ultimele 90 zile</SelectItem>
               </SelectContent>
             </Select>
+            <Button variant="outline" onClick={exportCsv}>Export CSV</Button>
             <Button variant="outline" onClick={()=>location.reload()}>Reîmprospătează</Button>
           </div>
         </div>
@@ -136,6 +152,37 @@ export default function AdminMetrics() {
                   <Area type="monotone" dataKey="est" stroke="#5B7BFF" fillOpacity={1} fill="url(#rev)" />
                 </AreaChart>
               </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="lg:col-span-2">
+            <CardHeader><CardTitle>Trending (top 30)</CardTitle></CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left">
+                      <th className="p-2">Tip</th>
+                      <th className="p-2">Entity</th>
+                      <th className="p-2">Scor</th>
+                      <th className="p-2">Detalii</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trending.map((t)=> (
+                      <tr key={`${t.kind}-${t.entity_id}`} className="border-t">
+                        <td className="p-2 capitalize">{t.kind}</td>
+                        <td className="p-2 font-mono text-xs">{t.entity_id}</td>
+                        <td className="p-2">{Number(t.score).toFixed(3)}</td>
+                        <td className="p-2 text-muted-foreground whitespace-pre-wrap">{JSON.stringify(t.reasons)}</td>
+                      </tr>
+                    ))}
+                    {trending.length === 0 && (
+                      <tr><td colSpan={4} className="p-3 text-center text-muted-foreground">Fără date încă</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </div>

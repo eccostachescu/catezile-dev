@@ -14,8 +14,13 @@ serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
     const url = new URL(req.url);
-    const start = url.searchParams.get('start');
-    const end = url.searchParams.get('end');
+    let start = url.searchParams.get('start');
+    let end = url.searchParams.get('end');
+    if (req.method === 'POST') {
+      const body = await req.json().catch(()=>undefined) as any;
+      if (body?.start) start = body.start;
+      if (body?.end) end = body.end;
+    }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;

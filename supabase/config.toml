@@ -53,3 +53,15 @@ verify_jwt = false
 
 [functions.email_send]
 verify_jwt = false
+
+[functions.aggregate_internal_metrics]
+verify_jwt = false
+
+[functions.build_trending]
+verify_jwt = false
+
+[functions.export_metrics_csv]
+verify_jwt = false
+
+[functions.collect_plausible_daily]
+verify_jwt = false
