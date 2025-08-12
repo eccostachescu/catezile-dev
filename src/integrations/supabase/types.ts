@@ -1072,6 +1072,30 @@ export type Database = {
         }
         Relationships: []
       }
+      sitemap_chunk: {
+        Row: {
+          chunk_no: number
+          id: number
+          last_built_at: string | null
+          section: string
+          url_count: number
+        }
+        Insert: {
+          chunk_no: number
+          id?: number
+          last_built_at?: string | null
+          section: string
+          url_count?: number
+        }
+        Update: {
+          chunk_no?: number
+          id?: number
+          last_built_at?: string | null
+          section?: string
+          url_count?: number
+        }
+        Relationships: []
+      }
       tag: {
         Row: {
           created_at: string | null
@@ -1222,6 +1246,33 @@ export type Database = {
         }
         Relationships: []
       }
+      url_change_log: {
+        Row: {
+          created_at: string | null
+          entity_id: string | null
+          id: number
+          kind: string
+          reason: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id?: string | null
+          id?: number
+          kind: string
+          reason: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string | null
+          id?: number
+          kind?: string
+          reason?: string
+          url?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           created_at: string | null
@@ -1254,6 +1305,12 @@ export type Database = {
       }
     }
     Views: {
+      static_pages: {
+        Row: {
+          url: string | null
+        }
+        Relationships: []
+      }
       ugc_queue: {
         Row: {
           created_at: string | null
