@@ -50,18 +50,31 @@ export default function Home() {
         path="/"
       />
 
-      {homeData?.hero && <HomeHero hero={homeData.hero} />} 
-      <TrendingRail items={homeData?.trending || []} />
-      <TodayGrid items={homeData?.today || []} />
-      <TVNow items={homeData?.tv_now || []} />
+      {homeData?.hero && <HomeHero hero={homeData.hero} />}
+      {(() => {
+        const defaultOrder = ['trending','today','tvnow','upcoming','foryou','explore','ads'] as const;
+        const order = (homeData?.sections_order && Array.isArray(homeData.sections_order) ? homeData.sections_order : defaultOrder) as string[];
+        return order.map((k, idx) => {
+          if (k === 'trending') return <TrendingRail key={`sec-${idx}-tr`} items={homeData?.trending || []} />;
+          if (k === 'today') return <TodayGrid key={`sec-${idx}-td`} items={homeData?.today || []} />;
+          if (k === 'tvnow') return <TVNow key={`sec-${idx}-tv`} items={homeData?.tv_now || []} />;
+          if (k === 'upcoming') return (
+            <>
+              {/* ancoră pentru linkul "Vezi toate" din Trending */}
+              {idx === order.indexOf('upcoming') && <div id="in-curand" />}
+              <UpcomingStrip key={`sec-${idx}-us`} title="Sport săptămâna asta" items={homeData?.upcoming?.sport || []} kind="sport" />
+              <HomeAdRail />
+              <UpcomingStrip key={`sec-${idx}-um`} title="Filme luna aceasta" items={homeData?.upcoming?.movies || []} kind="movies" />
+              <UpcomingStrip key={`sec-${idx}-ue`} title="Evenimente în curând" items={homeData?.upcoming?.events || []} kind="events" />
+            </>
+          );
+          if (k === 'foryou') return <ForYou key={`sec-${idx}-fy`} />;
+          if (k === 'explore') return <ExploreLinks key={`sec-${idx}-ex`} discovery={homeData?.discovery || { tags: [], teams: [], tv: [] }} />;
+          if (k === 'ads') return <HomeAdRail key={`sec-${idx}-ad`} />;
+          return null;
+        });
+      })()}
 
-      <UpcomingStrip title="Sport săptămâna asta" items={homeData?.upcoming?.sport || []} kind="sport" />
-      <HomeAdRail />
-      <UpcomingStrip title="Filme luna aceasta" items={homeData?.upcoming?.movies || []} kind="movies" />
-      <UpcomingStrip title="Evenimente în curând" items={homeData?.upcoming?.events || []} kind="events" />
-
-      <ForYou />
-      <ExploreLinks discovery={homeData?.discovery || { tags: [], teams: [], tv: [] }} />
 
       {jsonLd && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
