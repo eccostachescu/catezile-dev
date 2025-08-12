@@ -235,91 +235,137 @@ async function loadSectionByCategory(slug: string, daysAhead = 90) {
 
 export async function loadHome() {
   const now = new Date();
-  const today = now.toISOString().slice(0, 10);
-  const y = now.getFullYear();
+  const tz = 'Europe/Bucharest';
+  const nowIso = now.toISOString();
 
-  // Featured events: try selected slugs, fallback to upcoming
-  const featuredSlugs = [
-    `black-friday-${y}`,
-    `paste-${y}`,
-    `craciun-${y}`,
-    `bac-${y}`,
-  ];
-  const { data: featData } = await supabase
-    .from('event')
-    .select('*')
-    .in('slug', featuredSlugs)
-    .eq('status', 'PUBLISHED')
-    .limit(4);
-  let featured = (featData ?? []).map((e: any) => EventSchema.parse(e));
-  if (featured.length < 4) {
-    const { data: fallback } = await supabase
-      .from('event')
-      .select('*')
-      .eq('status', 'PUBLISHED')
-      .gte('start_at', now.toISOString())
-      .order('start_at', { ascending: true })
-      .limit(4);
-    featured = (fallback ?? []).map((e: any) => EventSchema.parse(e));
-  }
+  // Settings
+  const { data: settingsRows } = await supabase.from('settings').select('key,value').in('key', ['home_hero','home_sections_order','home_trending_limit','home_tv_window_min']);
+  const settingsMap = Object.fromEntries((settingsRows || []).map((r: any) => [r.key, r.value]));
+  const heroOverride = settingsMap['home_hero'] as any;
+  const trendingLimit = Number(settingsMap['home_trending_limit'] ?? 8);
+  const tvWindowMin = Number(settingsMap['home_tv_window_min'] ?? 90);
 
-  // Next matches
-  const { data: matches } = await supabase
+  // BF merchants (simple list from bf_merchant)
+  const { data: bfMerchants } = await supabase.from('bf_merchant').select('id,name,slug,affiliate_link_id').limit(3);
+
+  // Derby within 72h
+  const in72h = new Date(now.getTime() + 72 * 60 * 60 * 1000).toISOString();
+  const { data: derbyCandidates } = await supabase
     .from('match')
-    .select('id,home,away,kickoff_at,tv_channels,is_derby,seo_title,seo_description,seo_h1')
-    .gte('kickoff_at', now.toISOString())
+    .select('id,home,away,kickoff_at,tv_channels,status,score,slug,is_derby')
+    .eq('is_derby', true)
+    .gte('kickoff_at', nowIso)
+    .lte('kickoff_at', in72h)
+    .order('kickoff_at', { ascending: true })
+    .limit(1);
+
+  // Today window (approx UTC today) and TV now window
+  const startToday = new Date(); startToday.setUTCHours(0,0,0,0);
+  const endToday = new Date(); endToday.setUTCHours(23,59,59,999);
+  const tvUntil = new Date(now.getTime() + tvWindowMin * 60 * 1000).toISOString();
+
+  // Trending 24h via `trending` + hydrate via search_index
+  const { data: trendingRows } = await supabase
+    .from('trending')
+    .select('kind, entity_id, reasons, score, updated_at')
+    .order('updated_at', { ascending: false })
+    .limit(trendingLimit);
+  const trendingIds = (trendingRows || []).map((t: any) => t.entity_id);
+  const { data: trendingMeta } = await supabase
+    .from('search_index')
+    .select('entity_id, kind, id, title, subtitle, slug, when_at, tv')
+    .in('entity_id', trendingIds);
+  const trendingMap = new Map<string, any>((trendingMeta || []).map((x: any) => [x.entity_id, x]));
+  const trending = (trendingRows || []).map((t: any) => {
+    const m = trendingMap.get(t.entity_id) || {};
+    return {
+      kind: m.kind || t.kind,
+      id: m.id || t.entity_id,
+      title: m.title,
+      subtitle: m.subtitle,
+      slug: m.slug,
+      when_at: m.when_at,
+      score: t.score,
+      reasons: t.reasons || {},
+    };
+  }).filter(x => x.title);
+
+  // Today (mix from search_index happening today)
+  const { data: todayRows } = await supabase
+    .from('search_index')
+    .select('kind,id,title,slug,when_at,tv,category_slug')
+    .gte('when_at', startToday.toISOString())
+    .lte('when_at', endToday.toISOString())
+    .order('when_at', { ascending: true })
+    .limit(12);
+  const today = (todayRows || []).map((x: any) => ({
+    kind: x.kind, id: x.id, title: x.title, slug: x.slug, when_at: x.when_at, tv_channels: x.tv || null,
+  }));
+
+  // TV now (LIVE or within next N minutes)
+  const { data: tvNowRows } = await supabase
+    .from('match')
+    .select('id,home,away,kickoff_at,tv_channels,status,score,slug')
+    .or(`status.eq.LIVE,and(kickoff_at.gte.${nowIso},kickoff_at.lte.${tvUntil})`)
     .order('kickoff_at', { ascending: true })
     .limit(6);
+  const tv_now = (tvNowRows || []).map((m: any) => ({
+    id: m.id, home: m.home, away: m.away, kickoff_at: m.kickoff_at, tv_channels: m.tv_channels, status: m.status, minute: (m.score && (m.score.minute || m.score.min)) || null, slug: m.slug || m.id,
+  }));
 
-  // Upcoming movies
-  const { data: upcomingMovies } = await supabase
-    .from('movie')
-    .select('id,title,poster_url,cinema_release_ro,netflix_date,seo_title,seo_description,seo_h1')
-    .gte('cinema_release_ro', today)
-    .order('cinema_release_ro', { ascending: true })
-    .limit(6);
-
-  // Sections
-  const [sarbatori, examene, festivaluri] = await Promise.all([
-    loadSectionByCategory('sarbatori'),
-    loadSectionByCategory('examene'),
-    loadSectionByCategory('festivaluri'),
+  // Upcoming
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString().slice(0,10);
+  const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()+1, 1)).toISOString().slice(0,10);
+  const plus30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const plus90 = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString();
+  const [sportQ, moviesQ, eventsQ] = await Promise.all([
+    supabase.from('match').select('id,home,away,kickoff_at,tv_channels,slug').gte('kickoff_at', nowIso).lte('kickoff_at', in7d).order('kickoff_at', { ascending: true }).limit(20),
+    supabase.from('movie').select('id,title,poster_url,cinema_release_ro,slug').gte('cinema_release_ro', monthStart).lt('cinema_release_ro', nextMonthStart).order('cinema_release_ro', { ascending: true }).limit(20),
+    supabase.from('event').select('id,slug,title,start_at,city').eq('status','PUBLISHED').gte('start_at', plus30).lte('start_at', plus90).order('start_at', { ascending: true }).limit(20),
   ]);
 
-  // Black Friday hub
-  const { data: bfEvent } = await supabase
-    .from('event')
-    .select('*')
-    .eq('slug', `black-friday-${y}`)
-    .maybeSingle();
-  const bfHub = {
-    event: bfEvent ? EventSchema.parse(bfEvent) : null,
-    merchants: [
-      { name: 'eMAG', url: 'https://www.emag.ro/' },
-      { name: 'Altex', url: 'https://altex.ro/' },
-      { name: 'PC Garage', url: 'https://www.pcgarage.ro/' },
-      { name: 'evoMAG', url: 'https://www.evomag.ro/' },
+  // Discovery
+  const [tagsQ, tvQ] = await Promise.all([
+    supabase.from('tag').select('slug,name').limit(12),
+    supabase.from('tv_channel').select('slug,name').limit(12),
+  ]);
+  const discovery = {
+    tags: tagsQ.data || [],
+    teams: [
+      { slug: 'fcsb', name: 'FCSB' },
+      { slug: 'dinamo-bucuresti', name: 'Dinamo' },
+      { slug: 'cfr-cluj', name: 'CFR Cluj' },
+      { slug: 'rapid-bucuresti', name: 'Rapid' },
     ],
+    tv: tvQ.data || [],
   };
 
-  // Trending fallback
-  const { data: trendingData } = await supabase
-    .from('event')
-    .select('*')
-    .eq('status', 'PUBLISHED')
-    .gte('start_at', now.toISOString())
-    .order('start_at', { ascending: true })
-    .limit(8);
-  const trending = (trendingData ?? []).map((e: any) => EventSchema.parse(e));
+  // Hero selection
+  const month = now.getUTCMonth() + 1;
+  let hero: any = { kind: 'today', payload: { highlights: today.slice(0,3) } };
+  const bfEligible = (month === 11) || (heroOverride === 'bf');
+  if (bfEligible && (bfMerchants && bfMerchants.length > 0)) {
+    hero = { kind: 'bf', payload: { merchants: bfMerchants } };
+  } else if ((heroOverride === 'derby') || (derbyCandidates && derbyCandidates.length > 0)) {
+    const d = derbyCandidates?.[0];
+    if (d) hero = { kind: 'derby', payload: d };
+  }
 
   return {
-    featured: { events: featured },
-    sport: { nextMatches: matches ?? [] },
-    movies: { upcoming: upcomingMovies ?? [] },
-    sections: { sarbatori, examene, festivaluri },
-    bf: { hub: bfHub },
+    nowIso,
+    tz,
+    hero,
     trending,
-  };
+    today,
+    tv_now,
+    upcoming: {
+      sport: sportQ.data || [],
+      movies: moviesQ.data || [],
+      events: eventsQ.data || [],
+    },
+    discovery,
+  } as const;
 }
 
 // Countdown loader (public-approved only for SSG)

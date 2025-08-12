@@ -2,35 +2,19 @@ import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
 import { getInitialData } from "@/ssg/serialize";
 import { loadHome } from "@/ssg/loader";
-import { useEffect, useState } from "react";
-import Hero from "@/components/home/Hero";
-import SearchDialog from "@/components/home/SearchDialog";
-import FeaturedTimers from "@/components/home/FeaturedTimers";
-import MatchesStrip from "@/components/home/MatchesStrip";
-import MoviesStrip from "@/components/home/MoviesStrip";
-import SectionList from "@/components/home/SectionList";
-import WeekAhead from "@/components/home/WeekAhead";
-import NewsletterCta from "@/components/home/NewsletterCta";
+import { useEffect, useMemo, useState } from "react";
+import HomeHero from "@/components/home/HomeHero";
+import TrendingRail from "@/components/home/TrendingRail";
+import TodayGrid from "@/components/home/TodayGrid";
+import TVNow from "@/components/home/TVNow";
+import UpcomingStrip from "@/components/home/UpcomingStrip";
+import ForYou from "@/components/home/ForYou";
+import ExploreLinks from "@/components/home/ExploreLinks";
 import HomeAdRail from "@/components/home/HomeAdRail";
-import LazySection from "@/components/home/LazySection";
-import { FeaturedSkeleton, GridSkeleton } from "@/components/home/Skeletons";
-
-function AnswerBox() {
-  return (
-    <section className="py-4">
-      <Container>
-        <p className="text-center text-sm text-muted-foreground">
-          Află rapid în câte zile sunt evenimentele importante, ce meciuri sunt la TV și când apar filmele în România.
-        </p>
-      </Container>
-    </section>
-  );
-}
 
 export default function Home() {
   const data = getInitialData<any>();
   const initialHome = data && (data as any).home;
-  const [openSearch, setOpenSearch] = useState(false);
   const [homeData, setHomeData] = useState<any | null>(initialHome || null);
 
   useEffect(() => {
@@ -41,32 +25,58 @@ export default function Home() {
     return () => { cancelled = true; };
   }, []);
 
+  const jsonLd = useMemo(() => {
+    if (!homeData?.trending?.length) return null;
+    const base = (typeof window !== 'undefined' ? window.location.origin : 'https://catezile.ro');
+    const items = homeData.trending.slice(0, 6).map((it: any, i: number) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: hrefFor(base, it),
+      name: it.title,
+    }));
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      itemListElement: items,
+    };
+  }, [homeData]);
+
   return (
     <>
-      <SEO kind="home" title="CateZile.ro — Câte zile până…" description="Calendar inteligent pentru România: meciuri Liga 1, filme, sărbători, examene, festivaluri și Black Friday." path="/" />
-      <Hero onOpenSearch={() => setOpenSearch(true)} />
-      <SearchDialog open={openSearch} onOpenChange={setOpenSearch} />
+      <SEO
+        kind="home"
+        title="Câte zile până la… | Meciuri, Filme, Sărbători în România"
+        description="Calendar actualizat zilnic: program TV Liga 1, premiere la cinema și pe Netflix/Prime, sărbători și examene. Remindere pe e‑mail, fără spam."
+        path="/"
+      />
 
-      <AnswerBox />
+      {homeData?.hero && <HomeHero hero={homeData.hero} />}
 
-      <FeaturedTimers events={homeData?.featured?.events || []} />
+      <TrendingRail items={homeData?.trending || []} />
 
-      <LazySection placeholder={<section className="py-6"><Container><FeaturedSkeleton /></Container></section>}>
-        <MatchesStrip matches={homeData?.sport?.nextMatches || []} />
-        <MoviesStrip movies={homeData?.movies?.upcoming || []} />
-      </LazySection>
+      <TodayGrid items={homeData?.today || []} />
 
-      <LazySection placeholder={<section className="py-6"><Container><GridSkeleton /></Container></section>}>
-        <SectionList title="Sărbători" items={homeData?.sections?.sarbatori || []} href="/categorii/sarbatori" />
-        <SectionList title="Examene" items={homeData?.sections?.examene || []} href="/categorii/examene" />
-        <SectionList title="Festivaluri" items={homeData?.sections?.festivaluri || []} href="/categorii/festivaluri" />
-      </LazySection>
+      <TVNow items={homeData?.tv_now || []} />
 
-      <WeekAhead trending={homeData?.trending || []} />
-
-      <NewsletterCta />
-
+      <UpcomingStrip title="Sport săptămâna asta" items={homeData?.upcoming?.sport || []} kind="sport" />
       <HomeAdRail />
+      <UpcomingStrip title="Filme luna aceasta" items={homeData?.upcoming?.movies || []} kind="movies" />
+      <UpcomingStrip title="Evenimente în curând" items={homeData?.upcoming?.events || []} kind="events" />
+
+      <ForYou />
+
+      <ExploreLinks discovery={homeData?.discovery || { tags: [], teams: [], tv: [] }} />
+
+      {jsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      )}
     </>
   );
+}
+
+function hrefFor(base: string, it: any) {
+  if (it.kind === 'match') return `${base}/sport/${it.slug || it.id}`;
+  if (it.kind === 'movie') return `${base}/filme/${it.slug || it.id}`;
+  if (it.kind === 'event') return `${base}/evenimente/${it.slug}`;
+  return base;
 }
