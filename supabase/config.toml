@@ -27,3 +27,23 @@ verify_jwt = false
 [functions.update_movie_providers]
 verify_jwt = false
 
+[functions.reminder_upsert]
+verify_jwt = true
+
+[functions.schedule_reminders]
+verify_jwt = false
+
+[functions.send_reminders]
+verify_jwt = false
+
+[functions.ics_event]
+verify_jwt = false
+
+[functions.ics_user_feed]
+verify_jwt = false
+
+[functions.weekly_digest]
+verify_jwt = false
+
+[functions.resend_webhook]
+verify_jwt = false

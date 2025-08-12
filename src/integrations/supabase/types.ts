@@ -696,6 +696,7 @@ export type Database = {
           display_name: string | null
           email: string | null
           handle: string | null
+          ical_token: string | null
           id: string
           locale: string | null
           role: string
@@ -709,6 +710,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           handle?: string | null
+          ical_token?: string | null
           id: string
           locale?: string | null
           role?: string
@@ -722,6 +724,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           handle?: string | null
+          ical_token?: string | null
           id?: string
           locale?: string | null
           role?: string
@@ -733,30 +736,125 @@ export type Database = {
       }
       reminder: {
         Row: {
+          channel: string
           created_at: string | null
           entity_id: string
           entity_type: string
           id: string
+          next_fire_at: string | null
           offset_days: number
+          offset_hours: number | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          next_fire_at?: string | null
+          offset_days: number
+          offset_hours?: number | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          next_fire_at?: string | null
+          offset_days?: number
+          offset_hours?: number | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reminder_log: {
+        Row: {
+          id: number
+          meta: Json | null
+          outcome: string | null
+          provider_id: string | null
+          reminder_id: string | null
+          sent_at: string | null
+          subject: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: number
+          meta?: Json | null
+          outcome?: string | null
+          provider_id?: string | null
+          reminder_id?: string | null
+          sent_at?: string | null
+          subject?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: number
+          meta?: Json | null
+          outcome?: string | null
+          provider_id?: string | null
+          reminder_id?: string | null
+          sent_at?: string | null
+          subject?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      reminder_queue: {
+        Row: {
+          created_at: string | null
+          entity_id: string
+          fire_at: string
+          id: number
+          kind: string
+          last_error: string | null
+          reminder_id: string
+          status: string
+          tries: number
           user_id: string
         }
         Insert: {
           created_at?: string | null
           entity_id: string
-          entity_type: string
-          id?: string
-          offset_days: number
+          fire_at: string
+          id?: number
+          kind: string
+          last_error?: string | null
+          reminder_id: string
+          status?: string
+          tries?: number
           user_id: string
         }
         Update: {
           created_at?: string | null
           entity_id?: string
-          entity_type?: string
-          id?: string
-          offset_days?: number
+          fire_at?: string
+          id?: number
+          kind?: string
+          last_error?: string | null
+          reminder_id?: string
+          status?: string
+          tries?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reminder_queue_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminder"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seo_template: {
         Row: {
