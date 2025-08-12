@@ -1,18 +1,7 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
-Allow: /
+Disallow: /admin
+Disallow: /embed
+Disallow: /cauta
 
-Sitemap: https://catezile.ro/sitemaps/sitemap-sarbatori.xml
-Sitemap: https://catezile.ro/sitemaps/sitemap-examene.xml
-Sitemap: https://catezile.ro/sitemaps/sitemap-festivaluri.xml
+Sitemap: https://catezile.ro/sitemap.xml
+
