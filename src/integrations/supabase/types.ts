@@ -47,35 +47,94 @@ export type Database = {
       affiliate_link: {
         Row: {
           active: boolean | null
+          base_domain: string | null
+          country: string | null
           created_at: string | null
+          deeplink_template: string | null
+          epc_estimate: number | null
           id: string
+          logo_url: string | null
+          merchant: string | null
+          network: string | null
           notes: string | null
           partner: string
+          status: string | null
           tracking_key: string | null
           updated_at: string | null
           url: string
         }
         Insert: {
           active?: boolean | null
+          base_domain?: string | null
+          country?: string | null
           created_at?: string | null
+          deeplink_template?: string | null
+          epc_estimate?: number | null
           id?: string
+          logo_url?: string | null
+          merchant?: string | null
+          network?: string | null
           notes?: string | null
           partner: string
+          status?: string | null
           tracking_key?: string | null
           updated_at?: string | null
           url: string
         }
         Update: {
           active?: boolean | null
+          base_domain?: string | null
+          country?: string | null
           created_at?: string | null
+          deeplink_template?: string | null
+          epc_estimate?: number | null
           id?: string
+          logo_url?: string | null
+          merchant?: string | null
+          network?: string | null
           notes?: string | null
           partner?: string
+          status?: string | null
           tracking_key?: string | null
           updated_at?: string | null
           url?: string
         }
         Relationships: []
+      }
+      bf_merchant: {
+        Row: {
+          affiliate_link_id: string | null
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_link_id?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_link_id?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bf_merchant_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_link"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       category: {
         Row: {
@@ -106,32 +165,47 @@ export type Database = {
       }
       click: {
         Row: {
+          campaign: string | null
           created_at: string | null
           entity_id: string
           id: number
+          ip: unknown | null
           ip_hash: string | null
           kind: string
+          path: string | null
           referrer: string | null
+          subid: string | null
+          ua_hash: string | null
           user_agent: string | null
           utm: Json | null
         }
         Insert: {
+          campaign?: string | null
           created_at?: string | null
           entity_id: string
           id?: number
+          ip?: unknown | null
           ip_hash?: string | null
           kind: string
+          path?: string | null
           referrer?: string | null
+          subid?: string | null
+          ua_hash?: string | null
           user_agent?: string | null
           utm?: Json | null
         }
         Update: {
+          campaign?: string | null
           created_at?: string | null
           entity_id?: string
           id?: number
+          ip?: unknown | null
           ip_hash?: string | null
           kind?: string
+          path?: string | null
           referrer?: string | null
+          subid?: string | null
+          ua_hash?: string | null
           user_agent?: string | null
           utm?: Json | null
         }
@@ -178,6 +252,7 @@ export type Database = {
           image_url: string | null
           owner_id: string | null
           privacy: string
+          reject_reason: string | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
@@ -195,6 +270,7 @@ export type Database = {
           image_url?: string | null
           owner_id?: string | null
           privacy?: string
+          reject_reason?: string | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -212,6 +288,7 @@ export type Database = {
           image_url?: string | null
           owner_id?: string | null
           privacy?: string
+          reject_reason?: string | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -485,51 +562,72 @@ export type Database = {
       }
       movie: {
         Row: {
+          backdrop_url: string | null
           cinema_release_ro: string | null
           created_at: string | null
+          genres: string[] | null
           id: string
           netflix_date: string | null
+          original_title: string | null
+          overview: string | null
           poster_url: string | null
           prime_date: string | null
+          provider: Json | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
           slug: string | null
+          source: Json | null
           status: string
           title: string
           tmdb_id: number
+          trailer_youtube_key: string | null
           updated_at: string | null
         }
         Insert: {
+          backdrop_url?: string | null
           cinema_release_ro?: string | null
           created_at?: string | null
+          genres?: string[] | null
           id?: string
           netflix_date?: string | null
+          original_title?: string | null
+          overview?: string | null
           poster_url?: string | null
           prime_date?: string | null
+          provider?: Json | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
           slug?: string | null
+          source?: Json | null
           status?: string
           title: string
           tmdb_id: number
+          trailer_youtube_key?: string | null
           updated_at?: string | null
         }
         Update: {
+          backdrop_url?: string | null
           cinema_release_ro?: string | null
           created_at?: string | null
+          genres?: string[] | null
           id?: string
           netflix_date?: string | null
+          original_title?: string | null
+          overview?: string | null
           poster_url?: string | null
           prime_date?: string | null
+          provider?: Json | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
           slug?: string | null
+          source?: Json | null
           status?: string
           title?: string
           tmdb_id?: number
+          trailer_youtube_key?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -657,6 +755,66 @@ export type Database = {
         }
         Relationships: []
       }
+      team_alias: {
+        Row: {
+          alias: string
+          canonical: string
+          created_at: string
+        }
+        Insert: {
+          alias: string
+          canonical: string
+          created_at?: string
+        }
+        Update: {
+          alias?: string
+          canonical?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      tv_channel_alias: {
+        Row: {
+          alias: string
+          canonical: string
+          created_at: string
+          priority: number
+        }
+        Insert: {
+          alias: string
+          canonical: string
+          created_at?: string
+          priority?: number
+        }
+        Update: {
+          alias?: string
+          canonical?: string
+          created_at?: string
+          priority?: number
+        }
+        Relationships: []
+      }
+      ugc_quota: {
+        Row: {
+          created_at: string | null
+          id: number
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          kind?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       ugc_queue: {
@@ -691,30 +849,6 @@ export type Database = {
       }
     }
     Functions: {
-      citext: {
-        Args: { "": boolean } | { "": string } | { "": unknown }
-        Returns: string
-      }
-      citext_hash: {
-        Args: { "": string }
-        Returns: number
-      }
-      citextin: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      citextout: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      citextrecv: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      citextsend: {
-        Args: { "": string }
-        Returns: string
-      }
       compute_event_seo: {
         Args: { e: Database["public"]["Tables"]["event"]["Row"] }
         Returns: {
@@ -766,45 +900,32 @@ export type Database = {
       compute_movie_seo: {
         Args: { x: Database["public"]["Tables"]["movie"]["Row"] }
         Returns: {
+          backdrop_url: string | null
           cinema_release_ro: string | null
           created_at: string | null
+          genres: string[] | null
           id: string
           netflix_date: string | null
+          original_title: string | null
+          overview: string | null
           poster_url: string | null
           prime_date: string | null
+          provider: Json | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
           slug: string | null
+          source: Json | null
           status: string
           title: string
           tmdb_id: number
+          trailer_youtube_key: string | null
           updated_at: string | null
         }
       }
       current_user_email: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
       }
       is_admin: {
         Args: Record<PropertyKey, never>
@@ -814,21 +935,13 @@ export type Database = {
         Args: { tmpl: string; vars: Json }
         Returns: string
       }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
-      }
       slugify: {
         Args: { txt: string }
         Returns: string
+      }
+      ugc_quota_exceeded: {
+        Args: { p_user: string; p_kind?: string }
+        Returns: boolean
       }
     }
     Enums: {
