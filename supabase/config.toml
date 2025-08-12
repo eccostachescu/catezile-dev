@@ -107,3 +107,13 @@ verify_jwt = false
 [functions.bf_admin_export]
 verify_jwt = false
 
+# TV Guide
+[functions.tv_build_from_matches]
+verify_jwt = false
+
+[functions.tv_import_xmltv]
+verify_jwt = false
+
+[functions.tv_now_status]
+verify_jwt = false
+

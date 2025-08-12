@@ -17,6 +17,7 @@ export const routes = {
   tag: (slug: string) => `/tag/${slug}`,
   team: (slug: string) => `/echipa/${slug}`,
   tv: (slug: string) => `/tv/${slug}`,
+  tvGuide: () => "/tv",
   about: () => "/despre",
   contact: () => "/contact",
   account: () => "/account",

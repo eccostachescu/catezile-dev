@@ -46,3 +46,18 @@ export const movieJsonLd = (opts: { name: string; releaseDate?: Date | string | 
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
 
+export const broadcastEventJsonLd = (opts: { channelName: string; startDate: Date | string | number; endDate?: Date | string | number; isLive?: boolean; sports?: { name: string; homeTeam: string; awayTeam: string; startDate: Date | string | number } }) => ({
+  "@context": "https://schema.org",
+  "@type": "BroadcastEvent",
+  name: `${opts.sports ? opts.sports.name : 'Program sport'} — ${opts.channelName}`,
+  startDate: new Date(opts.startDate).toISOString(),
+  endDate: opts.endDate ? new Date(opts.endDate).toISOString() : undefined,
+  isLiveBroadcast: !!opts.isLive,
+  broadcastOfEvent: opts.sports ? sportsEventJsonLd({ name: opts.sports.name, homeTeam: opts.sports.homeTeam, awayTeam: opts.sports.awayTeam, startDate: opts.sports.startDate }) : undefined,
+  broadcastChannel: {
+    "@type": "TelevisionChannel",
+    name: opts.channelName,
+    broadcastServiceTier: "RO",
+  },
+});
+

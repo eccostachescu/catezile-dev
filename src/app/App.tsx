@@ -26,6 +26,7 @@ import ServerError from "./pages/ServerError";
 import SearchPage from "./pages/Search";
 import TagPage from "./pages/Tag";
 import TeamPage from "./pages/Team";
+import TVGuide from "./pages/TVGuide";
 import TVChannelPage from "./pages/TVChannel";
 import AdminSearch from "./pages/AdminSearch";
 import { SEOProvider } from "@/seo/SEOProvider";
@@ -69,6 +70,7 @@ const AppShell = () => {
                 <Route path="/cauta" element={<SearchPage />} />
                 <Route path="/tag/:slug" element={<TagPage />} />
                 <Route path="/echipa/:teamSlug" element={<TeamPage />} />
+                <Route path="/tv" element={<TVGuide />} />
                 <Route path="/tv/:channelSlug" element={<TVChannelPage />} />
 
                 {/* Auth */}
