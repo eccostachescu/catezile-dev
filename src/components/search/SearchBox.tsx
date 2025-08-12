@@ -25,7 +25,7 @@ export default function SearchBox({ compact = false, className }: { compact?: bo
     let cancel = false;
     async function run() {
       if (debounced.trim().length < 2) { setItems([]); return; }
-      const { data, error } = await supabase.functions.invoke('search_suggest', { method: 'GET', headers: {}, body: undefined, query: { q: debounced, limit: '8' } as any } as any);
+      const { data, error } = await supabase.functions.invoke('search_suggest', { body: { q: debounced, limit: 8 } });
       if (!cancel) setItems((data as any)?.items || []);
       setOpen(true);
     }

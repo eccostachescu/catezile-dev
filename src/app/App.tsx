@@ -26,6 +26,7 @@ import SearchPage from "./pages/Search";
 import TagPage from "./pages/Tag";
 import TeamPage from "./pages/Team";
 import TVChannelPage from "./pages/TVChannel";
+import AdminSearch from "./pages/AdminSearch";
 import { SEOProvider } from "@/seo/SEOProvider";
 import { AuthProvider } from "@/lib/auth";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -113,6 +114,14 @@ const AppShell = () => {
                   element={
                     <ProtectedRoute>
                       <AdminEmails />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/search"
+                  element={
+                    <ProtectedRoute>
+                      <AdminSearch />
                     </ProtectedRoute>
                   }
                 />

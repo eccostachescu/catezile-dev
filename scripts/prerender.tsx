@@ -13,6 +13,9 @@ import Category from '../src/app/pages/Category';
 import BlackFriday from '../src/app/pages/BlackFriday';
 import Countdown from '../src/app/pages/Countdown';
 import Embed from '../src/app/pages/Embed';
+import Tag from '../src/app/pages/Tag';
+import Team from '../src/app/pages/Team';
+import TVChannel from '../src/app/pages/TVChannel';
 import { loadEvent, loadMatch, loadMovie, loadMovies, loadCategory, loadCategoryHub, loadHome, loadCountdown } from '../src/ssg/loader';
 
 function resolveElement(pathname: string) {
@@ -25,6 +28,9 @@ function resolveElement(pathname: string) {
   if (/^\/categorii\//.test(pathname)) return <Category />;
   if (/^\/c\//.test(pathname)) return <Countdown />;
   if (/^\/embed\//.test(pathname)) return <Embed />;
+  if (/^\/tag\//.test(pathname)) return <Tag />;
+  if (/^\/echipa\//.test(pathname)) return <Team />;
+  if (/^\/tv\//.test(pathname)) return <TVChannel />;
   return <Home />;
 }
 

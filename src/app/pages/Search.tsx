@@ -19,7 +19,7 @@ export default function SearchPage() {
     let cancel = false;
     async function run(){
       setLoading(true);
-      const { data } = await supabase.functions.invoke('search', { method: 'GET', body: undefined, query: { q, kind, sort, page: '1', pageSize: '20' } as any } as any);
+      const { data } = await supabase.functions.invoke('search', { body: { q, kind, sort, page: 1, pageSize: 20 } });
       if (!cancel) {
         setItems((data as any)?.items || []);
         setTotal((data as any)?.total || 0);

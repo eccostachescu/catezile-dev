@@ -8,36 +8,39 @@ const corsHeaders = {
 
 function normalize(q: string) {
   const map: Record<string, string> = {
-    "ș": "s", "ş": "s", "Ș": "S", "Ş": "S",
-    "ț": "t", "ţ": "t", "Ț": "T", "Ţ": "T",
-    "ă": "a", "Ă": "A", "â": "a", "Â": "A", "î": "i", "Î": "I",
+    "ș": "s", "ş": "s", "Ș": "s", "Ş": "s",
+    "ț": "t", "ţ": "t", "Ț": "t", "Ţ": "t",
+    "ă": "a", "Ă": "a", "â": "a", "Â": "a", "î": "i", "Î": "i",
   };
-  return q
-    .trim()
-    .toLowerCase()
-    .split("")
-    .map((c) => map[c] ?? c)
-    .join("")
-    .replace(/\s+/g, " ");
+  return q.trim().toLowerCase().split("").map((c) => map[c] ?? c).join("").replace(/\s+/g, " ");
 }
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
-    const url = new URL(req.url);
-    const q = (url.searchParams.get('q') || '').slice(0, 100);
-    const limit = Math.min(Number(url.searchParams.get('limit') || '8'), 12);
-    if (q.trim().length < 2) {
-      return new Response(JSON.stringify({ items: [] }), { headers: { 'Content-Type': 'application/json', ...corsHeaders } });
-    }
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, serviceKey, { global: { headers: { ...Object.fromEntries(req.headers) } } });
 
+    let q = '';
+    let limit = 8;
+    if (req.method === 'POST') {
+      const body = await req.json().catch(() => ({}));
+      q = String(body.q || '');
+      limit = Math.min(Number(body.limit || 8), 12);
+    } else {
+      const url = new URL(req.url);
+      q = (url.searchParams.get('q') || '').slice(0, 100);
+      limit = Math.min(Number(url.searchParams.get('limit') || '8'), 12);
+    }
+
+    if (q.trim().length < 2) {
+      return new Response(JSON.stringify({ items: [] }), { headers: { 'Content-Type': 'application/json', ...corsHeaders } });
+    }
+
     const nq = normalize(q);
 
-    // 1) Unified index suggestions (entities)
+    // Unified index suggestions (entities)
     const { data: ents } = await supabase
       .from('search_index')
       .select('kind, entity_id, slug, title, subtitle, when_at, tv, popularity')
@@ -46,14 +49,23 @@ serve(async (req: Request) => {
       .order('when_at', { ascending: true, nullsFirst: false })
       .limit(limit);
 
-    // 2) Teams (from matches home/away distinct)
-    const { data: t1 } = await supabase.rpc('distinct', { table_name: 'match', col: 'home', q: `%${q}%` }).catch(() => ({ data: [] } as any));
-    const { data: t2 } = await supabase.rpc('distinct', { table_name: 'match', col: 'away', q: `%${q}%` }).catch(() => ({ data: [] } as any));
+    // Teams (simple distinct across home/away)
+    const { data: homeTeams } = await supabase
+      .from('match')
+      .select('home')
+      .ilike('home', `%${q}%`)
+      .limit(8);
+    const { data: awayTeams } = await supabase
+      .from('match')
+      .select('away')
+      .ilike('away', `%${q}%`)
+      .limit(8);
     const teamsSet = new Set<string>();
-    [...(t1||[]), ...(t2||[])].forEach((r: any) => { if (r?.value) teamsSet.add(r.value as string); });
+    (homeTeams || []).forEach((r: any) => r?.home && teamsSet.add(r.home));
+    (awayTeams || []).forEach((r: any) => r?.away && teamsSet.add(r.away));
     const teams = Array.from(teamsSet).slice(0, 4).map((name) => ({ kind: 'team', title: name, slug: name.toLowerCase().replace(/\s+/g,'-') }));
 
-    // 3) TV channels
+    // TV channels
     const { data: channels } = await supabase
       .from('tv_channel')
       .select('slug,name')

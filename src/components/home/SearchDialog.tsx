@@ -24,16 +24,12 @@ export default function SearchDialog({ open, onOpenChange }: { open: boolean; on
     async function run() {
       if (!debouncedQ.trim()) { setResults([]); return; }
       setLoading(true);
-      const term = `%${debouncedQ.trim()}%`;
-      const [ev, mt, mv] = await Promise.all([
-        supabase.from('event').select('slug,title,start_at').ilike('title', term).eq('status','PUBLISHED').gte('start_at', new Date().toISOString()).limit(5),
-        supabase.from('match').select('id,home,away,kickoff_at').or(`home.ilike.${term},away.ilike.${term}`).gte('kickoff_at', new Date().toISOString()).limit(5),
-        supabase.from('movie').select('id,title,cinema_release_ro').ilike('title', term).limit(5),
-      ]);
+      const { data } = await supabase.functions.invoke('search_suggest', { body: { q: debouncedQ, limit: 8 } });
       if (cancelled) return;
-      const evRes: Result[] = (ev.data||[]).map((e:any)=>({ kind:'event', slug:e.slug, title:e.title, subtitle: new Date(e.start_at).toLocaleString('ro-RO') }));
-      const mtRes: Result[] = (mt.data||[]).map((m:any)=>({ kind:'match', id:m.id, title:`${m.home} – ${m.away}`, subtitle: new Date(m.kickoff_at).toLocaleString('ro-RO') }));
-      const mvRes: Result[] = (mv.data||[]).map((m:any)=>({ kind:'movie', id:m.id, title:m.title, subtitle: m.cinema_release_ro ? `La cinema din ${new Date(m.cinema_release_ro).toLocaleDateString('ro-RO')}` : undefined }));
+      const items = (data as any)?.items || [];
+      const evRes: Result[] = items.filter((i:any)=>i.kind==='event').map((e:any)=>({ kind:'event', slug:e.slug, title:e.title, subtitle: e.when_at ? new Date(e.when_at).toLocaleString('ro-RO') : undefined }));
+      const mtRes: Result[] = items.filter((i:any)=>i.kind==='match').map((m:any)=>({ kind:'match', id:m.id||m.entity_id, title:m.title, subtitle: m.when_at ? new Date(m.when_at).toLocaleString('ro-RO') : undefined }));
+      const mvRes: Result[] = items.filter((i:any)=>i.kind==='movie').map((m:any)=>({ kind:'movie', id:m.id||m.entity_id, title:m.title, subtitle: m.when_at ? `La cinema din ${new Date(m.when_at).toLocaleDateString('ro-RO')}` : undefined }));
       setResults([...evRes, ...mtRes, ...mvRes]);
       setLoading(false);
     }
