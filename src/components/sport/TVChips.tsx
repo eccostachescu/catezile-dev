@@ -1,4 +1,6 @@
 import { Badge } from "@/components/Badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 export default function TVChips({ channels = [] as string[] }: { channels?: string[] }) {
   const list = (channels || []).slice(0, 3);
@@ -10,8 +12,18 @@ export default function TVChips({ channels = [] as string[] }: { channels?: stri
         <Badge key={c} variant="outline">{c}</Badge>
       ))}
       {rest.length > 0 && (
-        <span className="text-xs text-muted-foreground" aria-label={`și încă ${rest.length} canale`}>+{rest.length}</span>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-xs text-muted-foreground cursor-help" aria-label={`și încă ${rest.length} canale`}>+{rest.length}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{rest.join(', ')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
+
     </div>
   );
 }

@@ -13,6 +13,7 @@ import TVChips from "@/components/sport/TVChips";
 import DisclaimerNote from "@/components/sport/DisclaimerNote";
 import Scoreboard from "@/components/sport/Scoreboard";
 import LivePill from "@/components/sport/LivePill";
+import SportAnswerBox from "@/components/sport/AnswerBox";
 import TicketCTA from "@/components/event/TicketCTA";
 import ActionsBar from "@/components/event/ActionsBar";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,6 +69,7 @@ export default function Match() {
           <TVChips channels={tv} />
           {data?.status === 'LIVE' && <LivePill minute={data?.score?.elapsed || data?.score?.minute} />}
         </div>
+        <SportAnswerBox data={{ homeTeam: data?.home, awayTeam: data?.away, startDate: when, channels: tv }} />
         <p className="text-sm text-muted-foreground mb-4">
           {Intl.DateTimeFormat('ro-RO', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Bucharest' }).format(when)}
           {data?.stadium || data?.city ? ` • ${[data?.stadium, data?.city].filter(Boolean).join(', ')}` : ''}
