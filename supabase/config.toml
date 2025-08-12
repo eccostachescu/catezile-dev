@@ -75,7 +75,7 @@ verify_jwt = false
 [functions.search_index_refresh]
 verify_jwt = false
 
-# New SEO feed functions
+# SEO feed functions
 [functions.sitemap_index]
 verify_jwt = false
 
@@ -86,4 +86,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.atom_all]
+verify_jwt = false
+
+[functions.sitemap_section]
 verify_jwt = false
