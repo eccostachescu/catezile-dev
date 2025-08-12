@@ -7,7 +7,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persist
 
 const EventSchema = z.object({ slug: z.string(), title: z.string(), start_at: z.string().or(z.date()).nullable(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional(), seo_faq: z.any().nullable().optional(), image_url: z.string().nullable().optional(), city: z.string().nullable().optional(), status: z.string() });
 const MatchSchema = z.object({ id: z.string().uuid(), home: z.string(), away: z.string(), kickoff_at: z.string().or(z.date()), tv_channels: z.array(z.string()).nullable().optional(), is_derby: z.boolean().nullable().optional(), status: z.string().nullable().optional(), score: z.any().nullable().optional(), stadium: z.string().nullable().optional(), city: z.string().nullable().optional(), round: z.string().nullable().optional(), competition_id: z.string().uuid().nullable().optional(), slug: z.string().nullable().optional(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional() });
-const MovieSchema = z.object({ id: z.string().uuid(), title: z.string(), poster_url: z.string().nullable().optional(), cinema_release_ro: z.string().nullable().optional(), netflix_date: z.string().nullable().optional(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional() });
+const MovieSchema = z.object({ id: z.string().uuid(), tmdb_id: z.number().nullable().optional(), title: z.string(), original_title: z.string().nullable().optional(), overview: z.string().nullable().optional(), poster_url: z.string().nullable().optional(), backdrop_url: z.string().nullable().optional(), trailer_youtube_key: z.string().nullable().optional(), cinema_release_ro: z.string().nullable().optional(), netflix_date: z.string().nullable().optional(), prime_date: z.string().nullable().optional(), status: z.string().nullable().optional(), genres: z.array(z.string()).nullable().optional(), provider: z.any().nullable().optional(), slug: z.string().nullable().optional(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional() });
 const CategorySchema = z.object({ slug: z.string(), name: z.string(), sort: z.number().nullable().optional() });
 
 export async function loadEvent(slug: string) {
@@ -98,9 +98,53 @@ export async function loadMatch(id: string) {
 }
 
 export async function loadMovie(id: string) {
-  const { data, error } = await supabase.from('movie').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase
+    .from('movie')
+    .select('id, tmdb_id, title, original_title, overview, poster_url, backdrop_url, trailer_youtube_key, cinema_release_ro, netflix_date, prime_date, status, genres, provider, slug, seo_title, seo_description, seo_h1')
+    .eq('id', id)
+    .maybeSingle();
   if (error || !data) return null;
   return MovieSchema.parse(data);
+}
+
+export async function loadMovies(params: { month?: number; year?: number; genre?: string; status?: 'SCHEDULED'|'RELEASED' } = {}) {
+  const { month, year, genre, status } = params;
+  let q = supabase
+    .from('movie')
+    .select('id, tmdb_id, title, poster_url, cinema_release_ro, netflix_date, prime_date, status, genres, provider')
+    .order('cinema_release_ro', { ascending: true })
+    .limit(48);
+
+  if (status) q = q.eq('status', status);
+  if (genre) q = q.contains('genres', [genre]);
+  if (year) q = q.gte('cinema_release_ro', `${year}-01-01`).lte('cinema_release_ro', `${year}-12-31`);
+  if (month && year) {
+    const mm = String(month).padStart(2, '0');
+    const next = month === 12 ? `${year+1}-01-01` : `${year}-${String(month+1).padStart(2,'0')}-01`;
+    q = q.gte('cinema_release_ro', `${year}-${mm}-01`).lt('cinema_release_ro', next);
+  }
+
+  const { data: items } = await q;
+
+  const today = new Date().toISOString().slice(0,10);
+  const rangePast = new Date(Date.now() - 45*24*3600*1000).toISOString().slice(0,10);
+
+  const [upcomingCinema, nowInCinema, streamingSoon, streamingAvailable] = await Promise.all([
+    supabase.from('movie').select('id,title,poster_url,cinema_release_ro,status').gte('cinema_release_ro', today).order('cinema_release_ro', { ascending: true }).limit(12),
+    supabase.from('movie').select('id,title,poster_url,cinema_release_ro,status').gte('cinema_release_ro', rangePast).lte('cinema_release_ro', today).order('cinema_release_ro', { ascending: false }).limit(12),
+    supabase.from('movie').select('id,title,poster_url,netflix_date,prime_date,status').or(`netflix_date.gte.${today},prime_date.gte.${today}`).order('netflix_date', { ascending: true, nullsFirst: false }).limit(12),
+    supabase.from('movie').select('id,title,poster_url,provider,status').or(`provider->netflix->>available.eq.true,provider->prime->>available.eq.true`).limit(12),
+  ]);
+
+  return {
+    items: items ?? [],
+    sections: {
+      upcomingCinema: upcomingCinema.data ?? [],
+      nowInCinema: nowInCinema.data ?? [],
+      streamingSoon: streamingSoon.data ?? [],
+      streamingAvailable: streamingAvailable.data ?? [],
+    }
+  } as const;
 }
 
 export async function loadCategory(slug: string) {

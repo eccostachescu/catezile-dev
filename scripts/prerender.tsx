@@ -13,7 +13,7 @@ import Category from '../src/app/pages/Category';
 import BlackFriday from '../src/app/pages/BlackFriday';
 import Countdown from '../src/app/pages/Countdown';
 import Embed from '../src/app/pages/Embed';
-import { loadEvent, loadMatch, loadMovie, loadCategory, loadHome, loadCountdown } from '../src/ssg/loader';
+import { loadEvent, loadMatch, loadMovie, loadMovies, loadCategory, loadHome, loadCountdown } from '../src/ssg/loader';
 
 function resolveElement(pathname: string) {
   if (pathname === '/') return <Home />;

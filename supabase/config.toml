@@ -21,3 +21,9 @@ verify_jwt = false
 [functions.match_lite]
 verify_jwt = false
 
+[functions.import_tmdb_movies]
+verify_jwt = false
+
+[functions.update_movie_providers]
+verify_jwt = false
+
