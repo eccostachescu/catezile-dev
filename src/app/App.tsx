@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminModeration from "./pages/AdminModeration";
 import AdminAppearance from "./pages/AdminAppearance";
 import AdminMetrics from "./pages/AdminMetrics";
+import AdminEmails from "./pages/AdminEmails";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import { SEOProvider } from "@/seo/SEOProvider";
@@ -94,6 +95,14 @@ const AppShell = () => {
                   element={
                     <ProtectedRoute>
                       <AdminMetrics />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/emails"
+                  element={
+                    <ProtectedRoute>
+                      <AdminEmails />
                     </ProtectedRoute>
                   }
                 />

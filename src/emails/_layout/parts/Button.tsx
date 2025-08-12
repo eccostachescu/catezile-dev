@@ -1,5 +1,5 @@
 import React from "react";
-import { tokens } from "../_layout/tokens";
+import { tokens } from "../tokens";
 
 type ButtonProps = { href: string; children: React.ReactNode };
 export function EmailButton({ href, children }: ButtonProps) {
