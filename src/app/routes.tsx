@@ -22,4 +22,5 @@ export const routes = {
   adminModeration: () => "/admin/moderation",
   adminAppearance: () => "/admin/appearance",
   adminMetrics: () => "/admin/metrics",
+  adminEmails: () => "/admin/emails",
 };
