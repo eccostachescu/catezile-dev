@@ -6,7 +6,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: 'ssg' }});
 
 const EventSchema = z.object({ slug: z.string(), title: z.string(), start_at: z.string().or(z.date()).nullable(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional(), seo_faq: z.any().nullable().optional(), image_url: z.string().nullable().optional(), city: z.string().nullable().optional(), status: z.string() });
-const MatchSchema = z.object({ id: z.string().uuid(), home: z.string(), away: z.string(), kickoff_at: z.string().or(z.date()), tv_channels: z.array(z.string()).nullable().optional(), is_derby: z.boolean().nullable().optional(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional() });
+const MatchSchema = z.object({ id: z.string().uuid(), home: z.string(), away: z.string(), kickoff_at: z.string().or(z.date()), tv_channels: z.array(z.string()).nullable().optional(), is_derby: z.boolean().nullable().optional(), status: z.string().nullable().optional(), score: z.any().nullable().optional(), stadium: z.string().nullable().optional(), city: z.string().nullable().optional(), round: z.string().nullable().optional(), competition_id: z.string().uuid().nullable().optional(), slug: z.string().nullable().optional(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional() });
 const MovieSchema = z.object({ id: z.string().uuid(), title: z.string(), poster_url: z.string().nullable().optional(), cinema_release_ro: z.string().nullable().optional(), netflix_date: z.string().nullable().optional(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional() });
 const CategorySchema = z.object({ slug: z.string(), name: z.string(), sort: z.number().nullable().optional() });
 
@@ -70,9 +70,31 @@ export async function loadEvent(slug: string) {
 }
 
 export async function loadMatch(id: string) {
-  const { data, error } = await supabase.from('match').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase
+    .from('match')
+    .select('id, home, away, kickoff_at, stadium, city, round, competition_id, status, score, tv_channels, is_derby, slug, seo_title, seo_description, seo_h1')
+    .eq('id', id)
+    .maybeSingle();
   if (error || !data) return null;
-  return MatchSchema.parse(data);
+
+  // Offers: match_offer -> affiliate_link (active)
+  const { data: mOffers } = await supabase
+    .from('match_offer')
+    .select('affiliate_link_id')
+    .eq('match_id', id);
+  let offers: Array<{ id: string; partner: string; url: string }> = [];
+  if (mOffers && mOffers.length) {
+    const ids = mOffers.map((o: any) => o.affiliate_link_id);
+    const { data: affiliates } = await supabase
+      .from('affiliate_link')
+      .select('id, partner, url')
+      .in('id', ids)
+      .eq('active', true);
+    offers = (affiliates ?? []) as any;
+  }
+
+  const match = MatchSchema.parse(data);
+  return { ...match, offers } as const;
 }
 
 export async function loadMovie(id: string) {
@@ -234,5 +256,48 @@ export async function loadRelated(eventId: string, categoryId: string | null) {
     .order('start_at', { ascending: true })
     .limit(6);
   return data ?? [];
+}
+
+// Sport list grouped by days with filters
+export async function loadSportList({ days = 10 }: { days?: number } = {}) {
+  const now = new Date();
+  const until = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+  const { data } = await supabase
+    .from('match')
+    .select('id, home, away, kickoff_at, tv_channels, is_derby, status, score')
+    .gte('kickoff_at', now.toISOString())
+    .lte('kickoff_at', until.toISOString())
+    .order('kickoff_at', { ascending: true });
+  const matches = (data ?? []) as Array<any>;
+
+  // Group by Bucharest local date
+  const fmt = new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest', year: 'numeric', month: '2-digit', day: '2-digit' });
+  const groups: Record<string, any[]> = {};
+  const teamCount: Record<string, number> = {};
+  const tvSet = new Set<string>();
+
+  for (const m of matches) {
+    const key = fmt.format(new Date(m.kickoff_at));
+    groups[key] = groups[key] || [];
+    groups[key].push(m);
+    // teams
+    teamCount[m.home] = (teamCount[m.home] ?? 0) + 1;
+    teamCount[m.away] = (teamCount[m.away] ?? 0) + 1;
+    // tv
+    (m.tv_channels ?? []).forEach((t: string) => tvSet.add(t));
+  }
+
+  const daysOut = Object.keys(groups)
+    .sort((a,b) => new Date(a).getTime() - new Date(b).getTime())
+    .map((date) => ({ date, matches: groups[date] }));
+
+  const teams = Object.entries(teamCount)
+    .sort((a,b) => b[1] - a[1])
+    .slice(0, 20)
+    .map(([name]) => name);
+
+  const tv = Array.from(tvSet.values()).sort();
+
+  return { days: daysOut, filters: { teams, tv } } as const;
 }
 
