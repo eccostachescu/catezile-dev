@@ -16,8 +16,8 @@ export default function AdminSport() {
   async function loadAll() {
     setLoading(true);
     const [t, tv, mt] = await Promise.all([
-      supabase.from("team_alias").select("alias,canonical").order("alias", { ascending: true }),
-      supabase.from("tv_channel_alias").select("alias,canonical,priority").order("priority", { ascending: false }),
+      (supabase as any).from("team_alias").select("alias,canonical").order("alias", { ascending: true }),
+      (supabase as any).from("tv_channel_alias").select("alias,canonical,priority").order("priority", { ascending: false }),
       supabase.from("match").select("id,home,away,kickoff_at,is_derby,tv_channels").order("kickoff_at", { ascending: true }).limit(30),
     ]);
     setTeamAliases(t.data || []);
@@ -29,19 +29,19 @@ export default function AdminSport() {
   useEffect(() => { loadAll(); }, []);
 
   async function addTeamAlias(alias: string, canonical: string) {
-    const r = await supabase.from("team_alias").insert({ alias, canonical });
+    const r = await (supabase as any).from("team_alias").insert({ alias, canonical });
     if (r.error) return toast({ title: "Eroare", description: r.error.message, variant: "destructive" });
     toast({ title: "Salvat" });
     loadAll();
   }
   async function addTvAlias(alias: string, canonical: string, priority = 0) {
-    const r = await supabase.from("tv_channel_alias").insert({ alias, canonical, priority });
+    const r = await (supabase as any).from("tv_channel_alias").insert({ alias, canonical, priority });
     if (r.error) return toast({ title: "Eroare", description: r.error.message, variant: "destructive" });
     toast({ title: "Salvat" });
     loadAll();
   }
   async function removeAlias(table: string, alias: string) {
-    const r = await supabase.from(table).delete().eq("alias", alias);
+    const r = await (supabase as any).from(table).delete().eq("alias", alias);
     if (r.error) return toast({ title: "Eroare", description: r.error.message, variant: "destructive" });
     toast({ title: "Șters" });
     loadAll();
