@@ -8,6 +8,7 @@ import Category from "./pages/Category";
 import Countdown from "./pages/Countdown";
 import Embed from "./pages/Embed";
 import BlackFriday from "./pages/BlackFriday";
+import BFSlug from "./pages/BFSlug";
 import Sport from "./pages/Sport";
 import Match from "./pages/Match";
 import Movies from "./pages/Movies";
@@ -55,6 +56,7 @@ const AppShell = () => {
                 <Route path="/c/:id" element={<Countdown />} />
                 <Route path="/embed/:id" element={<Embed />} />
                 <Route path="/black-friday" element={<BlackFriday />} />
+                <Route path="/black-friday/:slug" element={<BFSlug />} />
                 <Route path="/sport" element={<Sport />} />
                 <Route path="/sport/:matchId" element={<Match />} />
                 <Route path="/filme" element={<Movies />} />
