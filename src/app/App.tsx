@@ -38,6 +38,7 @@ const AppShell = () => {
                 <Route path="/evenimente/:slug" element={<Event />} />
                 <Route path="/creeaza" element={<CreateCountdown />} />
                 <Route path="/categorii/:slug" element={<Category />} />
+                <Route path="/categorii/:slug/:year" element={<Category />} />
                 <Route path="/c/:id" element={<Countdown />} />
                 <Route path="/embed/:id" element={<Embed />} />
                 <Route path="/black-friday" element={<BlackFriday />} />
