@@ -173,10 +173,11 @@ serve(async (req: Request) => {
       const kickoffIso = parseIsoToUtcString(fx.date);
       const homeName = normalizeTeam(teams.home?.name || "Home", teamMap);
       const awayName = normalizeTeam(teams.away?.name || "Away", teamMap);
-      const tvRaw = Array.isArray(broadcasts)
-        ? broadcasts.map((b: any) => (typeof b === "string" ? b : (b?.network || b?.channel || "")).trim()).filter(Boolean)
-        : [] as string[];
-      const tv_channels = normalizeTvChannels(tvRaw, tvMap);
+      const tvCandidates = (Array.isArray(broadcasts) ? broadcasts : [])
+        .map((b: any) => (typeof b === "string" ? b : (b?.network ?? b?.name ?? b?.channel ?? "")))
+        .map((s: any) => String(s).trim())
+        .filter(Boolean);
+      const tv_channels = normalizeTvChannels(tvCandidates, tvMap);
       const st = statusMapApiFootball[String(fx.status?.short || "NS").toUpperCase()] || "SCHEDULED";
 
       const scoreJson: any = {
