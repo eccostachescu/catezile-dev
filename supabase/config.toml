@@ -90,3 +90,9 @@ verify_jwt = false
 
 [functions.sitemap_section]
 verify_jwt = false
+
+[functions.ping_sitemaps]
+verify_jwt = false
+
+[functions.indexnow_submit]
+verify_jwt = false
