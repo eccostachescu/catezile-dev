@@ -14,6 +14,7 @@ import Movies from "./pages/Movies";
 import Movie from "./pages/Movie";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import OutRedirect from "./pages/OutRedirect";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminModeration from "./pages/AdminModeration";
 import AdminAppearance from "./pages/AdminAppearance";
@@ -44,6 +45,7 @@ const AppShell = () => {
                 <Route path="/sport/:matchId" element={<Match />} />
                 <Route path="/filme" element={<Movies />} />
                 <Route path="/filme/:id" element={<Movie />} />
+                <Route path="/out/:id" element={<OutRedirect />} />
                 <Route path="/despre" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
 
