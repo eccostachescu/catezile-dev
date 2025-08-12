@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import Container from "@/components/Container";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics";
 
 export default function OutRedirect() {
   const { id } = useParams<{ id: string }>();
@@ -12,13 +13,17 @@ export default function OutRedirect() {
   const [loading, setLoading] = useState(true);
   const [target, setTarget] = useState<string | null>(null);
 
-  const utm = useMemo(() => {
+  const { utm, campaign, subid } = useMemo(() => {
     const params = new URLSearchParams(location.search);
     const out: Record<string, string> = {};
     params.forEach((v, k) => {
       if (k.startsWith("utm_")) out[k] = v;
     });
-    return out;
+    return {
+      utm: out,
+      campaign: params.get("campaign") || undefined,
+      subid: params.get("subid") || undefined,
+    };
   }, [location.search]);
 
   useEffect(() => {
@@ -26,12 +31,15 @@ export default function OutRedirect() {
     async function run() {
       if (!id) return;
       try {
+        track("affiliate_out_start", { id, utm, campaign, subid });
         const { data, error } = await supabase.functions.invoke("out_redirect", {
           body: {
             id,
             path: location.pathname + location.search,
             referrer: typeof document !== "undefined" ? document.referrer : undefined,
             utm,
+            campaign,
+            subid,
           },
         });
         if (error) throw error;
@@ -39,12 +47,14 @@ export default function OutRedirect() {
         if (!url) throw new Error("URL invalid");
         if (!cancelled) {
           setTarget(url);
+          track("affiliate_out_success", { id, url });
           // Use replace to avoid keeping intermediate page in history
           window.location.replace(url);
         }
       } catch (e: any) {
         if (!cancelled) {
           setError(e?.message || "Eroare la redirecționare");
+          track("affiliate_out_error", { id, message: e?.message });
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -54,7 +64,7 @@ export default function OutRedirect() {
     return () => {
       cancelled = true;
     };
-  }, [id, location.pathname, location.search, utm]);
+  }, [id, location.pathname, location.search, utm, campaign, subid]);
 
   return (
     <>
