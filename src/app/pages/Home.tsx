@@ -50,12 +50,9 @@ export default function Home() {
         path="/"
       />
 
-      {homeData?.hero && <HomeHero hero={homeData.hero} />}
-
+      {homeData?.hero && <HomeHero hero={homeData.hero} />} 
       <TrendingRail items={homeData?.trending || []} />
-
       <TodayGrid items={homeData?.today || []} />
-
       <TVNow items={homeData?.tv_now || []} />
 
       <UpcomingStrip title="Sport săptămâna asta" items={homeData?.upcoming?.sport || []} kind="sport" />
@@ -64,7 +61,6 @@ export default function Home() {
       <UpcomingStrip title="Evenimente în curând" items={homeData?.upcoming?.events || []} kind="events" />
 
       <ForYou />
-
       <ExploreLinks discovery={homeData?.discovery || { tags: [], teams: [], tv: [] }} />
 
       {jsonLd && (

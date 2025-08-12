@@ -1,6 +1,7 @@
 import Container from "@/components/Container";
 import AffiliateButton from "@/components/AffiliateButton";
 import TVChips from "@/components/sport/TVChips";
+import { track } from "@/lib/analytics";
 
 type HeroBF = { kind: 'bf'; payload: { merchants: Array<{ id?: string; name: string; slug?: string; affiliate_link_id?: string }> } };
 type HeroDerby = { kind: 'derby'; payload: { id: string; home: string; away: string; kickoff_at: string; tv_channels?: string[] } };
@@ -18,7 +19,7 @@ export default function HomeHero({ hero }: { hero: HomeHeroData }) {
             <p className="text-muted-foreground mb-6">Oferte utile — fără clickbait. Parteneriate marcate corect.</p>
             <div className="flex gap-3 justify-center flex-wrap">
               {hero.payload.merchants.slice(0,3).map((m) => (
-                <AffiliateButton key={m.slug || m.name} href={`/black-friday#${m.slug || m.name}`}>
+                <AffiliateButton key={m.slug || m.name} href={`/black-friday#${m.slug || m.name}`} onClick={()=>track('hero_click',{kind:'bf', merchant:m.slug||m.name})}>
                   {m.name}
                 </AffiliateButton>
               ))}
@@ -32,7 +33,7 @@ export default function HomeHero({ hero }: { hero: HomeHeroData }) {
             <div className="mb-4 flex justify-center">
               <TVChips channels={hero.payload.tv_channels || []} />
             </div>
-            <a className="inline-flex h-10 items-center rounded-md border px-4" href={`/sport/${hero.payload.id}`}>Detalii meci</a>
+            <a className="inline-flex h-10 items-center rounded-md border px-4" href={`/sport/${hero.payload.id}`} onClick={()=>track('hero_click',{kind:'derby', id:hero.payload.id})}>Detalii meci</a>
           </section>
         )}
         {hero.kind === 'today' && (
@@ -41,7 +42,7 @@ export default function HomeHero({ hero }: { hero: HomeHeroData }) {
             <p className="text-muted-foreground mb-4">Astăzi, {new Date().toLocaleDateString('ro-RO', { dateStyle: 'full' })}</p>
             <div className="flex flex-wrap items-center justify-center gap-2">
               {hero.payload.highlights?.map((h) => (
-                <a key={h.slug} href={linkFor(h.kind, h.slug)} className="rounded-full border px-3 py-1 text-sm hover:bg-muted">
+                <a key={h.slug} href={linkFor(h.kind, h.slug)} className="rounded-full border px-3 py-1 text-sm hover:bg-muted" onClick={()=>track('hero_click',{kind:'today', item:h.slug})}>
                   {iconFor(h.kind)} <span className="ml-1">{h.title}</span>
                 </a>
               ))}

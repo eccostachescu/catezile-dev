@@ -1,4 +1,5 @@
 import Container from "@/components/Container";
+import { track } from "@/lib/analytics";
 
 export default function UpcomingStrip({ title, items = [] as any[], kind }: { title: string; items: any[]; kind: 'sport'|'movies'|'events' }) {
   if (!items?.length) return null;
@@ -13,7 +14,7 @@ export default function UpcomingStrip({ title, items = [] as any[], kind }: { ti
         </div>
         <div className="flex gap-3 overflow-x-auto snap-x">
           {items.map((it) => (
-            <a key={`${kind}-${it.id}`} href={hrefFor(it)} className="min-w-[280px] snap-start rounded-md border p-3 hover:bg-muted">
+            <a key={`${kind}-${it.id}`} href={hrefFor(it)} className="min-w-[280px] snap-start rounded-md border p-3 hover:bg-muted" onClick={()=>track('strip_card_click',{kind})}>
               <div className="text-xs text-muted-foreground mb-1">{subFor(it)}</div>
               <div className="font-medium leading-snug truncate">{it.title || `${it.home} – ${it.away}`}</div>
             </a>
@@ -26,3 +27,4 @@ export default function UpcomingStrip({ title, items = [] as any[], kind }: { ti
 
 function time(iso?: string) { try { return new Date(iso||'').toLocaleString('ro-RO', { dateStyle:'medium', timeStyle:'short' }); } catch { return ''; } }
 function date(d?: string) { return d ? new Date(d).toLocaleDateString('ro-RO', { dateStyle:'medium' }) : ''; }
+

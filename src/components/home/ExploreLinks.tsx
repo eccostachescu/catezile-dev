@@ -4,7 +4,10 @@ export default function ExploreLinks({ discovery }: { discovery: { tags: Array<{
   return (
     <section className="py-6" aria-labelledby="explore-title">
       <Container>
-        <h2 id="explore-title" className="text-xl font-semibold mb-3">Explorează</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 id="explore-title" className="text-xl font-semibold">Explorează</h2>
+          <a className="text-sm underline underline-offset-4" href={`/cauta`}>Caută</a>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <div className="text-sm text-muted-foreground mb-2">Taguri populare</div>

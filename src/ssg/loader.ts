@@ -3,7 +3,8 @@ import { z } from 'zod';
 
 const SUPABASE_URL = "https://ibihfzhrsllndxhfwgvb.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWhmemhyc2xsbmR4aGZ3Z3ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MzAyNTAsImV4cCI6MjA3MDUwNjI1MH0.Zqikiwqpgb4lksNXcAdLA3fQzZwfV4WwFYzxpAwxCoU";
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: 'ssg' }});
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false, storageKey: 'ssg' }, global: { headers: { 'X-Client-Info': 'ssg-loader' }}});
+
 
 const EventSchema = z.object({ slug: z.string(), title: z.string(), start_at: z.string().or(z.date()).nullable(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional(), seo_faq: z.any().nullable().optional(), image_url: z.string().nullable().optional(), city: z.string().nullable().optional(), status: z.string() });
 const MatchSchema = z.object({ id: z.string().uuid(), home: z.string(), away: z.string(), kickoff_at: z.string().or(z.date()), tv_channels: z.array(z.string()).nullable().optional(), is_derby: z.boolean().nullable().optional(), status: z.string().nullable().optional(), score: z.any().nullable().optional(), stadium: z.string().nullable().optional(), city: z.string().nullable().optional(), round: z.string().nullable().optional(), competition_id: z.string().uuid().nullable().optional(), slug: z.string().nullable().optional(), seo_title: z.string().nullable().optional(), seo_description: z.string().nullable().optional(), seo_h1: z.string().nullable().optional() });
@@ -365,6 +366,7 @@ export async function loadHome() {
       events: eventsQ.data || [],
     },
     discovery,
+    sections_order: Array.isArray(settingsMap['home_sections_order']) ? settingsMap['home_sections_order'] : undefined,
   } as const;
 }
 
