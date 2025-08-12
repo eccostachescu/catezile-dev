@@ -44,6 +44,30 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_kpi_daily: {
+        Row: {
+          affiliate_link_id: string
+          clicks: number
+          day: string
+          est_revenue: number
+          merchant: string | null
+        }
+        Insert: {
+          affiliate_link_id?: string
+          clicks?: number
+          day: string
+          est_revenue?: number
+          merchant?: string | null
+        }
+        Update: {
+          affiliate_link_id?: string
+          clicks?: number
+          day?: string
+          est_revenue?: number
+          merchant?: string | null
+        }
+        Relationships: []
+      }
       affiliate_link: {
         Row: {
           active: boolean | null
@@ -599,6 +623,36 @@ export type Database = {
           },
         ]
       }
+      metric_daily: {
+        Row: {
+          created_at: string | null
+          day: string
+          id: number
+          labels: Json | null
+          metric: string
+          source: string
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          day: string
+          id?: number
+          labels?: Json | null
+          metric: string
+          source: string
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          day?: string
+          id?: number
+          labels?: Json | null
+          metric?: string
+          source?: string
+          value?: number
+        }
+        Relationships: []
+      }
       movie: {
         Row: {
           backdrop_url: string | null
@@ -922,6 +976,51 @@ export type Database = {
           alias?: string
           canonical?: string
           created_at?: string
+        }
+        Relationships: []
+      }
+      top_pages_daily: {
+        Row: {
+          day: string
+          pageviews: number
+          path: string
+          visitors: number
+        }
+        Insert: {
+          day: string
+          pageviews: number
+          path: string
+          visitors: number
+        }
+        Update: {
+          day?: string
+          pageviews?: number
+          path?: string
+          visitors?: number
+        }
+        Relationships: []
+      }
+      trending: {
+        Row: {
+          entity_id: string
+          kind: string
+          reasons: Json
+          score: number
+          updated_at: string | null
+        }
+        Insert: {
+          entity_id: string
+          kind: string
+          reasons?: Json
+          score: number
+          updated_at?: string | null
+        }
+        Update: {
+          entity_id?: string
+          kind?: string
+          reasons?: Json
+          score?: number
+          updated_at?: string | null
         }
         Relationships: []
       }
