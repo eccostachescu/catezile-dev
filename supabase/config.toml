@@ -11,3 +11,10 @@ verify_jwt = true
 
 [functions.out_redirect]
 verify_jwt = false
+
+[functions.import_liga1_fixtures]
+verify_jwt = false
+
+[functions.update_live_scores]
+verify_jwt = false
+
