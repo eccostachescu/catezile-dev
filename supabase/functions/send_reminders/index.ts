@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@4.0.0";
 import { addMinutes } from "npm:date-fns@3.6.0";
-import { utcToZonedTime, zonedTimeToUtc, formatInTimeZone } from "npm:date-fns-tz@3.2.0";
+import { toZonedTime, fromZonedTime, formatInTimeZone } from "npm:date-fns-tz@3.2.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,17 +13,17 @@ const TZ = 'Europe/Bucharest';
 const resend = new Resend(Deno.env.get('RESEND_API_KEY')!);
 
 function nowWithinQuiet() {
-  const ro = utcToZonedTime(new Date(), TZ);
+  const ro = toZonedTime(new Date(), TZ);
   const h = ro.getHours();
   return h >= 7 && h < 22;
 }
 
 function nextMorning7UTC() {
-  const ro = utcToZonedTime(new Date(), TZ);
+  const ro = toZonedTime(new Date(), TZ);
   if (ro.getHours() < 7) { ro.setHours(7,0,0,0); }
   else if (ro.getHours() >= 22) { ro.setDate(ro.getDate()+1); ro.setHours(7,0,0,0); }
   else { return new Date(); }
-  return zonedTimeToUtc(ro, TZ);
+  return fromZonedTime(ro, TZ);
 }
 
 serve(async (req) => {

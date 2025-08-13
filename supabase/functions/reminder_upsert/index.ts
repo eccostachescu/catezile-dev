@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { addHours, subDays } from "npm:date-fns@3.6.0";
-import { utcToZonedTime, zonedTimeToUtc } from "npm:date-fns-tz@3.2.0";
+import { toZonedTime, fromZonedTime } from "npm:date-fns-tz@3.2.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,23 +11,23 @@ const corsHeaders = {
 const TZ = "Europe/Bucharest";
 
 function withinQuietHours(d: Date) {
-  const ro = utcToZonedTime(d, TZ);
+  const ro = toZonedTime(d, TZ);
   const h = ro.getHours();
   return h >= 7 && h < 22;
 }
 
 function adjustToQuietHours(d: Date) {
-  const ro = utcToZonedTime(d, TZ);
+  const ro = toZonedTime(d, TZ);
   const h = ro.getHours();
   if (h < 7) {
     ro.setHours(7, 0, 0, 0);
-    return zonedTimeToUtc(ro, TZ);
+    return fromZonedTime(ro, TZ);
   }
   if (h >= 22) {
     const next = new Date(ro.getTime());
     next.setDate(next.getDate() + 1);
     next.setHours(7, 0, 0, 0);
-    return zonedTimeToUtc(next, TZ);
+    return fromZonedTime(next, TZ);
   }
   return d;
 }
