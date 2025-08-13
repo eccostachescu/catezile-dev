@@ -30,14 +30,19 @@ function normBase(s: string) {
 
 async function loadAliasMaps(supabase: any) {
   const [teams, tv] = await Promise.all([
-    supabase.from("team_alias").select("alias,canonical"),
+    supabase.from("team_alias").select("alias,canonical,team_id"),
     supabase.from("tv_channel_alias").select("alias,canonical,priority"),
   ]);
   const teamMap = new Map<string, string>();
-  (teams.data || []).forEach((r: any) => teamMap.set(String(r.alias).toLowerCase(), r.canonical));
+  const teamIdByAlias = new Map<string, string>();
+  (teams.data || []).forEach((r: any) => {
+    const key = String(r.alias).toLowerCase();
+    if (r.canonical) teamMap.set(key, r.canonical);
+    if (r.team_id) teamIdByAlias.set(key, r.team_id);
+  });
   const tvMap = new Map<string, { canonical: string; priority: number }>();
   (tv.data || []).forEach((r: any) => tvMap.set(String(r.alias).toLowerCase(), { canonical: r.canonical, priority: r.priority ?? 0 }));
-  return { teamMap, tvMap };
+  return { teamMap, teamIdByAlias, tvMap };
 }
 
 function normalizeTeam(name: string, teamMap: Map<string, string>) {
@@ -59,6 +64,33 @@ function normalizeTvChannels(raw: string[] | null | undefined, tvMap: Map<string
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([c]) => c);
+}
+
+async function getOrCreateTeamId(
+  supabase: any,
+  name: string,
+  teamMap: Map<string, string>,
+  teamIdByAlias: Map<string, string>
+): Promise<string> {
+  const aliasKey = normBase(name);
+  const existing = teamIdByAlias.get(aliasKey);
+  if (existing) return existing;
+  const canonicalName = teamMap.get(aliasKey) || name;
+  const slug = slugify(canonicalName);
+  const up = await supabase
+    .from("team")
+    .upsert({ slug, name: canonicalName }, { onConflict: "slug" })
+    .select("id")
+    .maybeSingle();
+  if (up.error) throw up.error;
+  const teamId = up.data!.id as string;
+  await supabase
+    .from("team_alias")
+    .upsert({ alias: aliasKey, canonical: canonicalName, team_id: teamId }, { onConflict: "alias" })
+    .then(() => {});
+  teamIdByAlias.set(aliasKey, teamId);
+  if (!teamMap.has(aliasKey)) teamMap.set(aliasKey, canonicalName);
+  return teamId;
 }
 
 function seasonFor(date = new Date()) {
@@ -147,7 +179,7 @@ serve(async (req: Request) => {
     if (compUp.error) throw compUp.error;
     const competitionId = compUp.data!.id as string;
 
-    const { teamMap, tvMap } = await loadAliasMaps(supabase);
+    const { teamMap, teamIdByAlias, tvMap } = await loadAliasMaps(supabase);
 
     let fixtures: any[] = [];
     if (provider === "api-football") {
@@ -169,10 +201,12 @@ serve(async (req: Request) => {
       const goals = f.goals || {};
       const score = f.score || {};
       const broadcasts = (f.broadcasts ?? f.tv ?? []) as Array<{ network?: string; channel?: string }> | string[];
-
+      
       const kickoffIso = parseIsoToUtcString(fx.date);
       const homeName = normalizeTeam(teams.home?.name || "Home", teamMap);
       const awayName = normalizeTeam(teams.away?.name || "Away", teamMap);
+      const homeId = await getOrCreateTeamId(supabase, homeName, teamMap, teamIdByAlias);
+      const awayId = await getOrCreateTeamId(supabase, awayName, teamMap, teamIdByAlias);
       const tvCandidates = (Array.isArray(broadcasts) ? broadcasts : [])
         .map((b: any) => (typeof b === "string" ? b : (b?.network ?? b?.name ?? b?.channel ?? "")))
         .map((s: any) => String(s).trim())
@@ -204,6 +238,8 @@ serve(async (req: Request) => {
         competition_id: competitionId,
         home: homeName,
         away: awayName,
+        home_id: homeId,
+        away_id: awayId,
         kickoff_at: kickoffIso,
         stadium: fx.venue?.name || null,
         city: fx.venue?.city || null,

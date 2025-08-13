@@ -456,7 +456,9 @@ export type Database = {
           league_id: string
           name: string
           team_a: string
+          team_a_id: string | null
           team_b: string
+          team_b_id: string | null
         }
         Insert: {
           id?: string
@@ -464,7 +466,9 @@ export type Database = {
           league_id: string
           name: string
           team_a: string
+          team_a_id?: string | null
           team_b: string
+          team_b_id?: string | null
         }
         Update: {
           id?: string
@@ -472,7 +476,9 @@ export type Database = {
           league_id?: string
           name?: string
           team_a?: string
+          team_a_id?: string | null
           team_b?: string
+          team_b_id?: string | null
         }
         Relationships: [
           {
@@ -480,6 +486,20 @@ export type Database = {
             columns: ["league_id"]
             isOneToOne: false
             referencedRelation: "league"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "derby_team_a_id_fkey"
+            columns: ["team_a_id"]
+            isOneToOne: false
+            referencedRelation: "team"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "derby_team_b_id_fkey"
+            columns: ["team_b_id"]
+            isOneToOne: false
+            referencedRelation: "team"
             referencedColumns: ["id"]
           },
         ]
@@ -764,10 +784,12 @@ export type Database = {
       match: {
         Row: {
           away: string
+          away_id: string | null
           city: string | null
           competition_id: string | null
           created_at: string | null
           home: string
+          home_id: string | null
           id: string
           is_derby: boolean | null
           kickoff_at: string
@@ -789,10 +811,12 @@ export type Database = {
         }
         Insert: {
           away: string
+          away_id?: string | null
           city?: string | null
           competition_id?: string | null
           created_at?: string | null
           home: string
+          home_id?: string | null
           id?: string
           is_derby?: boolean | null
           kickoff_at: string
@@ -814,10 +838,12 @@ export type Database = {
         }
         Update: {
           away?: string
+          away_id?: string | null
           city?: string | null
           competition_id?: string | null
           created_at?: string | null
           home?: string
+          home_id?: string | null
           id?: string
           is_derby?: boolean | null
           kickoff_at?: string
@@ -839,10 +865,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "match_away_id_fkey"
+            columns: ["away_id"]
+            isOneToOne: false
+            referencedRelation: "team"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "match_competition_id_fkey"
             columns: ["competition_id"]
             isOneToOne: false
             referencedRelation: "competition"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_home_id_fkey"
+            columns: ["home_id"]
+            isOneToOne: false
+            referencedRelation: "team"
             referencedColumns: ["id"]
           },
           {
@@ -1471,23 +1511,82 @@ export type Database = {
         }
         Relationships: []
       }
+      team: {
+        Row: {
+          active: boolean | null
+          city: string | null
+          colors: Json | null
+          country: string | null
+          created_at: string | null
+          founded_year: number | null
+          id: string
+          name: string
+          short_name: string | null
+          slug: string
+          stadium: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          city?: string | null
+          colors?: Json | null
+          country?: string | null
+          created_at?: string | null
+          founded_year?: number | null
+          id?: string
+          name: string
+          short_name?: string | null
+          slug: string
+          stadium?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          city?: string | null
+          colors?: Json | null
+          country?: string | null
+          created_at?: string | null
+          founded_year?: number | null
+          id?: string
+          name?: string
+          short_name?: string | null
+          slug?: string
+          stadium?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       team_alias: {
         Row: {
           alias: string
           canonical: string
           created_at: string
+          team_id: string | null
         }
         Insert: {
           alias: string
           canonical: string
           created_at?: string
+          team_id?: string | null
         }
         Update: {
           alias?: string
           canonical?: string
           created_at?: string
+          team_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "team_alias_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "team"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tiebreak_rule: {
         Row: {
@@ -1848,10 +1947,12 @@ export type Database = {
         Args: { m: Database["public"]["Tables"]["match"]["Row"] }
         Returns: {
           away: string
+          away_id: string | null
           city: string | null
           competition_id: string | null
           created_at: string | null
           home: string
+          home_id: string | null
           id: string
           is_derby: boolean | null
           kickoff_at: string

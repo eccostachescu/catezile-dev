@@ -41,6 +41,8 @@ import LegalTerms from "./pages/LegalTerms";
 import LegalPrivacy from "./pages/LegalPrivacy";
 import LegalCookies from "./pages/LegalCookies";
 import Liga1Overview from "./pages/liga1/Overview";
+import Liga1TeamsPage from "./pages/liga1/Teams";
+import Liga1TeamDetailPage from "./pages/liga1/TeamDetail";
 
 const AppShell = () => {
   return (
@@ -62,6 +64,8 @@ const AppShell = () => {
                 <Route path="/sport" element={<Sport />} />
                 <Route path="/sport/:matchId" element={<Match />} />
                 <Route path="/liga-1" element={<Liga1Overview />} />
+                <Route path="/liga-1/echipe" element={<Liga1TeamsPage />} />
+                <Route path="/liga-1/echipe/:slug" element={<Liga1TeamDetailPage />} />
                 <Route path="/superliga" element={<Navigate to="/liga-1" replace />} />
                 <Route path="/filme" element={<Movies />} />
                 <Route path="/filme/:id" element={<Movie />} />
