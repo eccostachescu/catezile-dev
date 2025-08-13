@@ -11,13 +11,30 @@ export default function AuthCallback() {
   useEffect(() => {
     async function run() {
       try {
-        // Handles both OAuth and Magic Link (PKCE) flows
-        const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-        if (error) throw error;
+        // Check if we have tokens in the URL hash (magic link flow)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        
+        let authResult;
+        if (accessToken && refreshToken) {
+          // Handle hash-based tokens from magic link
+          authResult = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+        } else {
+          // Handle code-based flow (OAuth)
+          authResult = await supabase.auth.exchangeCodeForSession(window.location.href);
+        }
+        
+        if (authResult.error) throw authResult.error;
+        
         const redirect = sp.get("redirect") || routes.account();
         toast({ title: "Bun venit!", description: "Autentificare reușită." });
         navigate(redirect, { replace: true });
       } catch (e: any) {
+        console.error('Auth callback error:', e);
         toast({ title: "Eroare la autentificare", description: e?.message || "Încearcă din nou." });
         navigate(routes.authLogin(), { replace: true });
       }
