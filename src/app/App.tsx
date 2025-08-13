@@ -12,6 +12,9 @@ import BFSlug from "./pages/BFSlug";
 import Sport from "./pages/Sport";
 import Match from "./pages/Match";
 import Movies from "./pages/Movies";
+import MovieMonth from "../pages/movies/Month";
+import MoviePlatform from "../pages/movies/Platform";
+import MovieDetail from "../pages/movies/Movie";
 import Movie from "./pages/Movie";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -69,7 +72,14 @@ const AppShell = () => {
                 <Route path="/liga-1/echipe/:slug" element={<Liga1TeamDetailPage />} />
                 <Route path="/superliga" element={<Navigate to="/liga-1" replace />} />
                 <Route path="/filme" element={<Movies />} />
-                <Route path="/filme/:id" element={<Movie />} />
+                <Route path="/filme/:year-:month" element={<MovieMonth />} />
+                <Route path="/filme/netflix" element={<MoviePlatform />} />
+                <Route path="/filme/prime" element={<MoviePlatform />} />
+                <Route path="/filme/max" element={<MoviePlatform />} />
+                <Route path="/filme/hbo-max" element={<MoviePlatform />} />
+                <Route path="/filme/disney" element={<MoviePlatform />} />
+                <Route path="/filme/apple-tv" element={<MoviePlatform />} />
+                <Route path="/filme/:slug" element={<MovieDetail />} />
                 <Route path="/out/:id" element={<OutRedirect />} />
                 <Route path="/despre" element={<About />} />
                 <Route path="/contact" element={<Contact />} />

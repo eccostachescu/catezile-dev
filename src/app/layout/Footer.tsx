@@ -45,8 +45,9 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="border-t py-4 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} CateZile.ro
+      <div className="border-t py-4 text-center text-xs text-muted-foreground space-y-2">
+        <div>© {new Date().getFullYear()} CateZile.ro</div>
+        <div>Acest produs folosește API-ul TMDB, fără a fi aprobat sau certificat de TMDB.</div>
       </div>
     </footer>
   );
