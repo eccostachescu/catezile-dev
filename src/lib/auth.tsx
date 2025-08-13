@@ -48,16 +48,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithEmail = async (email: string) => {
     setLoading(true);
-    const redirectUrl = `${window.location.origin}${'/auth/callback'}`;
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: redirectUrl },
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: "Eroare la autentificare", description: error.message });
-    } else {
-      toast({ title: "Verifică emailul", description: "Ți-am trimis un link magic." });
+    try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { 
+          emailRedirectTo: redirectUrl,
+          shouldCreateUser: true 
+        },
+      });
+      
+      if (error) {
+        console.error('Auth error:', error);
+        toast({ 
+          title: "Eroare la autentificare", 
+          description: error.message === "For security purposes, you can only request this once every 60 seconds" 
+            ? "Pentru securitate, poți solicita un link doar o dată pe minut"
+            : error.message 
+        });
+      } else {
+        toast({ title: "Verifică emailul", description: "Ți-am trimis un link magic pentru autentificare." });
+      }
+    } catch (err) {
+      console.error('Unexpected auth error:', err);
+      toast({ title: "Eroare", description: "A apărut o eroare neașteptată. Încearcă din nou." });
+    } finally {
+      setLoading(false);
     }
   };
 

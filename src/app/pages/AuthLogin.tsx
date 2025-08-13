@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabaseClient";
 import { routes } from "@/lib/routes";
 import { Link, useSearchParams } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
 
 export default function AuthLogin() {
   const { signInWithEmail, loading } = useAuth();
@@ -18,8 +19,21 @@ export default function AuthLogin() {
   };
 
   const signInWithGoogle = async () => {
-    const redirectTo = `${window.location.origin}${routes.authCallback()}`;
-    await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
+    try {
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      const { error } = await supabase.auth.signInWithOAuth({ 
+        provider: "google", 
+        options: { redirectTo } 
+      });
+      
+      if (error) {
+        console.error('Google auth error:', error);
+        toast({ title: "Eroare", description: "Nu s-a putut conecta cu Google. Încearcă din nou." });
+      }
+    } catch (err) {
+      console.error('Unexpected Google auth error:', err);
+      toast({ title: "Eroare", description: "A apărut o eroare neașteptată. Încearcă din nou." });
+    }
   };
 
   return (
