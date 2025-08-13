@@ -55,6 +55,7 @@ import Liga1RoundPage from "./pages/liga1/Round";
 import { HolidaysHome, HolidayDetail, SchoolCalendar, Exams, ExamDetail } from "../pages/holidays";
 import DataImport from "../pages/DataImport";
 import PopulateData from "../pages/PopulateData";
+import QuickSampleData from "../pages/QuickSampleData";
 
 const AppShell = () => {
   return (
@@ -113,6 +114,7 @@ const AppShell = () => {
                 {/* Data Import */}
                 <Route path="/import" element={<DataImport />} />
                 <Route path="/populate" element={<PopulateData />} />
+                <Route path="/sample" element={<QuickSampleData />} />
 
                 {/* Auth */}
                 <Route path="/auth/login" element={<AuthLogin />} />

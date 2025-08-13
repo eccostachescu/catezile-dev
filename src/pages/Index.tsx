@@ -90,6 +90,9 @@ const Index = () => {
                 <Button asChild variant="outline">
                   <Link to="/populate">Populare Rapidă</Link>
                 </Button>
+                <Button asChild variant="secondary">
+                  <Link to="/sample">Date Test</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
