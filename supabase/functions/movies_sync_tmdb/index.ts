@@ -50,9 +50,10 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    // Validate cron secret if provided
+    // Validate cron secret only for cron jobs (when header is present)
     const cronSecret = Deno.env.get('ADMIN_CRON_SECRET');
-    if (cronSecret && req.headers.get('x-cron-secret') !== cronSecret) {
+    const providedSecret = req.headers.get('x-cron-secret');
+    if (cronSecret && providedSecret && providedSecret !== cronSecret) {
       return new Response(JSON.stringify({ error: 'Forbidden' }), { 
         status: 403, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
