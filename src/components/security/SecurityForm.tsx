@@ -14,7 +14,7 @@ interface SecurityData {
   honeypot: string;
 }
 
-const TURNSTILE_SITE_KEY = '0x4AAAAAAABvMZVeG-K3d-QW'; // This should come from env
+const TURNSTILE_SITE_KEY = '0x4AAAAAABrQ3wFVHcRcM8W6';
 
 export function SecurityForm({ 
   children, 

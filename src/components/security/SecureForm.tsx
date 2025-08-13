@@ -15,8 +15,8 @@ export interface SecurityData {
   honeypot: string;
 }
 
-// Default Turnstile site key - should be configured via environment
-const DEFAULT_TURNSTILE_SITE_KEY = '1x00000000000000000000AA'; // Test key
+// Default Turnstile site key
+const DEFAULT_TURNSTILE_SITE_KEY = '0x4AAAAAABrQ3wFVHcRcM8W6';
 
 export function SecureForm({ 
   children, 

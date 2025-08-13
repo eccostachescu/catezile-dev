@@ -77,9 +77,9 @@ WAF-like protection for all Edge Functions:
 # Required for security functionality
 SECURITY_SALT=7f3e9a8c4b6d2f1a9e5c7b3d8f4a6e2c1b9f7e3a8c4b6d2f1a9e5c7b3d8f4a6e2c
 
-# Optional - for Turnstile UGC protection
-TURNSTILE_SITE_KEY=your_turnstile_site_key
-TURNSTILE_SECRET_KEY=your_turnstile_secret_key
+# Turnstile UGC protection (configured)
+TURNSTILE_SITE_KEY=0x4AAAAAABrQ3wFVHcRcM8W6
+TURNSTILE_SECRET_KEY=0x4AAAAAABrQ37YF6XYwQi6-wCt4sW7PzUA
 
 # Already configured
 SUPABASE_URL=your_supabase_url
