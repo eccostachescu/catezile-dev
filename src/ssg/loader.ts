@@ -40,6 +40,111 @@ export async function loadCountdown(id: string) {
   return null;
 }
 
+// Holiday-related loaders
+export async function loadHolidays() {
+  try {
+    const currentYear = new Date().getFullYear();
+    const { data: instances } = await supabase
+      .from('holiday_instance')
+      .select(`
+        *,
+        holiday:holiday_id (*)
+      `)
+      .in('year', [currentYear, currentYear + 1])
+      .order('date');
+    
+    return {
+      instances: instances || [],
+      currentYear,
+      nextYear: currentYear + 1
+    };
+  } catch (error) {
+    console.error('Error loading holidays:', error);
+    return { instances: [], currentYear: new Date().getFullYear(), nextYear: new Date().getFullYear() + 1 };
+  }
+}
+
+export async function loadHoliday(slug: string) {
+  try {
+    const response = await supabase.functions.invoke('holiday_detail', {
+      body: { slug }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error loading holiday:', error);
+    return null;
+  }
+}
+
+export async function loadSchoolCalendar(schoolYear?: string) {
+  try {
+    const yearParam = schoolYear || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+    const { data: periods } = await supabase
+      .from('school_calendar')
+      .select('*')
+      .eq('school_year', yearParam)
+      .order('starts_on');
+    
+    return {
+      periods: periods || [],
+      schoolYear: yearParam
+    };
+  } catch (error) {
+    console.error('Error loading school calendar:', error);
+    const fallbackYear = schoolYear || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+    return { periods: [], schoolYear: fallbackYear };
+  }
+}
+
+export async function loadExams(year?: number) {
+  try {
+    const currentYear = year || new Date().getFullYear();
+    const { data: exams } = await supabase
+      .from('exam')
+      .select(`
+        *,
+        phases:exam_phase (*)
+      `)
+      .in('year', [currentYear, currentYear + 1])
+      .order('year', { ascending: false });
+    
+    return {
+      exams: exams || [],
+      currentYear
+    };
+  } catch (error) {
+    console.error('Error loading exams:', error);
+    const fallbackYear = year || new Date().getFullYear();
+    return { exams: [], currentYear: fallbackYear };
+  }
+}
+
+export async function loadExam(slug: string) {
+  try {
+    const { data: exam } = await supabase
+      .from('exam')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    
+    if (!exam) return null;
+    
+    const { data: phases } = await supabase
+      .from('exam_phase')
+      .select('*')
+      .eq('exam_id', exam.id)
+      .order('starts_on');
+    
+    return {
+      exam,
+      phases: phases || []
+    };
+  } catch (error) {
+    console.error('Error loading exam:', error);
+    return null;
+  }
+}
+
 export async function loadMoviesHome() {
   try {
     const today = new Date().toISOString().split('T')[0];

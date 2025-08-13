@@ -47,6 +47,7 @@ import Liga1Overview from "./pages/liga1/Overview";
 import Liga1TeamsPage from "./pages/liga1/Teams";
 import Liga1TeamDetailPage from "./pages/liga1/TeamDetail";
 import Liga1RoundPage from "./pages/liga1/Round";
+import { HolidaysHome, HolidayDetail, SchoolCalendar, Exams, ExamDetail } from "../pages/holidays";
 
 const AppShell = () => {
   return (
@@ -80,6 +81,14 @@ const AppShell = () => {
                 <Route path="/filme/disney" element={<MoviePlatform />} />
                 <Route path="/filme/apple-tv" element={<MoviePlatform />} />
                 <Route path="/filme/:slug" element={<MovieDetail />} />
+                
+                {/* Holidays & School */}
+                <Route path="/sarbatori" element={<HolidaysHome />} />
+                <Route path="/sarbatori/:slug" element={<HolidayDetail />} />
+                <Route path="/calendar-scolar" element={<SchoolCalendar />} />
+                <Route path="/examene" element={<Exams />} />
+                <Route path="/examene/:slug" element={<ExamDetail />} />
+                
                 <Route path="/out/:id" element={<OutRedirect />} />
                 <Route path="/despre" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
