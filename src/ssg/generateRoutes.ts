@@ -13,6 +13,9 @@ export async function generateRoutes() {
   routes.add('/');
   routes.add('/black-friday');
   routes.add('/filme');
+  routes.add('/liga-1');
+  routes.add('/superliga');
+  routes.add('/liga-1/echipe');
 
   const { data: cats } = await supabase.from('category').select('slug').order('sort', { ascending: true }).limit(2000);
   cats?.forEach((c: any) => routes.add(`/categorii/${c.slug}`));

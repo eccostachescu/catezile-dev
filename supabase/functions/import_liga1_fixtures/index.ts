@@ -133,6 +133,20 @@ function isDerby(home: string, away: string) {
   return DERBY_PAIRS.has(k) || DERBY_PAIRS.has(k2);
 }
 
+async function loadDerbies(supabase: any) {
+  const { data } = await supabase
+    .from("derby")
+    .select("team_a_id, team_b_id, team_a, team_b");
+  const set = new Set<string>();
+  (data || []).forEach((d: any) => {
+    if (d.team_a_id && d.team_b_id) {
+      set.add(`${d.team_a_id}|${d.team_b_id}`);
+      set.add(`${d.team_b_id}|${d.team_a_id}`);
+    }
+  });
+  return set;
+}
+
 function parseIsoToUtcString(s: string): string {
   const d = new Date(s);
   return new Date(d.getTime()).toISOString();
@@ -180,6 +194,7 @@ serve(async (req: Request) => {
     const competitionId = compUp.data!.id as string;
 
     const { teamMap, teamIdByAlias, tvMap } = await loadAliasMaps(supabase);
+    const derbyPairsId = await loadDerbies(supabase);
 
     let fixtures: any[] = [];
     if (provider === "api-football") {
@@ -207,6 +222,7 @@ serve(async (req: Request) => {
       const awayName = normalizeTeam(teams.away?.name || "Away", teamMap);
       const homeId = await getOrCreateTeamId(supabase, homeName, teamMap, teamIdByAlias);
       const awayId = await getOrCreateTeamId(supabase, awayName, teamMap, teamIdByAlias);
+      const derbyByIds = derbyPairsId.has(`${homeId}|${awayId}`);
       const tvCandidates = (Array.isArray(broadcasts) ? broadcasts : [])
         .map((b: any) => (typeof b === "string" ? b : (b?.network ?? b?.name ?? b?.channel ?? "")))
         .map((s: any) => String(s).trim())
@@ -246,6 +262,7 @@ serve(async (req: Request) => {
         status: st,
         score: scoreJson,
         tv_channels,
+        is_derby: derbyByIds || isDerby(homeName, awayName),
         slug: slugify(`${homeName}-${awayName}-${kickoffIso.slice(0, 16).replace(/[:T]/g, "")}`),
       };
 
@@ -273,7 +290,7 @@ serve(async (req: Request) => {
         }
       }
       if (tv_channels.length) update.tv_channels = tv_channels;
-      if (!existing.is_derby && isDerby(homeName, awayName)) update.is_derby = true;
+      if (!existing.is_derby && (derbyByIds || isDerby(homeName, awayName))) update.is_derby = true;
       if (fx.venue?.name && fx.venue?.name !== existing.stadium) update.stadium = fx.venue?.name;
       if (fx.venue?.city && fx.venue?.city !== existing.city) update.city = fx.venue?.city;
 

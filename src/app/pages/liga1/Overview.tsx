@@ -6,6 +6,8 @@ import { TableLive } from "@/components/liga1/TableLive";
 import MatchCard from "@/components/sport/MatchCard";
 import SportAnswerBox from "@/components/sport/AnswerBox";
 import { track } from "@/lib/analytics";
+import { Link } from "react-router-dom";
+import { routes } from "@/app/routes";
 
 export default function Liga1Overview() {
   const [loading, setLoading] = useState(true);
@@ -103,6 +105,8 @@ export default function Liga1Overview() {
     return rows;
   }, [table]);
 
+  const nextRoundNumber = useMemo(() => nextRound?.[0]?.round_number ?? null, [nextRound]);
+
   return (
     <>
       <SEO
@@ -111,9 +115,12 @@ export default function Liga1Overview() {
         path="/liga-1"
       />
       <Container className="py-6">
-        <header className="mb-4">
-          <h1 className="text-2xl font-bold">Liga 1 — SuperLiga</h1>
-          <p className="text-muted-foreground">Program, Clasament LIVE și Rezultate</p>
+        <header className="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">Liga 1 — SuperLiga</h1>
+            <p className="text-muted-foreground">Program, Clasament LIVE și Rezultate</p>
+          </div>
+          <Link to={routes.liga1Teams()} className="text-sm text-muted-foreground hover:underline">Echipe</Link>
         </header>
 
         {/* Answer box (a11y) */}
@@ -133,7 +140,14 @@ export default function Liga1Overview() {
         {/* Următoarea etapă */}
         {!!nextRound.length && (
           <section className="mt-8">
-            <h2 className="text-xl font-semibold mb-2">Următoarea etapă</h2>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xl font-semibold">Următoarea etapă</h2>
+              {nextRoundNumber != null && (
+                <Link to={routes.liga1Round(nextRoundNumber)} className="text-sm text-muted-foreground hover:underline">
+                  Vezi etapa {nextRoundNumber}
+                </Link>
+              )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {nextRound.map((m:any) => (
                 <MatchCard key={m.id} m={m} />

@@ -43,6 +43,7 @@ import LegalCookies from "./pages/LegalCookies";
 import Liga1Overview from "./pages/liga1/Overview";
 import Liga1TeamsPage from "./pages/liga1/Teams";
 import Liga1TeamDetailPage from "./pages/liga1/TeamDetail";
+import Liga1RoundPage from "./pages/liga1/Round";
 
 const AppShell = () => {
   return (
