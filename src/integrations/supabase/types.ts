@@ -2625,6 +2625,10 @@ export type Database = {
         Args: { action_type: string; email_address?: string }
         Returns: Json
       }
+      can_access_profile: {
+        Args: { profile_id: string }
+        Returns: boolean
+      }
       cleanup_rate_limit: {
         Args: Record<PropertyKey, never>
         Returns: undefined
