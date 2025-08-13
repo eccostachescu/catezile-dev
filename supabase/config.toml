@@ -115,5 +115,16 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.tv_now_status]
+# Deployment & DevOps functions
+[functions.rebuild_hook]
+verify_jwt = false
+
+[functions.post_deploy_tasks]  
+verify_jwt = false
+
+[functions.warmup]
+verify_jwt = false
+
+[functions.healthcheck]
 verify_jwt = false
 

@@ -1,0 +1,108 @@
+name: Deploy Frontend
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Build reason'
+        required: false
+        default: 'Manual workflow trigger'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f yarn.lock ]; then
+            yarn install --frozen-lockfile
+          elif [ -f pnpm-lock.yaml ]; then
+            npm install -g pnpm && pnpm install --frozen-lockfile
+          else
+            npm install
+          fi
+
+      - name: Run tests
+        run: npm test --if-present
+        env:
+          CI: true
+
+      - name: Run linting
+        run: npm run lint --if-present
+
+      - name: Build application
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SITE_URL: ${{ secrets.SITE_URL }}
+          VITE_CACHE_VERSION: ${{ secrets.CACHE_VERSION }}
+
+      # Production deployment (main branch)
+      - name: Trigger Vercel Deploy Hook (Production)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" ]; then
+            echo "Triggering Vercel production deployment..."
+            curl -sS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" \
+              -H "Content-Type: application/json" \
+              -d '{"ref": "main", "reason": "GitHub Actions build"}' || exit 1
+            echo "Vercel deployment triggered successfully"
+          else
+            echo "VERCEL_DEPLOY_HOOK_URL not configured, skipping deployment"
+          fi
+
+      # Preview deployment (pull requests)  
+      - name: Trigger Preview Deploy
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "This is a preview build for PR #${{ github.event.pull_request.number }}"
+          # Implement preview deployment logic here if needed
+
+      # Notify deployment completion
+      - name: Notify post deploy tasks (Production only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && success()
+        run: |
+          if [ -n "${{ secrets.SUPABASE_EDGE_URL }}" ] && [ -n "${{ secrets.ADMIN_CRON_SECRET }}" ]; then
+            echo "Notifying post-deploy tasks..."
+            curl -sS -X POST "${{ secrets.SUPABASE_EDGE_URL }}/functions/v1/post_deploy_tasks" \
+              -H "x-cron-secret: ${{ secrets.ADMIN_CRON_SECRET }}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "buildId": "github-${{ github.run_id }}",
+                "success": true,
+                "notes": "GitHub Actions build completed successfully"
+              }' || echo "Failed to notify post-deploy tasks (non-critical)"
+          else
+            echo "Post-deploy notification not configured"
+          fi
+
+      # Handle deployment failures
+      - name: Notify deployment failure
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && failure()
+        run: |
+          if [ -n "${{ secrets.SUPABASE_EDGE_URL }}" ] && [ -n "${{ secrets.ADMIN_CRON_SECRET }}" ]; then
+            echo "Notifying deployment failure..."
+            curl -sS -X POST "${{ secrets.SUPABASE_EDGE_URL }}/functions/v1/post_deploy_tasks" \
+              -H "x-cron-secret: ${{ secrets.ADMIN_CRON_SECRET }}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "buildId": "github-${{ github.run_id }}",
+                "success": false,
+                "notes": "GitHub Actions build failed"
+              }' || echo "Failed to notify deployment failure"
+          fi

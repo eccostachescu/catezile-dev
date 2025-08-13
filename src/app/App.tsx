@@ -25,6 +25,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminModeration from "./pages/AdminModeration";
 import AdminAppearance from "./pages/AdminAppearance";
 import AdminMetrics from "./pages/AdminMetrics";
+import AdminDeploy from "./pages/AdminDeploy";
 import AdminEmails from "./pages/AdminEmails";
 import AdminEvents from "./pages/AdminEvents";
 import NotFound from "./pages/NotFound";
@@ -144,6 +145,14 @@ const AppShell = () => {
                   element={
                     <ProtectedRoute>
                       <AdminMetrics />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/deploy"
+                  element={
+                    <ProtectedRoute>
+                      <AdminDeploy />
                     </ProtectedRoute>
                   }
                 />

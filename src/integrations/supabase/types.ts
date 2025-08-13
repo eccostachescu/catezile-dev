@@ -476,6 +476,42 @@ export type Database = {
         }
         Relationships: []
       }
+      deployment_log: {
+        Row: {
+          actor: string | null
+          build_id: string | null
+          created_at: string | null
+          finished_at: string | null
+          id: number
+          notes: string | null
+          reason: string | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          actor?: string | null
+          build_id?: string | null
+          created_at?: string | null
+          finished_at?: string | null
+          id?: number
+          notes?: string | null
+          reason?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          actor?: string | null
+          build_id?: string | null
+          created_at?: string | null
+          finished_at?: string | null
+          id?: number
+          notes?: string | null
+          reason?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       derby: {
         Row: {
           id: string
@@ -930,6 +966,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      health_check_log: {
+        Row: {
+          checked_at: string | null
+          checks: Json | null
+          created_at: string | null
+          id: number
+          response_time_ms: number | null
+          status: string
+        }
+        Insert: {
+          checked_at?: string | null
+          checks?: Json | null
+          created_at?: string | null
+          id?: number
+          response_time_ms?: number | null
+          status: string
+        }
+        Update: {
+          checked_at?: string | null
+          checks?: Json | null
+          created_at?: string | null
+          id?: number
+          response_time_ms?: number | null
+          status?: string
+        }
+        Relationships: []
       }
       holiday: {
         Row: {
@@ -1800,17 +1863,35 @@ export type Database = {
       }
       settings: {
         Row: {
+          build_locked: boolean | null
+          build_min_interval_min: number | null
+          build_reason: string | null
+          build_status: string | null
+          cache_version: number | null
           key: string
+          last_build_at: string | null
           updated_at: string | null
           value: Json
         }
         Insert: {
+          build_locked?: boolean | null
+          build_min_interval_min?: number | null
+          build_reason?: string | null
+          build_status?: string | null
+          cache_version?: number | null
           key: string
+          last_build_at?: string | null
           updated_at?: string | null
           value: Json
         }
         Update: {
+          build_locked?: boolean | null
+          build_min_interval_min?: number | null
+          build_reason?: string | null
+          build_status?: string | null
+          cache_version?: number | null
           key?: string
+          last_build_at?: string | null
           updated_at?: string | null
           value?: Json
         }
