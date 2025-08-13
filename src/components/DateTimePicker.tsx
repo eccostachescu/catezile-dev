@@ -65,7 +65,6 @@ export function DateTimePicker({ value, onChange, className }: DateTimePickerPro
             mode="single"
             selected={localDate}
             onSelect={handleSelect}
-            initialFocus
             className={cn("p-3 pointer-events-auto")}
           />
           <div className="flex flex-col gap-2 p-1">

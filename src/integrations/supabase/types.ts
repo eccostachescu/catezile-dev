@@ -633,6 +633,7 @@ export type Database = {
           editorial_status: string | null
           end_at: string | null
           ends_at: string | null
+          featured: boolean | null
           id: string
           image_url: string | null
           is_recurring: boolean | null
@@ -673,6 +674,7 @@ export type Database = {
           editorial_status?: string | null
           end_at?: string | null
           ends_at?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
           is_recurring?: boolean | null
@@ -713,6 +715,7 @@ export type Database = {
           editorial_status?: string | null
           end_at?: string | null
           ends_at?: string | null
+          featured?: boolean | null
           id?: string
           image_url?: string | null
           is_recurring?: boolean | null
@@ -820,6 +823,20 @@ export type Database = {
             referencedRelation: "event"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_moderation_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "popular_countdowns_mv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_moderation_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "popular_signals"
+            referencedColumns: ["event_id"]
+          },
         ]
       }
       event_offer: {
@@ -850,6 +867,20 @@ export type Database = {
             referencedRelation: "event"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "event_offer_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "popular_countdowns_mv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_offer_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "popular_signals"
+            referencedColumns: ["event_id"]
+          },
         ]
       }
       event_tag: {
@@ -872,6 +903,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "event"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_tag_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "popular_countdowns_mv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_tag_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "popular_signals"
+            referencedColumns: ["event_id"]
           },
           {
             foreignKeyName: "event_tag_tag_id_fkey"
@@ -2571,6 +2616,38 @@ export type Database = {
       }
     }
     Views: {
+      popular_countdowns_mv: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          category_slug: string | null
+          city: string | null
+          country: string | null
+          id: string | null
+          image_url: string | null
+          score: number | null
+          slug: string | null
+          starts_at: string | null
+          time_status: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      popular_signals: {
+        Row: {
+          event_id: string | null
+          score: number | null
+        }
+        Relationships: []
+      }
       profile_public: {
         Row: {
           avatar_url: string | null
@@ -2691,6 +2768,7 @@ export type Database = {
           editorial_status: string | null
           end_at: string | null
           ends_at: string | null
+          featured: boolean | null
           id: string
           image_url: string | null
           is_recurring: boolean | null
@@ -2850,6 +2928,10 @@ export type Database = {
       normalize_text: {
         Args: { input: string }
         Returns: string
+      }
+      refresh_popular_countdowns: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       render_template: {
         Args: { tmpl: string; vars: Json }
