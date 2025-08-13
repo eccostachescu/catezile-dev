@@ -49,7 +49,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithEmail = async (email: string) => {
     setLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/auth/callback`;
+      // Use production domain if available, otherwise localhost for development
+      const baseUrl = window.location.hostname === 'localhost' 
+        ? window.location.origin 
+        : 'https://catezile.ro';
+      const redirectUrl = `${baseUrl}/auth/callback`;
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { 

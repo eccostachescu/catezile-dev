@@ -21,7 +21,7 @@ export default function CookieBannerStub({ onConsentChange }: { onConsentChange?
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[9999] max-w-2xl mx-auto rounded-lg border bg-background shadow-xl backdrop-blur-sm">
+    <div className="fixed bottom-4 left-4 right-4 z-[9999] max-w-2xl mx-auto rounded-lg border bg-background shadow-xl backdrop-blur-sm md:left-8 md:right-8 lg:left-auto lg:right-8 lg:max-w-lg">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between p-4">
         <div className="flex-1">
           <p className="text-sm text-foreground font-medium mb-1">
@@ -31,9 +31,9 @@ export default function CookieBannerStub({ onConsentChange }: { onConsentChange?
             Folosim cookie‑uri pentru analitice și personalizare. Poți schimba oricând din Setări.
           </p>
         </div>
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex gap-2 flex-shrink-0 flex-wrap sm:flex-nowrap">
           <button 
-            className="h-9 px-3 rounded-md border border-border bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors" 
+            className="h-9 px-3 rounded-md border border-border bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors whitespace-nowrap" 
             onClick={() => { 
               setConsent({ 
                 ...getConsent(), 
@@ -49,7 +49,7 @@ export default function CookieBannerStub({ onConsentChange }: { onConsentChange?
             Respinge
           </button>
           <button 
-            className="h-9 px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium transition-colors" 
+            className="h-9 px-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium transition-colors whitespace-nowrap" 
             onClick={() => { 
               setConsent({ 
                 ad_user_data:'granted', 
@@ -64,8 +64,8 @@ export default function CookieBannerStub({ onConsentChange }: { onConsentChange?
             Acceptă
           </button>
           <button 
-            className="h-9 px-3 rounded-md border border-border bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors" 
-            onClick={() => setVisible(true)}
+            className="h-9 px-3 rounded-md border border-border bg-background hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors whitespace-nowrap" 
+            onClick={() => window.dispatchEvent(new CustomEvent('open-cookie-settings'))}
           >
             Setări
           </button>
