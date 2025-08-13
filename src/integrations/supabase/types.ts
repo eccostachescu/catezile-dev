@@ -1095,6 +1095,73 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_allowlist: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          ip: unknown
+          note: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          ip: unknown
+          note?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          ip?: unknown
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_allowlist_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ip_blocklist: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          ip: unknown
+          reason: string
+          until: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          ip: unknown
+          reason: string
+          until: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          ip?: unknown
+          reason?: string
+          until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_blocklist_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       league: {
         Row: {
           country: string | null
@@ -1528,6 +1595,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_hash: string
+          request_count: number | null
+          route: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_hash: string
+          request_count?: number | null
+          route: string
+          window_start: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_hash?: string
+          request_count?: number | null
+          route?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       reminder: {
         Row: {
           channel: string
@@ -1824,6 +1918,47 @@ export type Database = {
             columns: ["league_id"]
             isOneToOne: false
             referencedRelation: "league"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      security_event: {
+        Row: {
+          id: number
+          ip_hash: string
+          kind: string
+          meta: Json | null
+          occurred_at: string | null
+          route: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: never
+          ip_hash: string
+          kind: string
+          meta?: Json | null
+          occurred_at?: string | null
+          route: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: never
+          ip_hash?: string
+          kind?: string
+          meta?: Json | null
+          occurred_at?: string | null
+          route?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_event_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
             referencedColumns: ["id"]
           },
         ]
@@ -2434,6 +2569,10 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_rate_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       compute_event_seo: {
         Args: { e: Database["public"]["Tables"]["event"]["Row"] }
         Returns: {
@@ -2543,6 +2682,10 @@ export type Database = {
           updated_ext_at: string | null
         }
       }
+      count_rate_limit: {
+        Args: { route_in: string; ip_hash_in: string; since_in: string }
+        Returns: number
+      }
       current_user_email: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -2563,6 +2706,14 @@ export type Database = {
       }
       is_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_ip_allowlisted: {
+        Args: { ip_address: unknown }
+        Returns: boolean
+      }
+      is_ip_blocked: {
+        Args: { ip_address: unknown }
         Returns: boolean
       }
       normalize_text: {
