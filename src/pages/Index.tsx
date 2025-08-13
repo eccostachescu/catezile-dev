@@ -83,9 +83,14 @@ const Index = () => {
               <p className="text-muted-foreground mb-4">
                 Importă date pentru evenimente, filme, sport și sărbători
               </p>
-              <Button asChild>
-                <Link to="/import">Importă Date</Link>
-              </Button>
+              <div className="flex gap-4">
+                <Button asChild>
+                  <Link to="/import">Dashboard Import</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/populate">Populare Rapidă</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -20,7 +20,69 @@ export async function loadCategoryHub(slug: string, params?: { year?: number } |
 }
 
 export async function loadSportList(params?: { days?: number } | string) {
-  return [];
+  try {
+    const days = typeof params === 'object' ? params?.days || 14 : 14;
+    const from = new Date();
+    const to = new Date(from.getTime() + days * 24 * 60 * 60 * 1000);
+    
+    const { data: matches } = await supabase
+      .from('match')
+      .select(`
+        id,
+        home,
+        away,
+        kickoff_at,
+        status,
+        score,
+        tv_channels,
+        slug,
+        competition_id,
+        is_derby
+      `)
+      .gte('kickoff_at', from.toISOString())
+      .lte('kickoff_at', to.toISOString())
+      .order('kickoff_at');
+
+    if (!matches || matches.length === 0) {
+      return {
+        days: [],
+        filters: { teams: [], tv: [] }
+      };
+    }
+
+    // Group matches by date
+    const groupedByDate = matches.reduce((acc: any, match: any) => {
+      const date = new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest' }).format(new Date(match.kickoff_at));
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(match);
+      return acc;
+    }, {});
+
+    const daysList = Object.entries(groupedByDate).map(([date, matches]) => ({
+      date,
+      matches: matches as any[]
+    }));
+
+    // Extract unique teams and TV channels for filters
+    const teams = Array.from(new Set(matches.flatMap(m => [m.home, m.away]))).sort();
+    const tvChannels = Array.from(new Set(matches.flatMap(m => m.tv_channels || []))).sort();
+
+    return {
+      days: daysList,
+      filters: {
+        teams,
+        tv: tvChannels
+      }
+    };
+  } catch (error) {
+    console.error('Error loading sport list:', error);
+    return {
+      days: [],
+      filters: { teams: [], tv: [] }
+    };
+  }
 }
 
 export async function loadMatch(slug: string, params?: { days?: number } | string) {
