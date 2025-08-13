@@ -3,6 +3,8 @@ import Layout from "./layout/Layout";
 import { ErrorBoundary } from "./layout/ErrorBoundary";
 import Home from "./pages/Home";
 import Event from "./pages/Event";
+import Events from "./pages/Events";
+import CreateEvent from "./pages/CreateEvent";
 import CreateCountdown from "./pages/CreateCountdown";
 import Category from "./pages/Category";
 import Countdown from "./pages/Countdown";
@@ -24,6 +26,7 @@ import AdminModeration from "./pages/AdminModeration";
 import AdminAppearance from "./pages/AdminAppearance";
 import AdminMetrics from "./pages/AdminMetrics";
 import AdminEmails from "./pages/AdminEmails";
+import AdminEvents from "./pages/AdminEvents";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import SearchPage from "./pages/Search";
@@ -58,7 +61,9 @@ const AppShell = () => {
             <Layout>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/evenimente" element={<Events />} />
                 <Route path="/evenimente/:slug" element={<Event />} />
+                <Route path="/adauga-eveniment" element={<CreateEvent />} />
                 <Route path="/creeaza" element={<CreateCountdown />} />
                 <Route path="/categorii/:slug" element={<Category />} />
                 <Route path="/categorii/:slug/:year" element={<Category />} />
@@ -153,6 +158,14 @@ const AppShell = () => {
                   element={
                     <ProtectedRoute>
                       <AdminSearch />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/events"
+                  element={
+                    <ProtectedRoute>
+                      <AdminEvents />
                     </ProtectedRoute>
                   }
                 />

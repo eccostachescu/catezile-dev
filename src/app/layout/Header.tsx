@@ -32,6 +32,7 @@ export default function Header() {
         </div>
 
         <nav aria-label="Acțiuni" className="flex items-center gap-2">
+          <Link to="/evenimente" className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Evenimente</Link>
           <Link to={routes.movies()} className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Filme</Link>
           <Link to={routes.sport()} className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Sport</Link>
           <Link to="/sarbatori" className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Sărbători</Link>
