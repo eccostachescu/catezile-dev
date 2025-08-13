@@ -2551,6 +2551,16 @@ export type Database = {
         Args: { movie_row: Database["public"]["Tables"]["movie"]["Row"] }
         Returns: Json
       }
+      get_public_profile: {
+        Args: { profile_id: string }
+        Returns: {
+          id: string
+          display_name: string
+          avatar_url: string
+          handle: string
+          created_at: string
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
