@@ -9,11 +9,18 @@ export const PopulateData = () => {
   const [progress, setProgress] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [currentStep, setCurrentStep] = useState('');
+  const [logs, setLogs] = useState<string[]>([]);
   const { toast } = useToast();
+
+  const addLog = (message: string) => {
+    console.log(message);
+    setLogs(prev => [...prev, message]);
+  };
 
   const runAllImports = async () => {
     setIsRunning(true);
     setProgress(0);
+    setLogs([]);
     
     const steps = [
       { name: 'holidays_generate', label: 'Generating holidays...', body: { fromYear: 2024, toYear: 2026 } },
@@ -22,27 +29,29 @@ export const PopulateData = () => {
       { name: 'search_index_refresh', label: 'Refreshing search index...', body: {} }
     ];
 
+    addLog('🚀 Starting data population...');
+
     try {
       for (let i = 0; i < steps.length; i++) {
         const step = steps[i];
         setCurrentStep(step.label);
         setProgress((i / steps.length) * 100);
 
-        console.log(`Starting ${step.name}...`);
+        addLog(`📋 ${step.label}`);
         const { data, error } = await supabase.functions.invoke(step.name, { body: step.body });
         
         if (error) {
-          console.error(`Error in ${step.name}:`, error);
+          addLog(`❌ ${step.name} failed: ${error.message}`);
           toast({
             title: `${step.name} failed`,
             description: error.message,
             variant: 'destructive',
           });
         } else {
-          console.log(`${step.name} completed:`, data);
+          addLog(`✅ ${step.name} completed: ${JSON.stringify(data)}`);
           toast({
             title: `${step.name} completed`,
-            description: `Success: ${JSON.stringify(data)}`,
+            description: 'Success!',
           });
         }
       }
@@ -50,8 +59,21 @@ export const PopulateData = () => {
       setProgress(100);
       setCurrentStep('All imports completed!');
       
+      // Check final counts
+      addLog('📊 Checking final counts...');
+      const [movieCount, matchCount, holidayCount] = await Promise.all([
+        supabase.from('movie').select('id', { count: 'exact' }),
+        supabase.from('match').select('id', { count: 'exact' }),
+        supabase.from('holiday_instance').select('id', { count: 'exact' })
+      ]);
+      
+      addLog(`📈 Movies: ${movieCount.count || 0}`);
+      addLog(`⚽ Matches: ${matchCount.count || 0}`);
+      addLog(`📅 Holiday instances: ${holidayCount.count || 0}`);
+      addLog('🎉 All data population completed successfully!');
+      
     } catch (error: any) {
-      console.error('Import error:', error);
+      addLog(`❌ Population failed: ${error.message}`);
       toast({
         title: 'Import failed',
         description: error.message,
@@ -62,28 +84,43 @@ export const PopulateData = () => {
     }
   };
 
+  // Auto-start on mount
+  useEffect(() => {
+    runAllImports();
+  }, []);
+
   return (
-    <div className="container mx-auto p-8 max-w-2xl">
+    <div className="container mx-auto p-8 max-w-4xl">
       <Card>
         <CardHeader>
-          <CardTitle>Populate Database</CardTitle>
+          <CardTitle>🚀 Data Population in Progress</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Button 
-            onClick={runAllImports} 
-            disabled={isRunning}
-            className="w-full"
-          >
-            {isRunning ? 'Running Imports...' : 'Start Data Import'}
-          </Button>
-          
-          {isRunning && (
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">{currentStep}</p>
-                <Progress value={progress} className="w-full" />
-              </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">{currentStep}</p>
+              <Progress value={progress} className="w-full" />
             </div>
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="font-semibold">Import Log:</h3>
+            <div className="bg-muted p-4 rounded-lg max-h-96 overflow-y-auto">
+              {logs.map((log, index) => (
+                <div key={index} className="text-sm font-mono">
+                  {log}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {!isRunning && (
+            <Button 
+              onClick={runAllImports} 
+              className="w-full"
+            >
+              Run Again
+            </Button>
           )}
         </CardContent>
       </Card>
