@@ -308,6 +308,33 @@ export type Database = {
         }
         Relationships: []
       }
+      city: {
+        Row: {
+          country: string | null
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       click: {
         Row: {
           campaign: string | null
@@ -529,17 +556,23 @@ export type Database = {
         Row: {
           category_id: string | null
           city: string | null
+          city_id: string | null
           country: string | null
           created_at: string | null
+          curated: boolean | null
           description: string | null
           editorial_status: string | null
           end_at: string | null
+          ends_at: string | null
           id: string
           image_url: string | null
           is_recurring: boolean | null
           location_city: string | null
+          moderation_notes: string | null
+          moderator_id: string | null
           official_site: string | null
           official_source_url: string | null
+          official_url: string | null
           og_theme: string | null
           rrule: string | null
           search_tsv: unknown | null
@@ -549,26 +582,37 @@ export type Database = {
           seo_title: string | null
           slug: string
           start_at: string
+          starts_at: string | null
           status: string
+          submitted_by: string | null
+          subtitle: string | null
+          tickets_affiliate_link_id: string | null
           timezone: string
           title: string
           updated_at: string | null
+          venue_id: string | null
           verified_at: string | null
         }
         Insert: {
           category_id?: string | null
           city?: string | null
+          city_id?: string | null
           country?: string | null
           created_at?: string | null
+          curated?: boolean | null
           description?: string | null
           editorial_status?: string | null
           end_at?: string | null
+          ends_at?: string | null
           id?: string
           image_url?: string | null
           is_recurring?: boolean | null
           location_city?: string | null
+          moderation_notes?: string | null
+          moderator_id?: string | null
           official_site?: string | null
           official_source_url?: string | null
+          official_url?: string | null
           og_theme?: string | null
           rrule?: string | null
           search_tsv?: unknown | null
@@ -578,26 +622,37 @@ export type Database = {
           seo_title?: string | null
           slug: string
           start_at: string
+          starts_at?: string | null
           status?: string
+          submitted_by?: string | null
+          subtitle?: string | null
+          tickets_affiliate_link_id?: string | null
           timezone?: string
           title: string
           updated_at?: string | null
+          venue_id?: string | null
           verified_at?: string | null
         }
         Update: {
           category_id?: string | null
           city?: string | null
+          city_id?: string | null
           country?: string | null
           created_at?: string | null
+          curated?: boolean | null
           description?: string | null
           editorial_status?: string | null
           end_at?: string | null
+          ends_at?: string | null
           id?: string
           image_url?: string | null
           is_recurring?: boolean | null
           location_city?: string | null
+          moderation_notes?: string | null
+          moderator_id?: string | null
           official_site?: string | null
           official_source_url?: string | null
+          official_url?: string | null
           og_theme?: string | null
           rrule?: string | null
           search_tsv?: unknown | null
@@ -607,10 +662,15 @@ export type Database = {
           seo_title?: string | null
           slug?: string
           start_at?: string
+          starts_at?: string | null
           status?: string
+          submitted_by?: string | null
+          subtitle?: string | null
+          tickets_affiliate_link_id?: string | null
           timezone?: string
           title?: string
           updated_at?: string | null
+          venue_id?: string | null
           verified_at?: string | null
         }
         Relationships: [
@@ -619,6 +679,76 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "category"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "city"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_category: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      event_moderation_log: {
+        Row: {
+          action: string
+          actor: string | null
+          created_at: string | null
+          event_id: string
+          id: number
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          created_at?: string | null
+          event_id: string
+          id?: number
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          created_at?: string | null
+          event_id?: string
+          id?: number
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_moderation_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
             referencedColumns: ["id"]
           },
         ]
@@ -2119,6 +2249,56 @@ export type Database = {
         }
         Relationships: []
       }
+      venue: {
+        Row: {
+          address: string | null
+          city_id: string | null
+          created_at: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          phone: string | null
+          slug: string
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          city_id?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          phone?: string | null
+          slug: string
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          city_id?: string | null
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          phone?: string | null
+          slug?: string
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "city"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       standings_regular: {
@@ -2178,17 +2358,23 @@ export type Database = {
         Returns: {
           category_id: string | null
           city: string | null
+          city_id: string | null
           country: string | null
           created_at: string | null
+          curated: boolean | null
           description: string | null
           editorial_status: string | null
           end_at: string | null
+          ends_at: string | null
           id: string
           image_url: string | null
           is_recurring: boolean | null
           location_city: string | null
+          moderation_notes: string | null
+          moderator_id: string | null
           official_site: string | null
           official_source_url: string | null
+          official_url: string | null
           og_theme: string | null
           rrule: string | null
           search_tsv: unknown | null
@@ -2198,10 +2384,15 @@ export type Database = {
           seo_title: string | null
           slug: string
           start_at: string
+          starts_at: string | null
           status: string
+          submitted_by: string | null
+          subtitle: string | null
+          tickets_affiliate_link_id: string | null
           timezone: string
           title: string
           updated_at: string | null
+          venue_id: string | null
           verified_at: string | null
         }
       }
