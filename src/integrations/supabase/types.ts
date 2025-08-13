@@ -2694,6 +2694,24 @@ export type Database = {
         Args: { movie_row: Database["public"]["Tables"]["movie"]["Row"] }
         Returns: Json
       }
+      get_newsletter_subscriber_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_profile_without_email: {
+        Args: { profile_id: string }
+        Returns: {
+          id: string
+          display_name: string
+          handle: string
+          avatar_url: string
+          locale: string
+          timezone: string
+          role: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       get_public_profile: {
         Args: { profile_id: string }
         Returns: {
@@ -2706,6 +2724,10 @@ export type Database = {
       }
       is_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_email_subscribed: {
+        Args: { email_to_check: string }
         Returns: boolean
       }
       is_ip_allowlisted: {
