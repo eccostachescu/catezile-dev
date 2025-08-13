@@ -14,6 +14,11 @@ export default defineConfig(async ({ mode }) => {
       host: "::",
       port: 8080,
     },
+    define: {
+      // Inject cache version for client-side cache busting
+      'import.meta.env.VITE_CACHE_VERSION': JSON.stringify(process.env.VITE_CACHE_VERSION || '1'),
+      'import.meta.env.VITE_SITE_URL': JSON.stringify(process.env.VITE_SITE_URL || 'http://localhost:5173'),
+    },
     plugins: [
       react(),
       mode === 'development' && componentTagger(),
