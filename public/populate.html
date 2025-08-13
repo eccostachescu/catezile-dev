@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Population Runner</title>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.54.0';
+        
+        const supabase = createClient(
+            'https://ibihfzhrsllndxhfwgvb.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliaWhmemhyc2xsbmR4aGZ3Z3ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5MzAyNTAsImV4cCI6MjA3MDUwNjI1MH0.Zqikiwqpgb4lksNXcAdLA3fQzZwfV4WwFYzxpAwxCoU'
+        );
+
+        async function runPopulation() {
+            document.body.innerHTML = '<h1>🚀 Starting data population...</h1><div id="log"></div>';
+            const log = document.getElementById('log');
+            
+            function addLog(message) {
+                log.innerHTML += '<p>' + message + '</p>';
+                console.log(message);
+            }
+            
+            try {
+                // Step 1: Generate holidays
+                addLog('📅 Generating holidays...');
+                const holidays = await supabase.functions.invoke('holidays_generate', {
+                    body: { fromYear: 2024, toYear: 2026 }
+                });
+                addLog('✅ Holidays: ' + JSON.stringify(holidays.data));
+
+                // Step 2: Sync TMDB movies  
+                addLog('🎬 Syncing TMDB movies...');
+                const movies = await supabase.functions.invoke('movies_sync_tmdb');
+                addLog('✅ Movies: ' + JSON.stringify(movies.data));
+
+                // Step 3: Import Liga 1 fixtures
+                addLog('⚽ Importing Liga 1 fixtures...');
+                const liga1 = await supabase.functions.invoke('import_liga1_fixtures');
+                addLog('✅ Liga 1: ' + JSON.stringify(liga1.data));
+
+                // Step 4: Refresh search index
+                addLog('🔍 Refreshing search index...');
+                const search = await supabase.functions.invoke('search_index_refresh');
+                addLog('✅ Search: ' + JSON.stringify(search.data));
+
+                addLog('🎉 All data population completed!');
+                
+                // Check counts
+                const [movieCount, matchCount, holidayCount] = await Promise.all([
+                    supabase.from('movie').select('id', { count: 'exact' }),
+                    supabase.from('match').select('id', { count: 'exact' }),
+                    supabase.from('holiday_instance').select('id', { count: 'exact' })
+                ]);
+                
+                addLog('📊 Final counts:');
+                addLog(`Movies: ${movieCount.count || 0}`);
+                addLog(`Matches: ${matchCount.count || 0}`);
+                addLog(`Holiday instances: ${holidayCount.count || 0}`);
+                
+            } catch (error) {
+                addLog('❌ Error: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // Auto-start
+        runPopulation();
+    </script>
+</head>
+<body>
+    <h1>Loading...</h1>
+</body>
+</html>
