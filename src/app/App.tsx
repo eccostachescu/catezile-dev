@@ -53,6 +53,7 @@ import Liga1TeamsPage from "./pages/liga1/Teams";
 import Liga1TeamDetailPage from "./pages/liga1/TeamDetail";
 import Liga1RoundPage from "./pages/liga1/Round";
 import { HolidaysHome, HolidayDetail, SchoolCalendar, Exams, ExamDetail } from "../pages/holidays";
+import DataImport from "../pages/DataImport";
 
 const AppShell = () => {
   return (
@@ -107,6 +108,9 @@ const AppShell = () => {
                 <Route path="/echipa/:teamSlug" element={<TeamPage />} />
                 <Route path="/tv" element={<TVGuide />} />
                 <Route path="/tv/:channelSlug" element={<TVChannelPage />} />
+
+                {/* Data Import */}
+                <Route path="/import" element={<DataImport />} />
 
                 {/* Auth */}
                 <Route path="/auth/login" element={<AuthLogin />} />
