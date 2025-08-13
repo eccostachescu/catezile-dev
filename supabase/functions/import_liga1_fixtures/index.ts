@@ -326,7 +326,19 @@ serve(async (req: Request) => {
       } catch {}
     }
 
-    return new Response(JSON.stringify({ inserted, updated, skipped, season }), {
+    return new Response(JSON.stringify({ 
+      inserted, 
+      updated, 
+      skipped, 
+      season,
+      debug: {
+        provider,
+        hasBaseUrl: !!baseUrl,
+        hasApiKey: !!apiKey,
+        leagueId,
+        fixturesCount: fixtures.length
+      }
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
