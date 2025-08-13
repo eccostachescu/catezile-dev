@@ -115,6 +115,11 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.tv_now_status]
+verify_jwt = false
+
+[functions.movies_sync_tmdb]
+verify_jwt = false
+
 # Deployment & DevOps functions
 [functions.rebuild_hook]
 verify_jwt = false
