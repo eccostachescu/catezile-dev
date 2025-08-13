@@ -173,8 +173,11 @@ serve(async (req: Request) => {
     const apiKey = Deno.env.get("SPORTS_API_KEY") || "";
     const leagueId = Deno.env.get("LIGA1_PROVIDER_LEAGUE_ID") || "";
 
+    console.log('Sports API config:', { provider, hasBaseUrl: !!baseUrl, hasApiKey: !!apiKey, leagueId });
+
     const { season: seasonBody } = await req.json().catch(() => ({ season: undefined as number | undefined }));
     const season = seasonBody ?? seasonFor();
+    console.log('Season:', season);
 
     // Optional simple secret for cron
     const cronSecret = Deno.env.get("SPORTS_WEBHOOK_SECRET");
@@ -199,7 +202,9 @@ serve(async (req: Request) => {
     let fixtures: any[] = [];
     if (provider === "api-football") {
       if (!baseUrl || !apiKey || !leagueId) throw new Error("Missing SPORTS_API_URL/KEY or LIGA1_PROVIDER_LEAGUE_ID");
+      console.log('Fetching fixtures from API-Football...');
       fixtures = await fetchFixturesAPIFootball(baseUrl, apiKey, leagueId, season);
+      console.log(`Fetched ${fixtures.length} fixtures from API`);
     } else {
       throw new Error(`Unsupported provider: ${provider}`);
     }
