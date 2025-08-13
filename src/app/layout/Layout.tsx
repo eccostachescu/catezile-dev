@@ -1,6 +1,7 @@
 import { ReactNode, useEffect } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
+import CookieSettings from "@/components/CookieSettings";
 
 export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -16,6 +17,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
+      <CookieSettings />
     </div>
   );
 }
