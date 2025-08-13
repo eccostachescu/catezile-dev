@@ -1,5 +1,5 @@
 import * as React from "react";
-import { format, setHours, setMinutes } from "date-fns";
+// Using native date formatting instead of date-fns
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,10 @@ export function DateTimePicker({ value, onChange, className }: DateTimePickerPro
 
   const applyTime = (d?: Date) => {
     if (!d) return undefined;
-    const withHour = setHours(d, hour);
-    const withMinute = setMinutes(withHour, minute);
-    return withMinute;
+    const newDate = new Date(d);
+    newDate.setHours(hour);
+    newDate.setMinutes(minute);
+    return newDate;
   };
 
   const handleSelect = (d?: Date) => {
@@ -55,7 +56,7 @@ export function DateTimePicker({ value, onChange, className }: DateTimePickerPro
           aria-label="Alege data și ora"
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {localDate ? format(localDate, "PPP HH:mm") : <span>Alege data și ora</span>}
+          {localDate ? localDate.toLocaleString() : <span>Alege data și ora</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
