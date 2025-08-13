@@ -970,7 +970,9 @@ export type Database = {
       }
       movie: {
         Row: {
+          backdrop_path: string | null
           backdrop_url: string | null
+          certification: string | null
           cinema_release_ro: string | null
           created_at: string | null
           genres: string[] | null
@@ -978,9 +980,13 @@ export type Database = {
           netflix_date: string | null
           original_title: string | null
           overview: string | null
+          popularity: number | null
+          poster_path: string | null
           poster_url: string | null
           prime_date: string | null
           provider: Json | null
+          release_calendar: Json | null
+          runtime: number | null
           search_tsv: unknown | null
           seo_description: string | null
           seo_h1: string | null
@@ -988,13 +994,18 @@ export type Database = {
           slug: string | null
           source: Json | null
           status: string
+          streaming_ro: Json | null
           title: string
           tmdb_id: number
+          trailer_key: string | null
           trailer_youtube_key: string | null
           updated_at: string | null
+          updated_ext_at: string | null
         }
         Insert: {
+          backdrop_path?: string | null
           backdrop_url?: string | null
+          certification?: string | null
           cinema_release_ro?: string | null
           created_at?: string | null
           genres?: string[] | null
@@ -1002,9 +1013,13 @@ export type Database = {
           netflix_date?: string | null
           original_title?: string | null
           overview?: string | null
+          popularity?: number | null
+          poster_path?: string | null
           poster_url?: string | null
           prime_date?: string | null
           provider?: Json | null
+          release_calendar?: Json | null
+          runtime?: number | null
           search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
@@ -1012,13 +1027,18 @@ export type Database = {
           slug?: string | null
           source?: Json | null
           status?: string
+          streaming_ro?: Json | null
           title: string
           tmdb_id: number
+          trailer_key?: string | null
           trailer_youtube_key?: string | null
           updated_at?: string | null
+          updated_ext_at?: string | null
         }
         Update: {
+          backdrop_path?: string | null
           backdrop_url?: string | null
+          certification?: string | null
           cinema_release_ro?: string | null
           created_at?: string | null
           genres?: string[] | null
@@ -1026,9 +1046,13 @@ export type Database = {
           netflix_date?: string | null
           original_title?: string | null
           overview?: string | null
+          popularity?: number | null
+          poster_path?: string | null
           poster_url?: string | null
           prime_date?: string | null
           provider?: Json | null
+          release_calendar?: Json | null
+          runtime?: number | null
           search_tsv?: unknown | null
           seo_description?: string | null
           seo_h1?: string | null
@@ -1036,12 +1060,54 @@ export type Database = {
           slug?: string | null
           source?: Json | null
           status?: string
+          streaming_ro?: Json | null
           title?: string
           tmdb_id?: number
+          trailer_key?: string | null
           trailer_youtube_key?: string | null
           updated_at?: string | null
+          updated_ext_at?: string | null
         }
         Relationships: []
+      }
+      movie_platform: {
+        Row: {
+          available_from: string | null
+          created_at: string | null
+          movie_id: string
+          platform_id: string
+          url: string | null
+        }
+        Insert: {
+          available_from?: string | null
+          created_at?: string | null
+          movie_id: string
+          platform_id: string
+          url?: string | null
+        }
+        Update: {
+          available_from?: string | null
+          created_at?: string | null
+          movie_id?: string
+          platform_id?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movie_platform_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movie"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movie_platform_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "ott_platform"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_subscriber: {
         Row: {
@@ -1058,6 +1124,27 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+        }
+        Relationships: []
+      }
+      ott_platform: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          slug?: string
         }
         Relationships: []
       }
@@ -1976,7 +2063,9 @@ export type Database = {
       compute_movie_seo: {
         Args: { x: Database["public"]["Tables"]["movie"]["Row"] }
         Returns: {
+          backdrop_path: string | null
           backdrop_url: string | null
+          certification: string | null
           cinema_release_ro: string | null
           created_at: string | null
           genres: string[] | null
@@ -1984,9 +2073,13 @@ export type Database = {
           netflix_date: string | null
           original_title: string | null
           overview: string | null
+          popularity: number | null
+          poster_path: string | null
           poster_url: string | null
           prime_date: string | null
           provider: Json | null
+          release_calendar: Json | null
+          runtime: number | null
           search_tsv: unknown | null
           seo_description: string | null
           seo_h1: string | null
@@ -1994,15 +2087,22 @@ export type Database = {
           slug: string | null
           source: Json | null
           status: string
+          streaming_ro: Json | null
           title: string
           tmdb_id: number
+          trailer_key: string | null
           trailer_youtube_key: string | null
           updated_at: string | null
+          updated_ext_at: string | null
         }
       }
       current_user_email: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_movie_next_date: {
+        Args: { movie_row: Database["public"]["Tables"]["movie"]["Row"] }
+        Returns: Json
       }
       is_admin: {
         Args: Record<PropertyKey, never>
