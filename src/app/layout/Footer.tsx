@@ -5,9 +5,9 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold mb-2">Produs</h3>
           <ul className="space-y-1 text-muted-foreground">
-            <li><a href="#" className="story-link">Cum funcționează</a></li>
-            <li><a href="#" className="story-link">Prețuri</a></li>
-            <li><a href="#" className="story-link">Noutăți</a></li>
+            <li><a href="/cum-functioneaza" className="story-link">Cum funcționează</a></li>
+            <li><a href="/preturi" className="story-link">Prețuri</a></li>
+            <li><a href="/noutati" className="story-link">Noutăți</a></li>
           </ul>
         </div>
         <div>
@@ -21,9 +21,9 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold mb-2">Resurse</h3>
           <ul className="space-y-1 text-muted-foreground">
-            <li><a href="#" className="story-link">Blog</a></li>
-            <li><a href="#" className="story-link">Ghid utilizare</a></li>
-            <li><a href="#" className="story-link">API</a></li>
+            <li><a href="/blog" className="story-link">Blog</a></li>
+            <li><a href="/ghid-utilizare" className="story-link">Ghid utilizare</a></li>
+            <li><a href="/api" className="story-link">API</a></li>
           </ul>
         </div>
         <div>
@@ -31,7 +31,7 @@ export default function Footer() {
           <ul className="space-y-1 text-muted-foreground">
             <li><a href="/despre" className="story-link">Despre</a></li>
             <li><a href="/contact" className="story-link">Contact</a></li>
-            <li><a href="#" className="story-link">Cariere</a></li>
+            <li><a href="/cariere" className="story-link">Cariere</a></li>
           </ul>
         </div>
         <div>

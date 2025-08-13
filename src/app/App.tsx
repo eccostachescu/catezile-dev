@@ -53,6 +53,13 @@ import Liga1TeamsPage from "./pages/liga1/Teams";
 import Liga1TeamDetailPage from "./pages/liga1/TeamDetail";
 import Liga1RoundPage from "./pages/liga1/Round";
 import { HolidaysHome, HolidayDetail, SchoolCalendar, Exams, ExamDetail } from "../pages/holidays";
+import HowItWorks from "./pages/HowItWorks";
+import Pricing from "./pages/Pricing";
+import News from "./pages/News";
+import Blog from "./pages/Blog";
+import Guide from "./pages/Guide";
+import API from "./pages/API";
+import Careers from "./pages/Careers";
 import DataImport from "../pages/DataImport";
 import PopulateData from "../pages/PopulateData";
 import QuickSampleData from "../pages/QuickSampleData";
@@ -101,6 +108,15 @@ const AppShell = () => {
                 <Route path="/examene/:slug" element={<ExamDetail />} />
                 
                 <Route path="/out/:id" element={<OutRedirect />} />
+                
+                {/* Company pages */}
+                <Route path="/cum-functioneaza" element={<HowItWorks />} />
+                <Route path="/preturi" element={<Pricing />} />
+                <Route path="/noutati" element={<News />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/ghid-utilizare" element={<Guide />} />
+                <Route path="/api" element={<API />} />
+                <Route path="/cariere" element={<Careers />} />
                 <Route path="/despre" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
 
