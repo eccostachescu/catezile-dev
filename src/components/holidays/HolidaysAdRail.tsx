@@ -6,7 +6,7 @@ interface HolidaysAdRailProps {
 }
 
 export function HolidaysAdRail({ placement, className }: HolidaysAdRailProps) {
-  const getAdKey = () => {
+  const getAdId = () => {
     switch (placement) {
       case 'sidebar':
         return 'holidays-sidebar';
@@ -21,7 +21,7 @@ export function HolidaysAdRail({ placement, className }: HolidaysAdRailProps) {
 
   return (
     <div className={className}>
-      <AdSlot adKey={getAdKey()} />
+      <AdSlot id={getAdId()} consented={true} />
     </div>
   );
 }
