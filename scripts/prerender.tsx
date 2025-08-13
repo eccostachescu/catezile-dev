@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { StaticRouter } from 'react-router-dom/server';
+import { StaticRouter } from 'react-router-dom';
 import { SEOProvider } from '../src/seo/SEOProvider';
 import { AuthProvider } from '../src/lib/auth';
 import Layout from '../src/app/layout/Layout';
