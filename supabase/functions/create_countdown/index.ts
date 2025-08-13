@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.54.0";
+import { securityShield } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -73,6 +74,10 @@ serve(async (req: Request) => {
   const supabase = createClient(supabaseUrl, serviceKey, {
     global: { headers: { ...Object.fromEntries(req.headers), Authorization: req.headers.get('Authorization') || '' } },
   });
+
+  // Apply security shield
+  const securityCheck = await securityShield(req, supabase, 'create_countdown');
+  if (securityCheck) return securityCheck;
 
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser();

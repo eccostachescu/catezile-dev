@@ -217,6 +217,14 @@ export class ClientRateLimit {
   }
 }
 
+// File validation result interface
+export interface FileValidationResult {
+  valid: boolean;
+  error?: string;
+  sanitizedName?: string;
+  mimeType?: string;
+}
+
 // Validate file uploads client-side
 export function validateFileUpload(file: File): { valid: boolean; error?: string } {
   // Check file size (max 2MB)
@@ -245,6 +253,31 @@ export function validateFileUpload(file: File): { valid: boolean; error?: string
   }
   
   return { valid: true };
+}
+
+// Validate file upload security with detailed result
+export async function validateFileSecurely(file: File): Promise<FileValidationResult> {
+  // Check file size (max 2MB)
+  const maxSize = 2 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return { valid: false, error: 'File too large (max 2MB)' };
+  }
+  
+  // Check MIME type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, error: 'Invalid file type (only JPEG, PNG, WebP allowed)' };
+  }
+  
+  // Generate secure filename
+  const extension = file.type.split('/')[1];
+  const sanitizedName = `${crypto.randomUUID()}.${extension}`;
+  
+  return {
+    valid: true,
+    sanitizedName,
+    mimeType: file.type
+  };
 }
 
 // Content Security Policy generator

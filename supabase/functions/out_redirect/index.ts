@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.54.0";
+import { securityShield } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,12 +35,18 @@ function parseIp(h: Headers): string | null {
 
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabase = createClient(supabaseUrl, serviceKey, {
+    global: { headers: { ...Object.fromEntries(req.headers) } },
+  });
+
+  // Apply security shield
+  const securityCheck = await securityShield(req, supabase, 'out_redirect');
+  if (securityCheck) return securityCheck;
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, serviceKey, {
-      global: { headers: { ...Object.fromEntries(req.headers) } },
-    });
 
     const body = (await req.json().catch(() => ({}))) as BodyIn;
     const id = String(body?.id || '').trim();

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.54.0";
+import { securityShield, validateTurnstile } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,6 +20,8 @@ interface EventSubmission {
   address?: string;
   officialUrl?: string;
   imageUrl?: string;
+  turnstile_token?: string;
+  honeypot?: string;
 }
 
 function slugify(text: string): string {
@@ -35,16 +38,21 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const supabaseClient = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    {
+      global: {
+        headers: { Authorization: req.headers.get("Authorization")! },
+      },
+    }
+  );
+
+  // Apply security shield
+  const securityCheck = await securityShield(req, supabaseClient, 'events_submit');
+  if (securityCheck) return securityCheck;
+
   try {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
-        },
-      }
-    );
 
     // Get authenticated user
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
@@ -56,6 +64,22 @@ serve(async (req) => {
     }
 
     const submission: EventSubmission = await req.json();
+
+    // Check honeypot
+    if (submission.honeypot) {
+      return new Response(JSON.stringify({ error: "Spam detected" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Verify Turnstile token
+    if (!await validateTurnstile(submission.turnstile_token || '')) {
+      return new Response(JSON.stringify({ error: "Security verification failed" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Get or create category
     const { data: category } = await supabaseClient
