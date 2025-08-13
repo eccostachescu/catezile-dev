@@ -1158,6 +1158,13 @@ export type Database = {
             referencedRelation: "profile"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ip_allowlist_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profile_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ip_blocklist: {
@@ -1191,6 +1198,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ip_blocklist_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profile_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1994,6 +2008,13 @@ export type Database = {
             referencedRelation: "profile"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "security_event_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       seo_template: {
@@ -2550,6 +2571,30 @@ export type Database = {
       }
     }
     Views: {
+      profile_public: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          handle: string | null
+          id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          handle?: string | null
+          id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          handle?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
       standings_regular: {
         Row: {
           draws: number | null
