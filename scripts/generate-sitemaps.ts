@@ -41,7 +41,7 @@ function writeGzipFile(filePath: string, xml: string) {
 }
 
 async function buildHomeAndHubs(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
-  const hubs = [
+  const hubs: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] = [
     { loc: `${SITE_URL}/`, changefreq: 'daily', priority: 0.9 },
     { loc: `${SITE_URL}/sport`, changefreq: 'daily', priority: 0.9 },
     { loc: `${SITE_URL}/filme`, changefreq: 'daily', priority: 0.9 },
