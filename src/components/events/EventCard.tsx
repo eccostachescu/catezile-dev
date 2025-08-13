@@ -4,6 +4,9 @@ import { Button } from "@/components/Button";
 import { MapPin, Clock, Bell } from "lucide-react";
 import ReminderButton from "@/components/ReminderButton";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
+import { fmtShortDate, fmtTime } from "@/lib/i18n/formats";
+import { simpleCountdown } from "@/lib/i18n/countdown";
 
 interface Event {
   id: string;
@@ -25,15 +28,13 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event, className }: EventCardProps) {
+  const { t } = useI18n();
   const startDate = new Date(event.starts_at);
   const endDate = event.ends_at ? new Date(event.ends_at) : null;
   
-  const day = startDate.getDate().toString().padStart(2, '0');
-  const month = startDate.toLocaleDateString('ro-RO', { month: 'short' }).toUpperCase();
-  const time = startDate.toLocaleTimeString('ro-RO', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
+  const dayMonth = fmtShortDate(event.starts_at);
+  const time = fmtTime(event.starts_at);
+  const countdownLabel = simpleCountdown(event.starts_at, event.ends_at || undefined);
 
   const formatLocation = () => {
     const parts = [];
@@ -57,15 +58,19 @@ export default function EventCard({ event, className }: EventCardProps) {
               loading="lazy"
             />
             <div className="absolute top-4 left-4 bg-background/90 rounded-lg p-3 text-center min-w-[60px]">
-              <div className="text-2xl font-bold leading-none">{day}</div>
-              <div className="text-xs text-muted-foreground mt-1">{month}</div>
+              <div className="text-lg font-bold leading-none">{dayMonth}</div>
+              {countdownLabel !== 'încheiat' && (
+                <div className="text-xs text-primary mt-1 font-medium">{countdownLabel}</div>
+              )}
             </div>
           </div>
         ) : (
           <div className="aspect-video bg-muted flex items-center justify-center relative">
             <div className="text-center">
-              <div className="text-4xl font-bold text-muted-foreground">{day}</div>
-              <div className="text-sm text-muted-foreground">{month}</div>
+              <div className="text-2xl font-bold text-muted-foreground">{dayMonth}</div>
+              {countdownLabel !== 'încheiat' && (
+                <div className="text-sm text-primary font-medium">{countdownLabel}</div>
+              )}
             </div>
           </div>
         )}
@@ -124,7 +129,7 @@ export default function EventCard({ event, className }: EventCardProps) {
           
           <Link to={`/evenimente/${event.slug}`}>
             <Button variant="outline" size="sm">
-              Detalii
+              {t('events.details')}
             </Button>
           </Link>
         </div>

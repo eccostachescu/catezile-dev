@@ -36,6 +36,7 @@ export const SEO = ({ kind = 'generic', slug, id, merchant, title, description, 
   return (
     <Helmet prioritizeSeoTags>
       <html lang="ro" />
+      <meta httpEquiv="content-language" content="ro-RO" />
       <title>{pageTitle}</title>
       <meta name="description" content={desc} />
       <meta name="robots" content={robots} />

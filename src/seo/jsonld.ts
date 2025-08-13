@@ -4,6 +4,7 @@ export const organizationJsonLd = () => ({
   name: "CateZile.ro",
   url: typeof window !== "undefined" ? window.location.origin : "https://catezile.ro",
   logo: "/favicon.ico",
+  inLanguage: "ro-RO",
 });
 
 export const websiteJsonLd = () => ({
@@ -11,6 +12,7 @@ export const websiteJsonLd = () => ({
   "@type": "WebSite",
   name: "CateZile.ro",
   url: typeof window !== "undefined" ? window.location.origin : "https://catezile.ro",
+  inLanguage: "ro-RO",
   potentialAction: {
     "@type": "SearchAction",
     target: `${typeof window !== "undefined" ? window.location.origin : "https://catezile.ro"}/cauta?q={search_term_string}`,
@@ -25,6 +27,7 @@ export const eventJsonLd = (opts: { name: string; startDate: Date | string | num
   startDate: new Date(opts.startDate).toISOString(),
   eventStatus: "https://schema.org/EventScheduled",
   eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  inLanguage: "ro-RO",
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
 
@@ -35,6 +38,7 @@ export const sportsEventJsonLd = (opts: { name: string; homeTeam: string; awayTe
   startDate: new Date(opts.startDate).toISOString(),
   homeTeam: { "@type": "SportsTeam", name: opts.homeTeam },
   awayTeam: { "@type": "SportsTeam", name: opts.awayTeam },
+  inLanguage: "ro-RO",
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
 
@@ -43,6 +47,7 @@ export const movieJsonLd = (opts: { name: string; releaseDate?: Date | string | 
   "@type": "Movie",
   name: opts.name,
   datePublished: opts.releaseDate ? new Date(opts.releaseDate).toISOString() : undefined,
+  inLanguage: "ro-RO",
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
 
@@ -53,6 +58,7 @@ export const broadcastEventJsonLd = (opts: { channelName: string; startDate: Dat
   startDate: new Date(opts.startDate).toISOString(),
   endDate: opts.endDate ? new Date(opts.endDate).toISOString() : undefined,
   isLiveBroadcast: !!opts.isLive,
+  inLanguage: "ro-RO",
   broadcastOfEvent: opts.sports ? sportsEventJsonLd({ name: opts.sports.name, homeTeam: opts.sports.homeTeam, awayTeam: opts.sports.awayTeam, startDate: opts.sports.startDate }) : undefined,
   broadcastChannel: {
     "@type": "TelevisionChannel",

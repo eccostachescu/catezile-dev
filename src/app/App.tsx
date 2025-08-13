@@ -37,6 +37,7 @@ import TVChannelPage from "./pages/TVChannel";
 import AdminSearch from "./pages/AdminSearch";
 import { SEOProvider } from "@/seo/SEOProvider";
 import { AuthProvider } from "@/lib/auth";
+import { I18nProvider } from "@/lib/i18n";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import "@/styles/tailwind.css";
 import AuthLogin from "./pages/AuthLogin";
@@ -55,8 +56,9 @@ import { HolidaysHome, HolidayDetail, SchoolCalendar, Exams, ExamDetail } from "
 const AppShell = () => {
   return (
     <SEOProvider>
-      <AuthProvider>
-        <ErrorBoundary fallback={<ServerError />}> 
+      <I18nProvider>
+        <AuthProvider>
+          <ErrorBoundary fallback={<ServerError />}>
           <BrowserRouter>
             <Layout>
               <Routes>
@@ -183,6 +185,7 @@ const AppShell = () => {
           </BrowserRouter>
         </ErrorBoundary>
       </AuthProvider>
+      </I18nProvider>
     </SEOProvider>
   );
 };
