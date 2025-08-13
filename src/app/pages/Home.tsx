@@ -12,8 +12,12 @@ import ForYou from "@/components/home/ForYou";
 import ExploreLinks from "@/components/home/ExploreLinks";
 import HomeAdRail from "@/components/home/HomeAdRail";
 import BFTopOffers from "@/components/home/BFTopOffers";
+import { useAuthTokenHandler } from "@/hooks/useAuthTokenHandler";
 
 export default function Home() {
+  // Handle auth tokens if present in URL hash
+  useAuthTokenHandler();
+  
   const data = getInitialData<any>();
   const initialHome = data && (data as any).home;
   const [homeData, setHomeData] = useState<any | null>(initialHome || null);
