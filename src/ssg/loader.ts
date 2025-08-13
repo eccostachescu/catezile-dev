@@ -27,6 +27,19 @@ export async function loadMatch(slug: string, params?: { days?: number } | strin
   return null;
 }
 
+// Add missing functions that prerender.tsx expects
+export async function loadMovies() {
+  return loadMoviesHome();
+}
+
+export async function loadCategory(slug: string) {
+  return null;
+}
+
+export async function loadCountdown(id: string) {
+  return null;
+}
+
 export async function loadMoviesHome() {
   try {
     const today = new Date().toISOString().split('T')[0];
