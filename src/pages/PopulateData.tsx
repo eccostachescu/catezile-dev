@@ -24,6 +24,8 @@ export const PopulateData = () => {
     
     const steps = [
       { name: 'holidays_generate', label: 'Generating holidays...', body: { fromYear: 2024, toYear: 2026 } },
+      { name: 'movies_sync_tmdb', label: 'Syncing TMDB movies...', body: {} },
+      { name: 'import_liga1_fixtures', label: 'Importing Liga 1 fixtures...', body: {} },
       { name: 'search_index_refresh', label: 'Refreshing search index...', body: {} }
     ];
 
