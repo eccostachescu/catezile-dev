@@ -40,6 +40,7 @@ import RequireAuth from "@/components/common/RequireAuth";
 import LegalTerms from "./pages/LegalTerms";
 import LegalPrivacy from "./pages/LegalPrivacy";
 import LegalCookies from "./pages/LegalCookies";
+import Liga1Overview from "./pages/liga1/Overview";
 
 const AppShell = () => {
   return (
@@ -60,6 +61,8 @@ const AppShell = () => {
                 <Route path="/black-friday/:slug" element={<BFSlug />} />
                 <Route path="/sport" element={<Sport />} />
                 <Route path="/sport/:matchId" element={<Match />} />
+                <Route path="/liga-1" element={<Liga1Overview />} />
+                <Route path="/superliga" element={<Navigate to="/liga-1" replace />} />
                 <Route path="/filme" element={<Movies />} />
                 <Route path="/filme/:id" element={<Movie />} />
                 <Route path="/out/:id" element={<OutRedirect />} />

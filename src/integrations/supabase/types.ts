@@ -449,6 +449,41 @@ export type Database = {
         }
         Relationships: []
       }
+      derby: {
+        Row: {
+          id: string
+          importance: number | null
+          league_id: string
+          name: string
+          team_a: string
+          team_b: string
+        }
+        Insert: {
+          id?: string
+          importance?: number | null
+          league_id: string
+          name: string
+          team_a: string
+          team_b: string
+        }
+        Update: {
+          id?: string
+          importance?: number | null
+          league_id?: string
+          name?: string
+          team_a?: string
+          team_b?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "derby_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "league"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_unsub: {
         Row: {
           created_at: string | null
@@ -705,6 +740,27 @@ export type Database = {
         }
         Relationships: []
       }
+      league: {
+        Row: {
+          country: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          country?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          country?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       match: {
         Row: {
           away: string
@@ -715,9 +771,13 @@ export type Database = {
           id: string
           is_derby: boolean | null
           kickoff_at: string
+          league_id: string | null
           round: string | null
+          round_id: string | null
+          round_number: number | null
           score: Json | null
           search_tsv: unknown | null
+          season_id: string | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null
@@ -736,9 +796,13 @@ export type Database = {
           id?: string
           is_derby?: boolean | null
           kickoff_at: string
+          league_id?: string | null
           round?: string | null
+          round_id?: string | null
+          round_number?: number | null
           score?: Json | null
           search_tsv?: unknown | null
+          season_id?: string | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -757,9 +821,13 @@ export type Database = {
           id?: string
           is_derby?: boolean | null
           kickoff_at?: string
+          league_id?: string | null
           round?: string | null
+          round_id?: string | null
+          round_number?: number | null
           score?: Json | null
           search_tsv?: unknown | null
+          season_id?: string | null
           seo_description?: string | null
           seo_h1?: string | null
           seo_title?: string | null
@@ -775,6 +843,27 @@ export type Database = {
             columns: ["competition_id"]
             isOneToOne: false
             referencedRelation: "competition"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "league"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_round_id_fkey"
+            columns: ["round_id"]
+            isOneToOne: false
+            referencedRelation: "round"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "season"
             referencedColumns: ["id"]
           },
         ]
@@ -1099,6 +1188,41 @@ export type Database = {
           },
         ]
       }
+      round: {
+        Row: {
+          end_date: string | null
+          id: string
+          name: string | null
+          number: number
+          season_id: string
+          start_date: string | null
+        }
+        Insert: {
+          end_date?: string | null
+          id?: string
+          name?: string | null
+          number: number
+          season_id: string
+          start_date?: string | null
+        }
+        Update: {
+          end_date?: string | null
+          id?: string
+          name?: string | null
+          number?: number
+          season_id?: string
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "round_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "season"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       search_index: {
         Row: {
           category_slug: string | null
@@ -1167,6 +1291,47 @@ export type Database = {
           term?: string
         }
         Relationships: []
+      }
+      season: {
+        Row: {
+          end_date: string | null
+          id: string
+          is_current: boolean | null
+          league_id: string
+          phase: string
+          start_date: string | null
+          year_end: number
+          year_start: number
+        }
+        Insert: {
+          end_date?: string | null
+          id?: string
+          is_current?: boolean | null
+          league_id: string
+          phase?: string
+          start_date?: string | null
+          year_end: number
+          year_start: number
+        }
+        Update: {
+          end_date?: string | null
+          id?: string
+          is_current?: boolean | null
+          league_id?: string
+          phase?: string
+          start_date?: string | null
+          year_end?: number
+          year_start?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "league"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seo_template: {
         Row: {
@@ -1243,6 +1408,45 @@ export type Database = {
         }
         Relationships: []
       }
+      standings_live: {
+        Row: {
+          draws: number
+          ga: number
+          gf: number
+          losses: number
+          played: number
+          points: number
+          season_id: string
+          team_name: string
+          updated_at: string | null
+          wins: number
+        }
+        Insert: {
+          draws: number
+          ga: number
+          gf: number
+          losses: number
+          played: number
+          points: number
+          season_id: string
+          team_name: string
+          updated_at?: string | null
+          wins: number
+        }
+        Update: {
+          draws?: number
+          ga?: number
+          gf?: number
+          losses?: number
+          played?: number
+          points?: number
+          season_id?: string
+          team_name?: string
+          updated_at?: string | null
+          wins?: number
+        }
+        Relationships: []
+      }
       tag: {
         Row: {
           created_at: string | null
@@ -1284,6 +1488,29 @@ export type Database = {
           created_at?: string
         }
         Relationships: []
+      }
+      tiebreak_rule: {
+        Row: {
+          league_id: string
+          rules: Json
+        }
+        Insert: {
+          league_id: string
+          rules?: Json
+        }
+        Update: {
+          league_id?: string
+          rules?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tiebreak_rule_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: true
+            referencedRelation: "league"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       top_pages_daily: {
         Row: {
@@ -1533,6 +1760,20 @@ export type Database = {
       }
     }
     Views: {
+      standings_regular: {
+        Row: {
+          draws: number | null
+          ga: number | null
+          gf: number | null
+          losses: number | null
+          played: number | null
+          points: number | null
+          season_id: string | null
+          team_name: string | null
+          wins: number | null
+        }
+        Relationships: []
+      }
       static_pages: {
         Row: {
           url: string | null
@@ -1614,9 +1855,13 @@ export type Database = {
           id: string
           is_derby: boolean | null
           kickoff_at: string
+          league_id: string | null
           round: string | null
+          round_id: string | null
+          round_number: number | null
           score: Json | null
           search_tsv: unknown | null
+          season_id: string | null
           seo_description: string | null
           seo_h1: string | null
           seo_title: string | null

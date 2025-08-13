@@ -31,4 +31,12 @@ export const routes = {
   adminAppearance: () => "/admin/appearance",
   adminMetrics: () => "/admin/metrics",
   adminEmails: () => "/admin/emails",
+  // Liga 1 (SuperLiga)
+  liga1: () => "/liga-1",
+  superliga: () => "/superliga",
+  liga1Table: () => "/liga-1/clasament",
+  liga1Round: (nr: number | string) => `/liga-1/etapa/${nr}`,
+  liga1Results: () => "/liga-1/rezultate",
+  liga1Teams: () => "/liga-1/echipe",
+  liga1Team: (slug: string) => `/liga-1/echipe/${slug}`,
 };
