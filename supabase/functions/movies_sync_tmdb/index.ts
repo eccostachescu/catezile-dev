@@ -61,7 +61,9 @@ serve(async (req) => {
     }
 
     const TMDB_API_KEY = Deno.env.get('TMDB_API_KEY');
+    console.log('TMDB_API_KEY exists:', !!TMDB_API_KEY);
     if (!TMDB_API_KEY) {
+      console.log('TMDB_API_KEY not configured');
       return new Response(JSON.stringify({ error: 'TMDB_API_KEY not configured' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
