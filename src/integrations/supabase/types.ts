@@ -683,6 +683,74 @@ export type Database = {
           },
         ]
       }
+      exam: {
+        Row: {
+          created_at: string | null
+          id: string
+          level: string
+          name: string
+          official_ref: string | null
+          slug: string
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          level: string
+          name: string
+          official_ref?: string | null
+          slug: string
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          level?: string
+          name?: string
+          official_ref?: string | null
+          slug?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      exam_phase: {
+        Row: {
+          created_at: string | null
+          ends_on: string
+          exam_id: string
+          id: string
+          name: string
+          slug: string
+          starts_on: string
+        }
+        Insert: {
+          created_at?: string | null
+          ends_on: string
+          exam_id: string
+          id?: string
+          name: string
+          slug: string
+          starts_on: string
+        }
+        Update: {
+          created_at?: string | null
+          ends_on?: string
+          exam_id?: string
+          id?: string
+          name?: string
+          slug?: string
+          starts_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_phase_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exam"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follow: {
         Row: {
           created_at: string | null
@@ -729,6 +797,80 @@ export type Database = {
             columns: ["channel_id"]
             isOneToOne: false
             referencedRelation: "tv_channel"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holiday: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          kind: string
+          name: string
+          official_ref: string | null
+          rule: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          kind: string
+          name: string
+          official_ref?: string | null
+          rule: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          official_ref?: string | null
+          rule?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      holiday_instance: {
+        Row: {
+          created_at: string | null
+          date: string
+          date_end: string | null
+          holiday_id: string
+          id: string
+          is_weekend: boolean
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          date_end?: string | null
+          holiday_id: string
+          id?: string
+          is_weekend?: boolean
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          date_end?: string | null
+          holiday_id?: string
+          id?: string
+          is_weekend?: boolean
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holiday_instance_holiday_id_fkey"
+            columns: ["holiday_id"]
+            isOneToOne: false
+            referencedRelation: "holiday"
             referencedColumns: ["id"]
           },
         ]
@@ -1349,6 +1491,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      school_calendar: {
+        Row: {
+          created_at: string | null
+          ends_on: string
+          id: string
+          kind: string
+          name: string
+          official_ref: string | null
+          school_year: string
+          starts_on: string
+        }
+        Insert: {
+          created_at?: string | null
+          ends_on: string
+          id?: string
+          kind: string
+          name: string
+          official_ref?: string | null
+          school_year: string
+          starts_on: string
+        }
+        Update: {
+          created_at?: string | null
+          ends_on?: string
+          id?: string
+          kind?: string
+          name?: string
+          official_ref?: string | null
+          school_year?: string
+          starts_on?: string
+        }
+        Relationships: []
       }
       search_index: {
         Row: {
