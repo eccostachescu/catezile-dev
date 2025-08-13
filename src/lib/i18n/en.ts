@@ -79,6 +79,67 @@ export default {
   'admin.approved': 'Approved',
   'admin.rejected': 'Rejected',
 
-  // Rest would be English translations...
-  // For brevity, keeping essential keys only
+  // Movies
+  'movies.title': 'Movies in Romania',
+  'movies.inCinema': 'in cinema',
+  'movies.onStreaming': 'on streaming',
+  'movies.thisMonth': 'This month',
+  'movies.nextMonth': 'Next month',
+  'movies.watchOn': 'Watch on',
+  'movies.trailer': 'Trailer',
+  'movies.releaseDate': 'Release date',
+
+  // Sport
+  'sport.title': 'Sport Romania',
+  'sport.live': 'LIVE',
+  'sport.fixtures': 'Fixtures',
+  'sport.results': 'Results',
+  'sport.table': 'Table',
+  'sport.kickoff': 'Kickoff',
+  'sport.fullTime': 'Full time',
+  'sport.halftime': 'Half time',
+  'sport.tvChannels': 'TV channels',
+
+  // Holidays
+  'holidays.title': 'Holidays and free days in Romania',
+  'holidays.national': 'National holidays',
+  'holidays.religious': 'Religious holidays',
+  'holidays.school': 'School calendar',
+  'holidays.workingDay': 'working day',
+  'holidays.weekend': 'weekend',
+  'holidays.holiday': 'holiday',
+
+  // Countdown & Duration
+  'countdown.in': 'in',
+  'countdown.and': 'and',
+  'countdown.startsAt': 'starts at',
+  'countdown.endsIn': 'ends in',
+  'countdown.ended': 'ended',
+
+  // Forms
+  'form.required': 'Required field',
+  'form.email': 'Email address',
+  'form.name': 'Name',
+  'form.title': 'Title',
+  'form.description': 'Description',
+  'form.date': 'Date',
+  'form.time': 'Time',
+  'form.submit': 'Submit',
+  'form.submitting': 'Submitting...',
+
+  // Messages
+  'msg.success': 'Operation completed successfully',
+  'msg.error': 'An error occurred',
+  'msg.noResults': 'No results found',
+  'msg.tryAgain': 'Try again',
+
+  // Legal
+  'legal.terms': 'Terms and conditions',
+  'legal.privacy': 'Privacy policy',
+  'legal.cookies': 'Cookie policy',
+  'legal.accept': 'I accept the terms and conditions',
+
+  // SEO
+  'seo.defaultTitle': 'CateZile.ro — How many days until...',
+  'seo.defaultDescription': 'Timers and countdowns for popular events in Romanian',
 } as const;

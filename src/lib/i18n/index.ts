@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useState } from 'react';
+import { createContext, useContext, ReactNode, useState, createElement } from 'react';
 import { DateTime } from 'luxon';
 import roMessages from './ro';
 import enMessages from './en';
@@ -9,9 +9,9 @@ export type Locale = 'ro-RO' | 'en';
 export type Messages = typeof roMessages;
 export type MessageKey = keyof Messages;
 
-const messages: Record<Locale, Messages> = {
+const messages: Record<Locale, any> = {
   'ro-RO': roMessages,
-  'en': enMessages as Messages,
+  'en': enMessages,
 };
 
 export interface I18nContextType {
@@ -64,11 +64,7 @@ export function I18nProvider({ children, defaultLocale = 'ro-RO' }: I18nProvider
     setLocale,
   };
 
-  return (
-    <I18nContext.Provider value={value}>
-      {children}
-    </I18nContext.Provider>
-  );
+  return createElement(I18nContext.Provider, { value }, children);
 }
 
 export function useI18n(): I18nContextType {

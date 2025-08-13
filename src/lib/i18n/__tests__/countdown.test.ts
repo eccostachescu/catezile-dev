@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { countdown, simpleCountdown, contextualCountdown } from '../countdown';
 
 describe('Countdown Logic', () => {
