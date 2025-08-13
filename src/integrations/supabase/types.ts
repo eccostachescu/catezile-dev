@@ -32,6 +32,39 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_log: {
+        Row: {
+          accessed_at: string | null
+          action: string
+          admin_id: string | null
+          id: string
+          ip_address: unknown | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+        }
+        Insert: {
+          accessed_at?: string | null
+          action: string
+          admin_id?: string | null
+          id?: string
+          ip_address?: unknown | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+        }
+        Update: {
+          accessed_at?: string | null
+          action?: string
+          admin_id?: string | null
+          id?: string
+          ip_address?: unknown | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       admin_emails: {
         Row: {
           email: string
@@ -2736,6 +2769,10 @@ export type Database = {
       }
       is_ip_blocked: {
         Args: { ip_address: unknown }
+        Returns: boolean
+      }
+      log_admin_email_access: {
+        Args: { admin_id: string }
         Returns: boolean
       }
       normalize_text: {
