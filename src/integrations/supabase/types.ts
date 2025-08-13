@@ -2602,6 +2602,29 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_profile_with_audit: {
+        Args: { profile_id: string; admin_reason?: string }
+        Returns: {
+          id: string
+          display_name: string
+          handle: string
+          avatar_url: string
+          email: string
+          locale: string
+          timezone: string
+          role: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      admin_get_user_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      admin_newsletter_action: {
+        Args: { action_type: string; email_address?: string }
+        Returns: Json
+      }
       cleanup_rate_limit: {
         Args: Record<PropertyKey, never>
         Returns: undefined
