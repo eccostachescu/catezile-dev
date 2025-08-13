@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRoDate } from "@/lib/date";
 import ReminderButton from "@/components/ReminderButton";
+import CountdownTimer from "@/components/CountdownTimer";
 
 interface HolidayCardProps {
   holiday: {
@@ -79,13 +80,19 @@ export function HolidayCard({ holiday, instance, showYear = false }: HolidayCard
       </CardHeader>
       
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Calendar className="h-4 w-4" />
-          <span>
-            {formatRoDate(date, false)}
-            {showYear && ` ${instance.year}`}
-            {isMultiDay && ` - ${formatRoDate(new Date(instance.date_end!), false)}`}
-          </span>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            <span>
+              {formatRoDate(date, false)}
+              {showYear && ` ${instance.year}`}
+              {isMultiDay && ` - ${formatRoDate(new Date(instance.date_end!), false)}`}
+            </span>
+          </div>
+          
+          {date > new Date() && (
+            <CountdownTimer target={date} ariaLabel={`Countdown până la ${holiday.name}`} />
+          )}
         </div>
 
         {holiday.description && (

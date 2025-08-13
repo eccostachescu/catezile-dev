@@ -21,6 +21,7 @@ export default function HolidaysHome() {
             holiday:holiday_id (*)
           `)
           .in('year', [currentYear, currentYear + 1])
+          .gte('date', new Date().toISOString().split('T')[0])
           .order('date');
         
         setHolidays(data || []);
