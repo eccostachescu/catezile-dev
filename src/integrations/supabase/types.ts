@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -2725,17 +2725,17 @@ export type Database = {
     }
     Functions: {
       admin_get_profile_with_audit: {
-        Args: { profile_id: string; admin_reason?: string }
+        Args: { admin_reason?: string; profile_id: string }
         Returns: {
-          id: string
-          display_name: string
-          handle: string
           avatar_url: string
-          email: string
-          locale: string
-          timezone: string
-          role: string
           created_at: string
+          display_name: string
+          email: string
+          handle: string
+          id: string
+          locale: string
+          role: string
+          timezone: string
           updated_at: string
         }[]
       }
@@ -2866,7 +2866,7 @@ export type Database = {
         }
       }
       count_rate_limit: {
-        Args: { route_in: string; ip_hash_in: string; since_in: string }
+        Args: { ip_hash_in: string; route_in: string; since_in: string }
         Returns: number
       }
       current_user_email: {
@@ -2884,25 +2884,25 @@ export type Database = {
       get_profile_without_email: {
         Args: { profile_id: string }
         Returns: {
-          id: string
+          avatar_url: string
+          created_at: string
           display_name: string
           handle: string
-          avatar_url: string
+          id: string
           locale: string
-          timezone: string
           role: string
-          created_at: string
+          timezone: string
           updated_at: string
         }[]
       }
       get_public_profile: {
         Args: { profile_id: string }
         Returns: {
-          id: string
-          display_name: string
           avatar_url: string
-          handle: string
           created_at: string
+          display_name: string
+          handle: string
+          id: string
         }[]
       }
       is_admin: {
@@ -2942,7 +2942,7 @@ export type Database = {
         Returns: string
       }
       ugc_quota_exceeded: {
-        Args: { p_user: string; p_kind?: string }
+        Args: { p_kind?: string; p_user: string }
         Returns: boolean
       }
       unaccent: {
