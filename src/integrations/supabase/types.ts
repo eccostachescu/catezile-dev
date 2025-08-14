@@ -754,13 +754,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "event_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
-            referencedColumns: ["category_id"]
-          },
-          {
             foreignKeyName: "event_city_id_fkey"
             columns: ["city_id"]
             isOneToOne: false
@@ -834,13 +827,6 @@ export type Database = {
             foreignKeyName: "event_moderation_log_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_moderation_log_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
             referencedRelation: "popular_signals"
             referencedColumns: ["event_id"]
           },
@@ -878,13 +864,6 @@ export type Database = {
             foreignKeyName: "event_offer_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_offer_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
             referencedRelation: "popular_signals"
             referencedColumns: ["event_id"]
           },
@@ -909,13 +888,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "event"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_tag_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
             referencedColumns: ["id"]
           },
           {
@@ -2623,23 +2595,6 @@ export type Database = {
       }
     }
     Views: {
-      popular_countdowns_mv: {
-        Row: {
-          category_id: string | null
-          category_name: string | null
-          category_slug: string | null
-          city: string | null
-          country: string | null
-          id: string | null
-          image_url: string | null
-          score: number | null
-          slug: string | null
-          starts_at: string | null
-          time_status: string | null
-          title: string | null
-        }
-        Relationships: []
-      }
       popular_signals: {
         Row: {
           event_id: string | null
