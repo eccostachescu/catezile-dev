@@ -112,11 +112,10 @@ Please provide a thorough code review focusing on the areas mentioned in the sys
 
     console.log('Claude review generated successfully');
 
-    // Check if this is a test mode (mock token)
-    const isTestMode = prData.github_token === 'mock_token_for_test';
+    // Check if this is a test mode (mock token or missing repo)
+    const isTestMode = prData.github_token === 'mock_token_for_test' || !prData.repository || prData.repository.includes('mock');
     
     if (isTestMode) {
-      // For testing, just return the review without posting to GitHub
       console.log('Test mode: Skipping GitHub API call');
       return new Response(
         JSON.stringify({ 
