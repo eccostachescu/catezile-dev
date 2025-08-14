@@ -121,6 +121,17 @@ serve(async (req) => {
         image_url: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800',
         status: 'PUBLISHED',
         timezone: 'Europe/Bucharest'
+      },
+      {
+        title: 'Concert extraordinar Inna - București',
+        start_at: '2025-09-15T20:00:00+03:00',
+        end_at: '2025-09-15T23:30:00+03:00',
+        city: 'București',
+        description: 'Artista internațională Inna revine la București cu un show extraordinar',
+        image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop&q=80',
+        status: 'PUBLISHED',
+        featured: true,
+        timezone: 'Europe/Bucharest'
       }
     ];
 
@@ -177,7 +188,11 @@ serve(async (req) => {
     ];
 
     for (const match of realMatches) {
-      await supabase.from('match').insert(match);
+      const matchWithImage = {
+        ...match,
+        image_url: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=800&h=600&fit=crop&q=80'
+      };
+      await supabase.from('match').insert(matchWithImage);
     }
 
     // 4. Populate Real Movies (using TMDB data structure)

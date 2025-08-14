@@ -250,7 +250,7 @@ export default function CardCountdown({
       {/* Content */}
       <div className="p-4 space-y-3 min-h-[128px]">
         {/* Title */}
-        <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors">
+        <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={() => window.location.href = `/evenimente/${slug}`}>
           {title}
         </h3>
         

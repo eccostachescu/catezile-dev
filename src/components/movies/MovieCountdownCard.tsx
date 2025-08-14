@@ -159,11 +159,19 @@ export function MovieCountdownCard({ movie, className }: MovieCountdownCardProps
               className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
               loading="lazy"
               decoding="async"
+              onError={(e) => {
+                // Fallback to a movie-specific image
+                e.currentTarget.src = `https://images.unsplash.com/photo-1489599510072-12d66b9ac1ae?w=500&h=750&fit=crop&q=80`;
+              }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-              <Film className="h-16 w-16 text-primary/30" />
-            </div>
+            <img
+              src={`https://images.unsplash.com/photo-1489599510072-12d66b9ac1ae?w=500&h=750&fit=crop&q=80`}
+              alt={movie.title}
+              className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+            />
           )}
           
           {/* Status Badge */}

@@ -16,26 +16,29 @@ export default function Header() {
     <header className="sticky top-0 z-50 h-16 bg-[--cz-surface]/80 backdrop-blur-md border-b border-[--cz-border]">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to={routes.home()} className="font-heading font-semibold text-lg text-[--cz-ink]">
+        <Link to={routes.home()} className="font-heading font-bold text-xl text-[--cz-ink] drop-shadow-sm">
           CateZile<span className="text-[--cz-accent]">.</span>ro
         </Link>
 
         {/* Desktop Navigation - Extended */}
         <nav className="hidden md:flex items-center space-x-6 flex-1 justify-center">
-          <Link to="/tv" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
+          <Link to="/tv" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
             TV
           </Link>
-          <Link to="/filme" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
+          <Link to="/filme" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
             Filme
           </Link>
-          <Link to="/sport" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
+          <Link to="/sport" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
             Sport
           </Link>
-          <Link to="/sarbatori" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
+          <Link to="/sarbatori" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
             Sărbători
           </Link>
-          <Link to="/evenimente" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
+          <Link to="/evenimente" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
             Evenimente
+          </Link>
+          <Link to="/creeaza" className="text-[--cz-accent] hover:text-[--cz-primary] font-bold transition-colors px-3 py-2 rounded-lg bg-[--cz-surface] hover:bg-[--cz-border]">
+            Creează
           </Link>
         </nav>
 

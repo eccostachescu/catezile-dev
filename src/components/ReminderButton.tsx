@@ -28,32 +28,51 @@ export default function ReminderButton({ when, kind, entityId }: Props) {
   const disabled = useMemo(() => saving, [saving]);
 
   const doSave = async () => {
-    if (!kind || !entityId) {
-      setSet(true);
-      track('reminder_set', { kind: kind || 'unknown', entityId: entityId || undefined, offset_days: days, offset_hours: hours });
-      toast({ title: "Reminder setat", description: "Îți vom reaminti înainte de eveniment." });
-      setOpen(false);
-      return;
-    }
-    if (!user) {
-      toast({ title: "Autentifică-te", description: "Trebuie să fii logat pentru a seta remindere." });
-      return;
-    }
     try {
       setSaving(true);
+      
+      if (!kind || !entityId) {
+        // For events without specific IDs, just show success
+        setSet(true);
+        track('reminder_set', { kind: kind || 'unknown', entityId: entityId || undefined, offset_days: days, offset_hours: hours });
+        toast({ title: "Reminder setat", description: "Îți vom reaminti înainte de eveniment." });
+        setOpen(false);
+        setSaving(false);
+        return;
+      }
+      
+      if (!user) {
+        toast({ title: "Autentifică-te", description: "Trebuie să fii logat pentru a seta remindere.", variant: "destructive" });
+        setSaving(false);
+        return;
+      }
+      
       const { data, error } = await supabase.functions.invoke('reminder_upsert', {
         body: { kind, entity_id: entityId, offsets: { days, hours } },
       });
-      setSaving(false);
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Reminder error:', error);
+        throw new Error(error.message || 'Failed to set reminder');
+      }
+      
       setSet(true);
       setOpen(false);
       setNextFireAt(data?.next_fire_at || null);
       track('reminder_set', { kind, entityId, offset_days: days, offset_hours: hours });
-      toast({ title: "Reminder activ", description: data?.next_fire_at ? `Îți scriem ${formatRoDate(new Date(data.next_fire_at), true)}.` : undefined });
+      toast({ 
+        title: "Reminder activ", 
+        description: data?.next_fire_at ? `Îți scriem ${formatRoDate(new Date(data.next_fire_at), true)}.` : "Reminder-ul a fost setat cu succes." 
+      });
     } catch (e: any) {
+      console.error('Failed to save reminder:', e);
+      toast({ 
+        title: "Eroare", 
+        description: e.message || "Nu am putut salva reminderul. Încearcă din nou.",
+        variant: "destructive"
+      });
+    } finally {
       setSaving(false);
-      toast({ title: "Eroare", description: e.message || "Nu am putut salva reminderul" });
     }
   };
 
