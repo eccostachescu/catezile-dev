@@ -1,27 +1,28 @@
 /* Design Tokens - CateZile.ro Brand System */
+/* Light Mode Default + Dark Mode Toggle */
 
 :root {
-  /* Colors */
-  --cz-bg: #0B1020;
-  --cz-surface: #0F1526;
-  --cz-foreground: #F3F6FF;
-  --cz-muted: #A7B4CA;
-  --cz-primary: #6C8CFF;
-  --cz-primary-600: #5B7AF0;
-  --cz-accent: #FFC857;
-  --cz-success: #22C55E;
-  --cz-danger: #EF4444;
-  --cz-card: #12192B;
-  --cz-border: #1C2336;
+  /* Light Mode Colors (Default) */
+  --cz-bg: #F7F8FB;            /* smoky off-white */
+  --cz-surface: #FFFFFF;       /* card */
+  --cz-ink: #0B1220;           /* text principal */
+  --cz-ink-muted: #64748B;     /* slate-ish */
+  --cz-border: #E6E8EF;        /* linii subtile */
+  --cz-primary: #5B8CFF;       /* brand blue */
+  --cz-primary-600: #4E79F2;
+  --cz-accent: #FFC857;        /* amber */
+  --cz-success: #16A34A;
+  --cz-danger: #DC2626;
   --cz-overlay: rgba(8,12,24,.55);
   
-  /* Gradients */
-  --cz-hero-grad: linear-gradient(180deg, #0B1020 0%, #11172A 45%, #0B1020 100%);
-  --cz-chip-grad: linear-gradient(135deg, rgba(108,140,255,.18), rgba(255,200,87,.10));
+  /* Light Mode Gradients */
+  --cz-hero-grad: radial-gradient(1200px 400px at 50% -50%, rgba(91,140,255,.12), transparent);
+  --cz-chip-grad: linear-gradient(135deg, rgba(91,140,255,.12), rgba(255,200,87,.10));
   
-  /* Shadows */
-  --cz-shadow-hover: 0 8px 30px rgba(0,0,0,0.25);
-  --cz-shadow-card: 0 4px 16px rgba(0,0,0,0.15);
+  /* Light Mode Shadows */
+  --cz-shadow: 0 10px 30px rgba(16,24,40,.08);
+  --cz-shadow-hover: 0 12px 35px rgba(16,24,40,.12);
+  --cz-shadow-card: 0 4px 16px rgba(16,24,40,.06);
   
   /* Motion */
   --cz-ease-smooth: cubic-bezier(.2,.8,.2,1);
@@ -29,17 +30,23 @@
   --cz-duration-normal: 220ms;
 }
 
-/* Dark mode adjustments (already dark, but for consistency) */
+/* Dark Mode (Toggle .dark on <html>) */
 .dark {
-  --cz-bg: #0B1020;
-  --cz-surface: #0F1526;
-  --cz-foreground: #E9EDF6;
+  --cz-bg: #0D111A;
+  --cz-surface: #111624;
+  --cz-ink: #E8ECF8;
+  --cz-ink-muted: #A7B4CA;
+  --cz-border: #1E2636;
+  --cz-shadow: 0 12px 40px rgba(0,0,0,.35);
+  --cz-shadow-hover: 0 15px 45px rgba(0,0,0,.45);
+  --cz-shadow-card: 0 6px 20px rgba(0,0,0,.25);
+  --cz-hero-grad: linear-gradient(180deg, #0D111A 0%, #131829 45%, #0D111A 100%);
 }
 
 /* Base styles */
 body {
-  background-color: hsl(var(--cz-bg));
-  color: hsl(var(--cz-foreground));
+  background-color: var(--cz-bg);
+  color: var(--cz-ink);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -60,7 +67,7 @@ body {
 .text-subtitle {
   font-size: 18px;
   line-height: 1.4;
-  color: var(--cz-muted);
+  color: var(--cz-ink-muted);
 }
 
 @media (min-width: 768px) {

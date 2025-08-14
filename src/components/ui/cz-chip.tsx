@@ -7,8 +7,8 @@ const chipVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-cz-surface text-cz-muted hover:bg-cz-card hover:text-cz-foreground border border-cz-border",
-        active: "bg-cz-chip text-cz-primary border border-cz-primary/30 shadow-sm",
+        default: "bg-[--cz-surface] text-[--cz-ink-muted] hover:bg-[--cz-border] hover:text-[--cz-ink] border border-[--cz-border]",
+        active: "border border-[--cz-primary] text-white shadow-sm",
       },
     },
     defaultVariants: {
@@ -25,9 +25,14 @@ export interface ChipProps
 
 const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(
   ({ className, variant, active, children, ...props }, ref) => {
+    const chipStyle = active ? {
+      background: 'var(--cz-chip-grad)',
+    } : {};
+    
     return (
       <button
         className={cn(chipVariants({ variant: active ? "active" : "default" }), className)}
+        style={chipStyle}
         ref={ref}
         type="button"
         {...props}
