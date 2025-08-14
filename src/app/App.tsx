@@ -63,6 +63,7 @@ import API from "./pages/API";
 import Careers from "./pages/Careers";
 import DataImport from "../pages/DataImport";
 import PopulateData from "../pages/PopulateData";
+import PopulateRealData from "../pages/PopulateRealData";
 import QuickSampleData from "../pages/QuickSampleData";
 import Popular from "./pages/Popular";
 
@@ -133,6 +134,7 @@ const AppShell = () => {
                 {/* Data Import */}
                 <Route path="/import" element={<DataImport />} />
                 <Route path="/populate" element={<PopulateData />} />
+                <Route path="/populate-real-data" element={<PopulateRealData />} />
                 <Route path="/sample" element={<QuickSampleData />} />
 
                 {/* Auth */}

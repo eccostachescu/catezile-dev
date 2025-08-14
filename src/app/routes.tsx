@@ -33,6 +33,7 @@ export const routes = {
   adminAppearance: () => "/admin/appearance",
   adminMetrics: () => "/admin/metrics",
   adminEmails: () => "/admin/emails",
+  populateRealData: () => "/populate-real-data",
   // Liga 1 (SuperLiga)
   liga1: () => "/liga-1",
   superliga: () => "/superliga",
