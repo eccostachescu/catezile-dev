@@ -1264,6 +1264,7 @@ export type Database = {
           home: string
           home_id: string | null
           id: string
+          image_url: string | null
           is_derby: boolean | null
           kickoff_at: string
           league_id: string | null
@@ -1291,6 +1292,7 @@ export type Database = {
           home: string
           home_id?: string | null
           id?: string
+          image_url?: string | null
           is_derby?: boolean | null
           kickoff_at: string
           league_id?: string | null
@@ -1318,6 +1320,7 @@ export type Database = {
           home?: string
           home_id?: string | null
           id?: string
+          image_url?: string | null
           is_derby?: boolean | null
           kickoff_at?: string
           league_id?: string | null
@@ -2781,6 +2784,7 @@ export type Database = {
           home: string
           home_id: string | null
           id: string
+          image_url: string | null
           is_derby: boolean | null
           kickoff_at: string
           league_id: string | null
