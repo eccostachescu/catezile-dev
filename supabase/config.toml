@@ -151,3 +151,6 @@ verify_jwt = false
 [functions.images_enrich_missing]
 verify_jwt = false
 
+[functions.tv_popular_shows]
+verify_jwt = false
+

@@ -105,20 +105,26 @@ serve(async (req) => {
     );
 
     const url = new URL(req.url);
-    const category = url.searchParams.get('category'); // reality, cooking, music, talent, etc.
-    const channel = url.searchParams.get('channel'); // "Antena 1", "Pro TV", etc.
-    const limit = parseInt(url.searchParams.get('limit') || '10');
+    const body = req.method === 'POST' ? await req.json() : {};
+    
+    const category = url.searchParams.get('category') || body.category;
+    const channel = url.searchParams.get('channel') || body.channel; 
+    const limit = parseInt(url.searchParams.get('limit') || body.limit || '10');
+
+    console.log('Filters:', { category, channel, limit });
 
     let filteredShows = popularShows;
 
     // Filter by category if provided
     if (category) {
       filteredShows = filteredShows.filter(show => show.type === category);
+      console.log(`Filtered by category '${category}': ${filteredShows.length} shows`);
     }
 
     // Filter by channel if provided  
     if (channel) {
       filteredShows = filteredShows.filter(show => show.channel === channel);
+      console.log(`Filtered by channel '${channel}': ${filteredShows.length} shows`);
     }
 
     // Limit results

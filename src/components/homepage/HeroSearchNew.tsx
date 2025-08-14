@@ -77,10 +77,10 @@ export default function HeroSearchNew({ onSearch, onFilterChange, activeFilter =
             <button
               key={filter.key}
               onClick={() => handleFilterClick(filter.key)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
                 activeFilter === filter.key
-                  ? 'bg-[--cz-primary] text-white shadow-md'
-                  : 'bg-[--cz-surface] text-[--cz-ink] hover:bg-[--cz-border] border border-[--cz-border]'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md font-semibold'
+                  : 'bg-background text-foreground hover:bg-primary/10 hover:border-primary border-border'
               }`}
             >
               {filter.label}
