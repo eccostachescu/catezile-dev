@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/cz-button";
-import { supabase } from "@/integrations/supabase/client";
 
 interface HeroSearchNewProps {
   onSearch?: (query: string) => void;
@@ -19,7 +18,6 @@ const filters = [
 
 export default function HeroSearchNew({ onSearch, onFilterChange, activeFilter = 'popular' }: HeroSearchNewProps) {
   const [query, setQuery] = useState('');
-  const [showLiveButton, setShowLiveButton] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,14 +29,6 @@ export default function HeroSearchNew({ onSearch, onFilterChange, activeFilter =
   const handleFilterClick = (filterKey: string) => {
     if (onFilterChange) {
       onFilterChange(filterKey);
-    }
-  };
-
-  const handleLiveClick = () => {
-    // Scroll to live section
-    const liveSection = document.getElementById('live-now');
-    if (liveSection) {
-      liveSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -99,8 +89,7 @@ export default function HeroSearchNew({ onSearch, onFilterChange, activeFilter =
         </div>
 
         {/* Action buttons */}
-        <div className="flex flex-wrap justify-center gap-4">
-          <LiveNowButton onLiveClick={handleLiveClick} />
+        <div className="flex justify-center">
           <Button 
             variant="accent" 
             size="lg"
@@ -113,47 +102,5 @@ export default function HeroSearchNew({ onSearch, onFilterChange, activeFilter =
         </div>
       </div>
     </section>
-  );
-}
-
-// Component to conditionally show LIVE button
-function LiveNowButton({ onLiveClick }: { onLiveClick: () => void }) {
-  const [liveCount, setLiveCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkLiveEvents = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('live_events_count');
-        if (!error && data) {
-          setLiveCount(data.count || 0);
-        }
-      } catch (error) {
-        console.error('Error checking live events:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkLiveEvents();
-  }, []);
-
-  // Don't show button if no live events or still loading
-  if (loading || liveCount === 0) {
-    return null;
-  }
-
-  return (
-    <Button 
-      variant="accent" 
-      size="lg"
-      onClick={onLiveClick}
-      className="bg-red-600 hover:bg-red-700 text-white"
-    >
-      <div className="flex items-center gap-2">
-        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-        LIVE acum
-      </div>
-    </Button>
   );
 }

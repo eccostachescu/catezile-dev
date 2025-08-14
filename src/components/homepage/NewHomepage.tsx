@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import HeroSearchNew from "./HeroSearchNew";
 import LiveNowSection from "./LiveNowSection";
-import TestClaudeReview from "@/components/TestClaudeReview";
 import CardCountdown from "./CardCountdown";
 import { RailWeekend } from "./RailWeekend";
 import { TvNow } from "./TvNow";
@@ -76,9 +75,6 @@ export default function NewHomepage() {
 
   return (
     <main>
-      {/* Test Claude Review - Remove after testing */}
-      <TestClaudeReview />
-      
       {/* Hero Section with Search */}
       <HeroSearchNew 
         onSearch={handleSearch}
