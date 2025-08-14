@@ -41,6 +41,8 @@ export const routes = {
   liga1Results: () => "/liga-1/rezultate",
   liga1Teams: () => "/liga-1/echipe",
   liga1Team: (slug: string) => `/liga-1/echipe/${slug}`,
+  // Popular countdowns
+  popular: () => "/populare",
   // Holidays & School
   holidays: () => "/sarbatori",
   holiday: (slug: string) => `/sarbatori/${slug}`,

@@ -63,6 +63,7 @@ import Careers from "./pages/Careers";
 import DataImport from "../pages/DataImport";
 import PopulateData from "../pages/PopulateData";
 import QuickSampleData from "../pages/QuickSampleData";
+import Popular from "./pages/Popular";
 
 const AppShell = () => {
   return (
@@ -74,6 +75,7 @@ const AppShell = () => {
             <Layout>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/populare" element={<Popular />} />
                 <Route path="/evenimente" element={<Events />} />
                 <Route path="/evenimente/:slug" element={<Event />} />
                 <Route path="/adauga-eveniment" element={<CreateEvent />} />

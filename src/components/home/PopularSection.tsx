@@ -24,7 +24,7 @@ export default function PopularSection() {
   useEffect(() => {
     const fetchPopular = async () => {
       try {
-        const response = await fetch('/api/popular_countdowns?limit=8');
+        const response = await fetch('https://ibihfzhrsllndxhfwgvb.supabase.co/functions/v1/popular_countdowns?limit=8');
         const data = await response.json();
         setEvents(data.events || []);
       } catch (error) {

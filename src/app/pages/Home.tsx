@@ -5,7 +5,7 @@ import { loadHome } from "@/ssg/loader";
 import { useEffect, useMemo, useState } from "react";
 import HomeHero from "@/components/home/HomeHero";
 import TrendingRail from "@/components/home/TrendingRail";
-import TodayGrid from "@/components/home/TodayGrid";
+import PopularSection from "@/components/home/PopularSection";
 import TVNow from "@/components/home/TVNow";
 import UpcomingStrip from "@/components/home/UpcomingStrip";
 import ForYou from "@/components/home/ForYou";
@@ -57,12 +57,12 @@ export default function Home() {
 
       {homeData?.hero && <HomeHero hero={homeData.hero} />}
       {(() => {
-        const defaultOrder = ['bf','trending','today','tvnow','upcoming','foryou','explore','ads'] as const;
+        const defaultOrder = ['bf','trending','popular','tvnow','upcoming','foryou','explore','ads'] as const;
         const order = (homeData?.sections_order && Array.isArray(homeData.sections_order) ? homeData.sections_order : defaultOrder) as string[];
         return order.map((k, idx) => {
           if (k === 'bf') return <BFTopOffers key={`sec-${idx}-bf`} items={homeData?.bf_top_offers || []} />;
           if (k === 'trending') return <TrendingRail key={`sec-${idx}-tr`} items={homeData?.trending || []} />;
-          if (k === 'today') return <TodayGrid key={`sec-${idx}-td`} items={homeData?.today || []} />;
+          if (k === 'popular') return <PopularSection key={`sec-${idx}-pop`} />;
           if (k === 'tvnow') return <TVNow key={`sec-${idx}-tv`} items={homeData?.tv_now || []} />;
           if (k === 'upcoming') return (
             <>
