@@ -4,7 +4,8 @@ import { Sun, Moon } from "lucide-react";
 export default function ThemeSwitchStub() {
   const [dark, setDark] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('cz-theme') === 'dark';
+      const saved = localStorage.getItem('cz-theme');
+      return saved === 'dark';
     }
     return false; // Default to light mode
   });

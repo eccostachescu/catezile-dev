@@ -201,8 +201,8 @@ export default function CardCountdown({
           />
         ) : (
           <>
-            {/* Try fallback image first */}
-            {getImageFallback() && !imageError ? (
+            {/* Try fallback image first, then gradient */}
+            {getImageFallback() ? (
               <img
                 src={getImageFallback()!}
                 alt={`${title} - ${category || 'Eveniment'}`}

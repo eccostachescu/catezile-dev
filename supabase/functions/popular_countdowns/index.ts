@@ -28,6 +28,7 @@ serve(async (req) => {
     const offset = parseInt(requestData.offset || url.searchParams.get('offset') || '0');
     const category = requestData.category || url.searchParams.get('category');
     const timeStatus = requestData.time_status || url.searchParams.get('time_status');
+    const onlyWithImage = requestData.onlyWithImage || url.searchParams.get('onlyWithImage') === 'true';
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -35,7 +36,7 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    console.log(`Fetching popular countdowns - limit: ${limit}, offset: ${offset}, category: ${category}, timeStatus: ${timeStatus}`);
+    console.log(`Fetching popular countdowns - limit: ${limit}, offset: ${offset}, category: ${category}, timeStatus: ${timeStatus}, onlyWithImage: ${onlyWithImage}`);
 
     // Build query
     let query = supabase
@@ -49,6 +50,11 @@ serve(async (req) => {
 
     if (timeStatus && timeStatus !== 'all') {
       query = query.eq('time_status', timeStatus);
+    }
+
+    // Add image filter if requested
+    if (onlyWithImage) {
+      query = query.not('image_url', 'is', null);
     }
 
     // Add pagination and ordering
@@ -71,7 +77,7 @@ serve(async (req) => {
     if (finalEvents.length < 6) {
       console.log('Adding featured events as fallback');
       
-      const { data: featuredEvents } = await supabase
+      let featuredQuery = supabase
         .from('event')
         .select(`
           id, slug, title, start_at, image_url, city, country, category_id,
@@ -79,7 +85,14 @@ serve(async (req) => {
         `)
         .eq('featured', true)
         .eq('status', 'PUBLISHED')
-        .gte('start_at', new Date().toISOString())
+        .gte('start_at', new Date().toISOString());
+
+      // Apply image filter to featured events too
+      if (onlyWithImage) {
+        featuredQuery = featuredQuery.not('image_url', 'is', null);
+      }
+
+      const { data: featuredEvents } = await featuredQuery
         .order('start_at', { ascending: true })
         .limit(12 - finalEvents.length);
 

@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
-import CookieSettings from "@/components/CookieSettings";
+import CookieBannerStub from "@/components/CookieBannerStub";
 
 export default function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -11,12 +11,15 @@ export default function Layout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="min-h-dvh flex flex-col bg-background text-foreground">
+    <div className="min-h-dvh flex flex-col" style={{ backgroundColor: 'var(--cz-bg)', color: 'var(--cz-ink)' }}>
       <Header />
       <main role="main" className="flex-1">
         {children}
       </main>
       <Footer />
+      
+      {/* Single Cookie Banner Instance */}
+      <CookieBannerStub />
     </div>
   );
 }
