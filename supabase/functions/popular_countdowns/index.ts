@@ -124,7 +124,7 @@ serve(async (req) => {
           slug: match.slug,
           title: `${match.home} vs ${match.away}`,
           starts_at: match.kickoff_at,
-          image_url: null,
+          image_url: match.image_url, // Use the image URL from match if available
           city: match.city,
           country: 'RO',
           category_id: null,

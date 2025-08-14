@@ -177,6 +177,33 @@ serve(async (req) => {
               .eq("kickoff_at", kickoffAt)
               .maybeSingle();
 
+            // Generate image URL for sport matches using team logos or fallback
+            const generateMatchImageUrl = (homeTeam: string, awayTeam: string) => {
+              // Use a sport-specific image from Unsplash based on team names
+              const sportImages = [
+                'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop', // Stadium
+                'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop', // Football field
+                'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&h=600&fit=crop', // Stadium lights
+                'https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=800&h=600&fit=crop', // Football stadium
+                'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&h=600&fit=crop'  // Soccer stadium
+              ];
+              
+              // Use a hash of team names to consistently pick the same image for the same match
+              const hashCode = (str: string) => {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                  const char = str.charCodeAt(i);
+                  hash = ((hash << 5) - hash) + char;
+                  hash = hash & hash; // Convert to 32bit integer
+                }
+                return Math.abs(hash);
+              };
+              
+              const combinedTeams = `${homeTeam}-${awayTeam}`;
+              const imageIndex = hashCode(combinedTeams) % sportImages.length;
+              return sportImages[imageIndex];
+            };
+
             const matchData = {
               competition_id: comp.id,
               home,
@@ -184,6 +211,7 @@ serve(async (req) => {
               kickoff_at: kickoffAt,
               status,
               slug,
+              image_url: generateMatchImageUrl(home, away), // Add generated image URL
               score: {
                 home: fixture.goals?.home || null,
                 away: fixture.goals?.away || null,
