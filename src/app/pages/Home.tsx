@@ -65,14 +65,14 @@ export default function Home() {
           if (k === 'popular') return <PopularSection key={`sec-${idx}-pop`} />;
           if (k === 'tvnow') return <TVNow key={`sec-${idx}-tv`} items={homeData?.tv_now || []} />;
           if (k === 'upcoming') return (
-            <>
+            <div key={`sec-${idx}-upcoming`}>
               {/* ancoră pentru linkul "Vezi toate" din Trending */}
               {idx === order.indexOf('upcoming') && <div id="in-curand" />}
-              <UpcomingStrip key={`sec-${idx}-us`} title="Sport săptămâna asta" items={homeData?.upcoming?.sport || []} kind="sport" />
+              <UpcomingStrip title="Sport săptămâna asta" items={homeData?.upcoming?.sport || []} kind="sport" />
               <HomeAdRail />
-              <UpcomingStrip key={`sec-${idx}-um`} title="Filme luna aceasta" items={homeData?.upcoming?.movies || []} kind="movies" />
-              <UpcomingStrip key={`sec-${idx}-ue`} title="Evenimente în curând" items={homeData?.upcoming?.events || []} kind="events" />
-            </>
+              <UpcomingStrip title="Filme luna aceasta" items={homeData?.upcoming?.movies || []} kind="movies" />
+              <UpcomingStrip title="Evenimente în curând" items={homeData?.upcoming?.events || []} kind="events" />
+            </div>
           );
           if (k === 'foryou') return <ForYou key={`sec-${idx}-fy`} />;
           if (k === 'explore') return <ExploreLinks key={`sec-${idx}-ex`} discovery={homeData?.discovery || { tags: [], teams: [], tv: [] }} />;
