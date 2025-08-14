@@ -26,23 +26,16 @@ export default function Popular() {
   useEffect(() => {
     const fetchPopular = async () => {
       try {
-        // First try the edge function
-        let response = await fetch('https://ibihfzhrsllndxhfwgvb.supabase.co/functions/v1/popular_countdowns?limit=50');
+        // Use edge function for popular countdowns
+        const { data, error } = await supabase.functions.invoke('popular_countdowns', {
+          body: { limit: 50 }
+        });
         
-        if (!response.ok) {
-          // Fallback to direct query
-          const { data, error } = await supabase
-            .from('popular_countdowns_mv')
-            .select('*')
-            .order('score', { ascending: false })
-            .limit(50);
-          
-          if (error) throw error;
-          setEvents(data || []);
-        } else {
-          const data = await response.json();
-          setEvents(data.events || []);
+        if (error) {
+          throw error;
         }
+        
+        setEvents(data?.events || []);
       } catch (error) {
         console.error('Failed to fetch popular countdowns:', error);
         setError('Nu am putut încărca countdown-urile populare');

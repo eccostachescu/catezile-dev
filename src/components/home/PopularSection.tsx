@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, TrendingUp } from 'lucide-react';
 import CountdownCard from '@/components/cards/CountdownCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PopularEvent {
   id: string;
@@ -24,15 +25,17 @@ export default function PopularSection() {
   useEffect(() => {
     const fetchPopular = async () => {
       try {
-        const response = await fetch('https://ibihfzhrsllndxhfwgvb.supabase.co/functions/v1/popular_countdowns?limit=8');
+        // Use Supabase SDK instead of direct fetch
+        const { data, error } = await supabase.functions.invoke('popular_countdowns', {
+          body: { limit: 8 }
+        });
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (error) {
+          throw error;
         }
         
-        const data = await response.json();
         console.log('Popular countdowns data:', data);
-        setEvents(data.events || []);
+        setEvents(data?.events || []);
       } catch (error) {
         console.error('Failed to fetch popular countdowns:', error);
         setEvents([]);
