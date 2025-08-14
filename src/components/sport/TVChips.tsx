@@ -12,16 +12,14 @@ export default function TVChips({ channels = [] as string[] }: { channels?: stri
         <Badge key={c} variant="outline">{c}</Badge>
       ))}
       {rest.length > 0 && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-xs text-muted-foreground cursor-help" aria-label={`și încă ${rest.length} canale`}>+{rest.length}</span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{rest.join(', ')}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-xs text-muted-foreground cursor-help" aria-label={`și încă ${rest.length} canale`}>+{rest.length}</span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{rest.join(', ')}</p>
+          </TooltipContent>
+        </Tooltip>
       )}
 
     </div>

@@ -1,6 +1,6 @@
 import Container from "@/components/Container";
 import { track } from "@/lib/analytics";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/Tooltip";
 import { Info } from "lucide-react";
 
 export default function TrendingRail({ items = [] as Array<{ kind: string; id: string; title: string; subtitle?: string | null; slug?: string | null; when_at?: string | null; reasons?: any }> }) {
@@ -13,35 +13,33 @@ export default function TrendingRail({ items = [] as Array<{ kind: string; id: s
           <h2 id="trending-title" className="text-xl font-semibold">În trend</h2>
           <a className="text-sm underline underline-offset-4" href="#in-curand">Vezi toate</a>
         </div>
-        <TooltipProvider>
-          <div className="flex gap-3 overflow-x-auto snap-x">
-            {items.slice(0,10).map((it) => (
-              <a key={`${it.kind}-${it.id}`} href={hrefFor(it)} className="min-w-[260px] snap-start rounded-md border p-3 hover:bg-muted" onClick={()=>track('trending_card_click',{kind:it.kind,id:it.id})}>
-                <div className="text-xs text-muted-foreground mb-1">{label(it.kind)}</div>
-                <div className="font-medium leading-snug">{it.title}</div>
-                {it.subtitle && <div className="text-sm text-muted-foreground truncate">{it.subtitle}</div>}
-                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                  {it.when_at && <span>{whenText(it.when_at)}</span>}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span
-                        className="ml-auto inline-flex items-center gap-1 underline underline-offset-4 hover:no-underline cursor-help"
-                        aria-label={`De ce e trending: ${reasonLabel(it.reasons)}`}
-                        onClick={(e)=>{ e.preventDefault(); e.stopPropagation(); }}
-                      >
-                        <Info className="h-3.5 w-3.5" />
-                        Motiv
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="max-w-[240px]">De ce e trending: {reasonLabel(it.reasons)}</div>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </a>
-            ))}
-          </div>
-        </TooltipProvider>
+        <div className="flex gap-3 overflow-x-auto snap-x">
+          {items.slice(0,10).map((it) => (
+            <a key={`${it.kind}-${it.id}`} href={hrefFor(it)} className="min-w-[260px] snap-start rounded-md border p-3 hover:bg-muted" onClick={()=>track('trending_card_click',{kind:it.kind,id:it.id})}>
+              <div className="text-xs text-muted-foreground mb-1">{label(it.kind)}</div>
+              <div className="font-medium leading-snug">{it.title}</div>
+              {it.subtitle && <div className="text-sm text-muted-foreground truncate">{it.subtitle}</div>}
+              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                {it.when_at && <span>{whenText(it.when_at)}</span>}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className="ml-auto inline-flex items-center gap-1 underline underline-offset-4 hover:no-underline cursor-help"
+                      aria-label={`De ce e trending: ${reasonLabel(it.reasons)}`}
+                      onClick={(e)=>{ e.preventDefault(); e.stopPropagation(); }}
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                      Motiv
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="max-w-[240px]">De ce e trending: {reasonLabel(it.reasons)}</div>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </a>
+          ))}
+        </div>
       </Container>
     </section>
   );
