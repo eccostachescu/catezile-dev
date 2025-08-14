@@ -17,7 +17,17 @@ export type SportMatchItem = {
 
 export default function MatchCard({ m, onClick }: { m: SportMatchItem; onClick?: (id: string) => void }) {
   const date = new Date(m.kickoff_at);
-  const time = Intl.DateTimeFormat('ro-RO', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Bucharest' }).format(date);
+  let time = '--:--';
+  
+  // Safe time formatting with error handling
+  try {
+    if (!isNaN(date.getTime())) {
+      time = Intl.DateTimeFormat('ro-RO', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Bucharest' }).format(date);
+    }
+  } catch (error) {
+    console.warn('Time formatting error for match:', m.id, error);
+  }
+  
   return (
     <Link to={`/sport/${m.id}`} onClick={() => onClick?.(m.id)} className="block rounded-md border p-3 hover:bg-muted/40 transition">
       <div className="flex items-center justify-between gap-2">

@@ -37,13 +37,20 @@ export default function Sport() {
   const filteredDays = useMemo(() => {
     if (!data) return [] as any[];
     const now = new Date();
-    const tz = new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest' });
-    const todayKey = tz.format(now);
-    const tomorrowKey = tz.format(new Date(now.getTime() + 24*60*60*1000));
+    const tz = new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest', year: 'numeric', month: '2-digit', day: '2-digit' });
+    const todayKey = tz.format(now).split('/').reverse().join('-'); // Convert DD/MM/YYYY to YYYY-MM-DD
+    const tomorrow = new Date(now.getTime() + 24*60*60*1000);
+    const tomorrowKey = tz.format(tomorrow).split('/').reverse().join('-');
+    
     const inWeekend = (iso: string) => {
-      const d = new Date(iso);
-      const w = new Intl.DateTimeFormat('en', { weekday: 'short', timeZone: 'Europe/Bucharest' }).format(d);
-      return w === 'Sat' || w === 'Sun';
+      try {
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return false;
+        const w = new Intl.DateTimeFormat('en', { weekday: 'short', timeZone: 'Europe/Bucharest' }).format(d);
+        return w === 'Sat' || w === 'Sun';
+      } catch {
+        return false;
+      }
     };
 
     let days = data?.days || [];
