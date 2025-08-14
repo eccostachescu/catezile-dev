@@ -86,10 +86,10 @@ export default function CountdownDisplay({
 
   const timeSegment = (value: number, label: string) => (
     <div className="text-center">
-      <div className="text-2xl sm:text-3xl font-bold text-[--cz-ink] tabular-nums">
+      <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-[--cz-ink] tabular-nums leading-none">
         {String(value).padStart(2, '0')}
       </div>
-      <div className="text-xs text-[--cz-ink-muted] mt-1">{label}</div>
+      <div className="text-sm text-[--cz-ink-muted] mt-2 font-medium">{label}</div>
     </div>
   );
 
@@ -119,15 +119,15 @@ export default function CountdownDisplay({
 
       {/* Countdown */}
       {timeLeft.total > 0 ? (
-        <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-4 gap-4 mb-6 p-4 bg-[--cz-surface-variant] rounded-xl border border-[--cz-border]">
           {timeSegment(timeLeft.days, 'Zile')}
           {timeSegment(timeLeft.hours, 'Ore')}
           {timeSegment(timeLeft.minutes, 'Minute')}
           {timeSegment(timeLeft.seconds, 'Secunde')}
         </div>
       ) : (
-        <div className="text-center py-4 text-[--cz-ink-muted]">
-          Evenimentul a trecut
+        <div className="text-center py-6 text-[--cz-ink-muted] bg-[--cz-surface-variant] rounded-xl border border-[--cz-border] mb-6">
+          <div className="text-xl font-semibold">Evenimentul a trecut</div>
         </div>
       )}
 

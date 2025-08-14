@@ -77,7 +77,7 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
 
   return (
     <div ref={countdownRef}>
-      <Badge variant={getVariant()} className="text-xs font-medium bg-black/40 backdrop-blur-sm text-white border-none">
+      <Badge variant={getVariant()} className="text-sm font-bold px-3 py-1.5 bg-black/60 backdrop-blur-sm text-white border-none min-w-[120px] text-center">
         {timeLeft || "..."}
       </Badge>
     </div>
@@ -100,7 +100,7 @@ export default function CardCountdown({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Track impression when card becomes visible
+  // Track impression when card becomes visible (throttled)
   useEffect(() => {
     if (!cardRef.current) return;
 
@@ -108,14 +108,26 @@ export default function CardCountdown({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Track impression analytics
+            // Track impression analytics with throttling
             if (typeof window !== 'undefined' && window.plausible) {
-              window.plausible('popular_card_impression', {
-                props: { 
-                  event_id: id,
-                  category: category || 'unknown'
+              // Only track if we haven't tracked this card recently
+              const trackingKey = `card_impression_${id}`;
+              const lastTracked = sessionStorage.getItem(trackingKey);
+              const now = Date.now();
+              
+              if (!lastTracked || now - parseInt(lastTracked) > 10000) { // 10 second throttle
+                try {
+                  window.plausible('popular_card_impression', {
+                    props: { 
+                      event_id: id,
+                      category: category || 'unknown'
+                    }
+                  });
+                  sessionStorage.setItem(trackingKey, now.toString());
+                } catch (error) {
+                  // Silently ignore analytics errors
                 }
-              });
+              }
             }
             observer.unobserve(entry.target);
           }
@@ -138,16 +150,17 @@ export default function CardCountdown({
   };
 
   const getImageFallback = () => {
-    const fallbackPaths = {
-      sport: `/assets/covers/sport-${Math.floor(Math.random() * 5) + 1}.webp`,
-      film: `/assets/covers/movie-${Math.floor(Math.random() * 5) + 1}.webp`,
-      holiday: `/assets/covers/holiday-${Math.floor(Math.random() * 5) + 1}.webp`,
-      event: `/assets/covers/event-${Math.floor(Math.random() * 5) + 1}.webp`,
-      default: null
+    // Use Unsplash images as fallbacks instead of non-existent local files
+    const fallbackImages = {
+      sport: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop',
+      film: 'https://images.unsplash.com/photo-1489599510072-12d66b9ac1ae?w=800&h=600&fit=crop',
+      holiday: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop',
+      event: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+      default: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&h=600&fit=crop'
     };
     
     const categoryKey = category?.toLowerCase() || 'default';
-    return fallbackPaths[categoryKey as keyof typeof fallbackPaths];
+    return fallbackImages[categoryKey as keyof typeof fallbackImages] || fallbackImages.default;
   };
 
   const getGradientFallback = () => {
@@ -166,9 +179,13 @@ export default function CardCountdown({
   const handleReminderClick = () => {
     onReminderClick?.(id);
     if (typeof window !== 'undefined' && window.plausible) {
-      window.plausible('reminder_click', {
-        props: { event_id: id, category: category || 'unknown' }
-      });
+      try {
+        window.plausible('reminder_click', {
+          props: { event_id: id, category: category || 'unknown' }
+        });
+      } catch (error) {
+        // Silently ignore analytics errors
+      }
     }
   };
 
@@ -196,24 +213,19 @@ export default function CardCountdown({
           />
         ) : (
           <>
-            {/* Try fallback image first, then gradient */}
-            {getImageFallback() ? (
-              <img
-                src={getImageFallback()!}
-                alt={`${title} - ${category || 'Eveniment'}`}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
-                decoding="async"
-                sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              /* Gradient fallback */
-              <div 
-                className="w-full h-full"
-                style={{ background: getGradientFallback() }}
-              />
-            )}
+            {/* Use fallback image directly */}
+            <img
+              src={getImageFallback()}
+              alt={`${title} - ${category || 'Eveniment'}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+              onError={() => {
+                // If even the fallback fails, show gradient
+                setImageError(true);
+              }}
+            />
           </>
         )}
         
