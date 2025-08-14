@@ -1,8 +1,74 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Existing loader functions (stubs for now)
+// Home page data loader
 export async function loadHome() {
-  return {};
+  try {
+    // Fetch popular tags from event_tag and event tables
+    const { data: popularTags } = await supabase
+      .from('tag')
+      .select('slug, name')
+      .limit(15);
+
+    // Fetch popular teams from matches
+    const { data: matches } = await supabase
+      .from('match')
+      .select('home, away')
+      .gte('kickoff_at', new Date().toISOString())
+      .limit(100);
+
+    const teamCounts = new Map();
+    matches?.forEach(match => {
+      teamCounts.set(match.home, (teamCounts.get(match.home) || 0) + 1);
+      teamCounts.set(match.away, (teamCounts.get(match.away) || 0) + 1);
+    });
+
+    const popularTeams = Array.from(teamCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name]) => ({ 
+        slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''), 
+        name 
+      }));
+
+    // Fetch popular TV channels
+    const { data: tvMatches } = await supabase
+      .from('match')
+      .select('tv_channels')
+      .gte('kickoff_at', new Date().toISOString())
+      .limit(200);
+
+    const tvCounts = new Map();
+    tvMatches?.forEach(match => {
+      match.tv_channels?.forEach((channel: string) => {
+        tvCounts.set(channel, (tvCounts.get(channel) || 0) + 1);
+      });
+    });
+
+    const popularTv = Array.from(tvCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name]) => ({ 
+        slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''), 
+        name 
+      }));
+
+    return {
+      discovery: {
+        tags: popularTags || [],
+        teams: popularTeams,
+        tv: popularTv
+      }
+    };
+  } catch (error) {
+    console.error('Error loading home data:', error);
+    return {
+      discovery: {
+        tags: [],
+        teams: [],
+        tv: []
+      }
+    };
+  }
 }
 
 export async function loadEvent(slug: string) {
