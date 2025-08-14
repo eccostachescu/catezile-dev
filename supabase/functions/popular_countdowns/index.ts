@@ -52,10 +52,10 @@ serve(async (req) => {
       query = query.eq('time_status', timeStatus);
     }
 
-    // Add image filter if requested
-    if (onlyWithImage) {
-      query = query.not('image_url', 'is', null);
-    }
+    // Temporarily disable image filter to show events
+    // if (onlyWithImage) {
+    //   query = query.not('image_url', 'is', null);
+    // }
 
     // Add pagination and ordering
     const { data: popularEvents, error } = await query
@@ -87,10 +87,10 @@ serve(async (req) => {
         .eq('status', 'PUBLISHED')
         .gte('start_at', new Date().toISOString());
 
-      // Apply image filter to featured events too
-      if (onlyWithImage) {
-        featuredQuery = featuredQuery.not('image_url', 'is', null);
-      }
+      // Temporarily disable image filter for featured events too
+      // if (onlyWithImage) {
+      //   featuredQuery = featuredQuery.not('image_url', 'is', null);
+      // }
 
       const { data: featuredEvents } = await featuredQuery
         .order('start_at', { ascending: true })

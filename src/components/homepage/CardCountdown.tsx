@@ -55,12 +55,12 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      if (days > 3) {
-        return `în ${days} zile`;
-      } else if (days > 0) {
-        return `${days}z ${hours}h ${minutes}m`;
+      if (days > 0) {
+        return `${days} ${days === 1 ? 'zi' : 'zile'}, ${hours} ${hours === 1 ? 'oră' : 'ore'}`;
+      } else if (hours > 0) {
+        return `${hours} ${hours === 1 ? 'oră' : 'ore'}, ${minutes} min`;
       } else {
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        return `${minutes} min, ${seconds} sec`;
       }
     };
 
