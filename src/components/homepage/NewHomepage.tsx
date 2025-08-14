@@ -5,6 +5,7 @@ import LiveNowSection from "./LiveNowSection";
 import CardCountdown from "./CardCountdown";
 import { RailWeekend } from "./RailWeekend";
 import { TvNow } from "./TvNow";
+import PopularShows from "@/components/tv/PopularShows";
 
 interface PopularEvent {
   id: string;
@@ -145,6 +146,9 @@ export default function NewHomepage() {
 
       {/* TV Now Section */}
       <TvNow />
+      
+      {/* Popular TV Shows Section */}
+      <PopularShows />
     </main>
   );
 }

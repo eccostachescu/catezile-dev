@@ -83,6 +83,7 @@ export default function ReminderButton({ when, kind, entityId }: Props) {
           variant={set ? "secondary" : "default"}
           onClick={() => setOpen(!open)}
           aria-pressed={set}
+          className="transition-all duration-200"
         >
           <Bell />
           {set ? "Reminder activ" : "Setează reminder"}
