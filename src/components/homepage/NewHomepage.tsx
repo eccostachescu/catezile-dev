@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { HeroSearch } from './HeroSearch';
@@ -84,17 +85,31 @@ export function NewHomepage() {
           }
         >
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
               {popularEvents.map((event: any, index) => (
-                <div onClick={() => handleCardClick('popular', event.id)}>
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.18, 
+                    delay: index * 0.05,
+                    ease: [0.2, 0.8, 0.2, 1] 
+                  }}
+                  onClick={() => handleCardClick('popular', event.id)}
+                >
                   <CardCountdown
-                    key={event.id}
                     id={event.id}
                     title={event.title}
                     slug={event.slug}
@@ -105,9 +120,9 @@ export function NewHomepage() {
                     rank={index + 1}
                     onReminderClick={handleReminderClick}
                   />
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </Section>
 

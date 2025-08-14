@@ -25,7 +25,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-cz-border">
+    <header className="sticky top-0 z-50 h-16 glass border-b border-cz-border backdrop-blur-xl">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to={routes.home()} className="font-heading font-semibold text-lg text-cz-foreground">
@@ -181,6 +181,7 @@ export default function Header() {
         </div>
       </div>
 
+      {/* Single Cookie Banner Instance */}
       <CookieBannerStub />
     </header>
   );

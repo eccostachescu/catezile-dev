@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/cz-button';
 import { CardCountdown } from './CardCountdown';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface WeekendEvent {
   id: string;
@@ -60,7 +61,7 @@ export function RailWeekend({ events, onReminderClick, onCardClick, className }:
           size="sm"
           icon={<ChevronLeft className="h-4 w-4" />}
           onClick={() => scroll('left')}
-          className="rounded-full bg-cz-surface/80 backdrop-blur-sm border border-cz-border shadow-lg"
+          className="rounded-full bg-cz-surface/80 backdrop-blur-sm border border-cz-border shadow-lg hover:bg-cz-surface"
           disabled={!canScrollLeft()}
         />
       </div>
@@ -71,7 +72,7 @@ export function RailWeekend({ events, onReminderClick, onCardClick, className }:
           size="sm"
           icon={<ChevronRight className="h-4 w-4" />}
           onClick={() => scroll('right')}
-          className="rounded-full bg-cz-surface/80 backdrop-blur-sm border border-cz-border shadow-lg"
+          className="rounded-full bg-cz-surface/80 backdrop-blur-sm border border-cz-border shadow-lg hover:bg-cz-surface"
           disabled={!canScrollRight()}
         />
       </div>
@@ -86,7 +87,13 @@ export function RailWeekend({ events, onReminderClick, onCardClick, className }:
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {events.map((event) => (
-          <div key={event.id} className="flex-none w-80 snap-start">
+          <motion.div 
+            key={event.id} 
+            className="flex-none w-[280px] snap-start"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             <CardCountdown
               id={event.id}
               title={event.title}
@@ -98,7 +105,7 @@ export function RailWeekend({ events, onReminderClick, onCardClick, className }:
               categorySlug={event.categorySlug}
               onReminderClick={onReminderClick}
             />
-          </div>
+          </motion.div>
         ))}
       </div>
 

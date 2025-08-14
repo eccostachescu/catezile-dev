@@ -1,14 +1,13 @@
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { cn } from '@/lib/utils';
 
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg bg-cz-surface",
-        "before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-gradient-to-r before:from-transparent before:via-white/5 before:to-transparent",
+        "animate-pulse bg-cz-surface rounded-md",
         className
       )}
       {...props}
@@ -16,36 +15,32 @@ function Skeleton({
   );
 }
 
-function SkeletonCard() {
+export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className="rounded-2xl border border-cz-border bg-cz-card p-0 overflow-hidden">
-      <Skeleton className="h-48 w-full rounded-t-2xl rounded-b-none" />
+    <div className={cn("rounded-2xl bg-cz-card border border-cz-border overflow-hidden", className)}>
+      {/* Image skeleton */}
+      <div className="aspect-video bg-cz-surface animate-pulse" />
+      
+      {/* Content skeleton */}
       <div className="p-4 space-y-3">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-3 w-1/2" />
+        {/* Title skeleton */}
+        <div className="space-y-2">
+          <div className="h-4 bg-cz-surface rounded animate-pulse" />
+          <div className="h-4 bg-cz-surface rounded w-3/4 animate-pulse" />
+        </div>
+        
+        {/* Meta skeleton */}
         <div className="flex items-center justify-between">
-          <Skeleton className="h-6 w-16 rounded-full" />
-          <Skeleton className="h-8 w-20 rounded-full" />
+          <div className="h-3 bg-cz-surface rounded w-20 animate-pulse" />
+          <div className="h-3 bg-cz-surface rounded w-16 animate-pulse" />
+        </div>
+        
+        {/* Actions skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="h-6 bg-cz-surface rounded-full w-16 animate-pulse" />
+          <div className="h-7 bg-cz-surface rounded-full w-20 animate-pulse" />
         </div>
       </div>
     </div>
   );
 }
-
-function SkeletonText({ lines = 1 }: { lines?: number }) {
-  return (
-    <div className="space-y-2">
-      {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton 
-          key={i} 
-          className={cn(
-            "h-4",
-            i === lines - 1 ? "w-3/4" : "w-full"
-          )} 
-        />
-      ))}
-    </div>
-  );
-}
-
-export { Skeleton, SkeletonCard, SkeletonText };

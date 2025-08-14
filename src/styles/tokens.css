@@ -4,8 +4,8 @@
   /* Colors */
   --cz-bg: #0B1020;
   --cz-surface: #0F1526;
-  --cz-foreground: #E9EDF6;
-  --cz-muted: #94A3B8;
+  --cz-foreground: #F3F6FF;
+  --cz-muted: #A7B4CA;
   --cz-primary: #6C8CFF;
   --cz-primary-600: #5B7AF0;
   --cz-accent: #FFC857;
@@ -13,6 +13,7 @@
   --cz-danger: #EF4444;
   --cz-card: #12192B;
   --cz-border: #1C2336;
+  --cz-overlay: rgba(8,12,24,.55);
   
   /* Gradients */
   --cz-hero-grad: linear-gradient(180deg, #0B1020 0%, #11172A 45%, #0B1020 100%);
@@ -44,10 +45,28 @@ body {
 
 /* Typography scale utilities */
 .text-hero {
-  font-size: 34px;
-  line-height: 40px;
+  font-size: 42px;
+  line-height: 1.05;
   letter-spacing: -0.01em;
   font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .text-hero {
+    font-size: 56px;
+  }
+}
+
+.text-subtitle {
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--cz-muted);
+}
+
+@media (min-width: 768px) {
+  .text-subtitle {
+    font-size: 20px;
+  }
 }
 
 .text-h2 {
@@ -76,6 +95,38 @@ body {
     rgba(255,255,255,0.04) 50%, 
     transparent 100%);
   animation: shimmer 1.5s infinite;
+}
+
+/* Live pulse animation */
+@keyframes live-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+}
+
+.animate-live-pulse {
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+/* Category gradients for fallback images */
+.gradient-sport {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);
+}
+
+.gradient-movie {
+  background: linear-gradient(135deg, #7c2d12 0%, #dc2626 50%, #ef4444 100%);
+}
+
+.gradient-holiday {
+  background: linear-gradient(135deg, #166534 0%, #16a34a 50%, #22c55e 100%);
+}
+
+.gradient-event {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a855f7 100%);
+}
+
+.gradient-default {
+  background: linear-gradient(135deg, #1a2440 0%, #10192e 50%, #0b1020 100%);
+}
 }
 
 @keyframes shimmer {

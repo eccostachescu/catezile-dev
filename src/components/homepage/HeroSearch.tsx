@@ -37,7 +37,7 @@ export function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilt
         <h1 className="text-hero font-heading font-bold text-cz-foreground">
           Calendarul României
         </h1>
-        <p className="text-lg text-cz-muted max-w-2xl mx-auto">
+        <p className="text-subtitle max-w-2xl mx-auto">
           Meciuri, filme, sărbători și evenimente — cu remindere smart
         </p>
       </div>
@@ -53,10 +53,11 @@ export function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilt
             onFocus={onSearchFocus}
             placeholder="Caută evenimente, filme, sport..."
             className={cn(
-              "w-full h-14 pl-12 pr-6 rounded-full",
+              "w-full px-6 py-4 md:py-5 pl-12 pr-6 rounded-full",
               "bg-cz-surface border border-cz-border",
               "text-cz-foreground placeholder:text-cz-muted",
-              "focus:outline-none focus:ring-2 focus:ring-cz-accent focus:ring-offset-2 focus:ring-offset-cz-bg",
+              "shadow-[0_8px_30px_rgba(0,0,0,.25)]",
+              "focus:outline-none focus:ring-2 focus:ring-cz-primary",
               "transition-all duration-cz-fast ease-cz-smooth"
             )}
           />
@@ -64,13 +65,16 @@ export function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilt
       </form>
 
       {/* Filter Chips */}
-      <div className="flex flex-wrap gap-3 justify-center">
+      <div className="flex flex-wrap gap-2 md:gap-3 justify-center">
         {filters.map((filter) => (
           <Chip
             key={filter.key}
             active={activeFilter === filter.key}
-            onClick={() => handleFilterClick(filter.key)}
-            className="transition-all duration-cz-fast"
+            onClick={() => {
+              window.plausible?.('hero_chip_select', { props: { filter: filter.key } });
+              handleFilterClick(filter.key);
+            }}
+            className="transition-all duration-cz-fast data-[active=true]:border-cz-primary data-[active=true]:text-white"
           >
             {filter.label}
           </Chip>
@@ -79,10 +83,10 @@ export function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilt
 
       {/* Live Indicator */}
       <div className="flex justify-center">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-          <span className="text-xs font-medium text-red-400">LIVE acum</span>
-          <TrendingUp className="h-3 w-3 text-red-400" />
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/15 border border-red-500/20">
+          <div className="w-2 h-2 bg-red-300 rounded-full animate-live-pulse" />
+          <span className="text-xs font-medium text-red-300">LIVE acum</span>
+          <TrendingUp className="h-3 w-3 text-red-300" />
         </div>
       </div>
 
