@@ -139,3 +139,15 @@ verify_jwt = false
 [functions.popular_refresh]
 verify_jwt = false
 
+[functions.claude-code-review]
+verify_jwt = false
+
+[functions.live_events_count]
+verify_jwt = false
+
+[functions.live_events]
+verify_jwt = false
+
+[functions.images_enrich_missing]
+verify_jwt = false
+
