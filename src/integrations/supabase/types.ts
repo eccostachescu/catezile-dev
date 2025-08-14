@@ -2940,6 +2940,10 @@ export type Database = {
         Args: { "": string }
         Returns: string
       }
+      update_match_images: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
