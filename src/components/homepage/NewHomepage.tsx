@@ -19,6 +19,7 @@ interface PopularEvent {
 
 export default function NewHomepage() {
   const [events, setEvents] = useState<PopularEvent[]>([]);
+  const [weekendEvents, setWeekendEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('popular');
 
@@ -47,7 +48,71 @@ export default function NewHomepage() {
       }
     };
 
+    const fetchWeekendEvents = async () => {
+      try {
+        const now = new Date();
+        const nextSaturday = new Date(now);
+        const daysUntilSaturday = (6 - now.getDay()) % 7;
+        nextSaturday.setDate(now.getDate() + daysUntilSaturday);
+        nextSaturday.setHours(0, 0, 0, 0);
+        
+        const nextSunday = new Date(nextSaturday);
+        nextSunday.setDate(nextSaturday.getDate() + 1);
+        nextSunday.setHours(23, 59, 59, 999);
+
+        // Get weekend matches
+        const { data: matches } = await supabase
+          .from('match')
+          .select('id, home, away, kickoff_at, image_url, slug')
+          .gte('kickoff_at', nextSaturday.toISOString())
+          .lte('kickoff_at', nextSunday.toISOString())
+          .order('kickoff_at')
+          .limit(8);
+
+        // Get weekend events
+        const { data: weekendEvs } = await supabase
+          .from('event')
+          .select('id, title, start_at, image_url, slug, city, category_id')
+          .eq('status', 'PUBLISHED')
+          .gte('start_at', nextSaturday.toISOString())
+          .lte('start_at', nextSunday.toISOString())
+          .order('start_at')
+          .limit(8);
+
+        // Transform and combine data
+        const transformedMatches = (matches || []).map(match => ({
+          id: match.id,
+          title: `${match.home} vs ${match.away}`,
+          slug: match.slug || `/sport/${match.id}`,
+          startDate: match.kickoff_at,
+          imageUrl: match.image_url,
+          category: 'Sport',
+          categorySlug: 'sport'
+        }));
+
+        const transformedEvents = (weekendEvs || []).map(event => ({
+          id: event.id,
+          title: event.title,
+          slug: event.slug || `/evenimente/${event.id}`,
+          startDate: event.start_at,
+          imageUrl: event.image_url,
+          location: event.city,
+          category: 'Evenimente',
+          categorySlug: 'evenimente'
+        }));
+
+        const allWeekendEvents = [...transformedMatches, ...transformedEvents]
+          .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+          .slice(0, 12);
+
+        setWeekendEvents(allWeekendEvents);
+      } catch (error) {
+        console.error('Error fetching weekend events:', error);
+      }
+    };
+
     fetchPopularEvents();
+    fetchWeekendEvents();
   }, []);
 
   const handleSearch = (query: string) => {
@@ -142,7 +207,16 @@ export default function NewHomepage() {
       </section>
 
       {/* Weekend Section */}
-      <RailWeekend events={[]} />
+      <section className="py-12" style={{ backgroundColor: 'var(--cz-surface)' }}>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-h2 font-bold text-[--cz-ink]">
+              În acest weekend
+            </h2>
+          </div>
+          <RailWeekend events={weekendEvents} />
+        </div>
+      </section>
 
       {/* TV Now Section */}
       <TvNow />
