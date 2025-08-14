@@ -12,6 +12,7 @@ interface MovieCountdownCardProps {
     title: string;
     slug: string;
     poster_path?: string;
+    poster_url?: string;
     cinema_release_ro?: string;
     overview?: string;
     genres?: string[];
@@ -67,9 +68,8 @@ export function MovieCountdownCard({ movie, className }: MovieCountdownCardProps
     return () => clearInterval(interval);
   }, [releaseDate]);
 
-  const posterUrl = movie.poster_path 
-    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-    : null;
+  const posterUrl = movie.poster_url || 
+    (movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);

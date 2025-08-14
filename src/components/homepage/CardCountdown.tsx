@@ -55,13 +55,8 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      if (days > 0) {
-        return `${days} ${days === 1 ? 'zi' : 'zile'}, ${hours} ${hours === 1 ? 'oră' : 'ore'}`;
-      } else if (hours > 0) {
-        return `${hours} ${hours === 1 ? 'oră' : 'ore'}, ${minutes} min`;
-      } else {
-        return `${minutes} min, ${seconds} sec`;
-      }
+      // Always show DD:HH:MM:SS format
+      return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
     const updateTimer = () => {
