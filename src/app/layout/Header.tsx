@@ -37,9 +37,6 @@ export default function Header() {
           <Link to="/evenimente" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
             Evenimente
           </Link>
-          <Link to="/creeaza" className="text-[--cz-accent] hover:text-[--cz-primary] font-bold transition-colors px-3 py-2 rounded-lg bg-[--cz-surface] hover:bg-[--cz-border]">
-            Creează
-          </Link>
         </nav>
 
         {/* Right Side Actions */}

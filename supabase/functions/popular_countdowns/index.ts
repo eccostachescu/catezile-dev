@@ -52,10 +52,10 @@ serve(async (req) => {
       query = query.eq('time_status', timeStatus);
     }
 
-    // Temporarily disable image filter to show events
-    // if (onlyWithImage) {
-    //   query = query.not('image_url', 'is', null);
-    // }
+    // Filter only events with images if requested
+    if (onlyWithImage) {
+      query = query.not('image_url', 'is', null).neq('image_url', '');
+    }
 
     // Add pagination and ordering
     const { data: popularEvents, error } = await query

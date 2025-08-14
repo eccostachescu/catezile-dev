@@ -2844,6 +2844,22 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_live_events: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          away: string
+          competition_name: string
+          home: string
+          id: string
+          is_live: boolean
+          score: Json
+          slug: string
+          starts_at: string
+          status: string
+          title: string
+          tv_channels: string[]
+        }[]
+      }
       get_movie_next_date: {
         Args: { movie_row: Database["public"]["Tables"]["movie"]["Row"] }
         Returns: Json
