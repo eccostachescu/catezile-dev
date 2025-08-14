@@ -73,58 +73,157 @@ serve(async (req) => {
 
     let finalEvents = popularEvents || [];
 
-    // Fallback to featured events if we have less than 6 items
-    if (finalEvents.length < 6) {
-      console.log('Adding featured events as fallback');
-      
-      let featuredQuery = supabase
-        .from('event')
-        .select(`
-          id, slug, title, start_at, image_url, city, country, category_id,
-          category:category_id(name, slug)
-        `)
-        .eq('featured', true)
-        .eq('status', 'PUBLISHED')
-        .gte('start_at', new Date().toISOString());
+    // If we don't have enough popular countdowns, mix in different types of content
+    if (finalEvents.length < limit) {
+      console.log('Mixing in additional content sources');
 
-      // Temporarily disable image filter for featured events too
-      // if (onlyWithImage) {
-      //   featuredQuery = featuredQuery.not('image_url', 'is', null);
-      // }
+      // 1. First try user-created countdowns (approved)
+      const { data: userCountdowns } = await supabase
+        .from('countdown')
+        .select('*')
+        .eq('status', 'APPROVED')
+        .eq('privacy', 'PUBLIC')
+        .gte('target_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(3);
 
-      const { data: featuredEvents } = await featuredQuery
-        .order('start_at', { ascending: true })
-        .limit(12 - finalEvents.length);
-
-      if (featuredEvents && featuredEvents.length > 0) {
-        // Transform featured events to match popular format
-        const transformedFeatured = featuredEvents.map(event => ({
-          id: event.id,
-          slug: event.slug,
-          title: event.title,
-          starts_at: event.start_at,
-          image_url: event.image_url,
-          city: event.city,
-          country: event.country,
-          category_id: event.category_id,
-          category_name: event.category?.name || null,
-          category_slug: event.category?.slug || null,
+      if (userCountdowns) {
+        const transformedCountdowns = userCountdowns.map(countdown => ({
+          id: countdown.id,
+          slug: countdown.slug,
+          title: countdown.title,
+          starts_at: countdown.target_at,
+          image_url: countdown.image_url,
+          city: countdown.city,
+          country: 'RO',
+          category_id: null,
+          category_name: 'Countdown',
+          category_slug: 'countdown',
           score: 0,
-          time_status: event.start_at <= new Date().toISOString() ? 'PAST' :
-                      event.start_at <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() ? 'UPCOMING' : 'FUTURE'
+          time_status: 'FUTURE',
+          source: 'user_countdown'
         }));
 
-        // Merge and deduplicate
-        const existingIds = new Set(finalEvents.map(e => e.id));
-        const newFeatured = transformedFeatured.filter(e => !existingIds.has(e.id));
-        finalEvents = [...finalEvents, ...newFeatured];
+        finalEvents = [...finalEvents, ...transformedCountdowns];
       }
+
+      // 2. Then add upcoming matches with TV coverage
+      const { data: liveMatches } = await supabase
+        .from('match')
+        .select('*')
+        .gte('kickoff_at', new Date().toISOString())
+        .lt('kickoff_at', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
+        .not('tv_channels', 'is', null)
+        .neq('tv_channels', '{}')
+        .order('kickoff_at', { ascending: true })
+        .limit(3);
+
+      if (liveMatches) {
+        const transformedMatches = liveMatches.map(match => ({
+          id: match.id,
+          slug: match.slug,
+          title: `${match.home} vs ${match.away}`,
+          starts_at: match.kickoff_at,
+          image_url: null,
+          city: match.city,
+          country: 'RO',
+          category_id: null,
+          category_name: 'Sport',
+          category_slug: 'sport',
+          score: 0,
+          time_status: 'UPCOMING',
+          source: 'match_api'
+        }));
+
+        finalEvents = [...finalEvents, ...transformedMatches];
+      }
+
+      // 3. Add upcoming movies in cinema
+      const { data: upcomingMovies } = await supabase
+        .from('movie')
+        .select('*')
+        .gte('cinema_release_ro', new Date().toISOString().split('T')[0])
+        .lt('cinema_release_ro', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .order('cinema_release_ro', { ascending: true })
+        .limit(2);
+
+      if (upcomingMovies) {
+        const transformedMovies = upcomingMovies.map(movie => ({
+          id: movie.id,
+          slug: movie.slug,
+          title: movie.title,
+          starts_at: movie.cinema_release_ro + 'T00:00:00Z',
+          image_url: movie.poster_url,
+          city: null,
+          country: 'RO',
+          category_id: null,
+          category_name: 'Filme',
+          category_slug: 'filme',
+          score: 0,
+          time_status: 'UPCOMING',
+          source: 'movie_api'
+        }));
+
+        finalEvents = [...finalEvents, ...transformedMovies];
+      }
+
+      // 4. Fallback to featured events only if still not enough
+      if (finalEvents.length < limit) {
+        console.log('Adding featured events as final fallback');
+        
+        let featuredQuery = supabase
+          .from('event')
+          .select(`
+            id, slug, title, start_at, image_url, city, country, category_id,
+            category:category_id(name, slug)
+          `)
+          .eq('featured', true)
+          .eq('status', 'PUBLISHED')
+          .gte('start_at', new Date().toISOString());
+
+        const { data: featuredEvents } = await featuredQuery
+          .order('start_at', { ascending: true })
+          .limit(limit - finalEvents.length);
+
+        if (featuredEvents && featuredEvents.length > 0) {
+          const transformedFeatured = featuredEvents.map(event => ({
+            id: event.id,
+            slug: event.slug,
+            title: event.title,
+            starts_at: event.start_at,
+            image_url: event.image_url,
+            city: event.city,
+            country: event.country,
+            category_id: event.category_id,
+            category_name: event.category?.name || null,
+            category_slug: event.category?.slug || null,
+            score: 0,
+            time_status: event.start_at <= new Date().toISOString() ? 'PAST' :
+                        event.start_at <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() ? 'UPCOMING' : 'FUTURE',
+            source: 'featured_event'
+          }));
+
+          const existingIds = new Set(finalEvents.map(e => e.id));
+          const newFeatured = transformedFeatured.filter(e => !existingIds.has(e.id));
+          finalEvents = [...finalEvents, ...newFeatured];
+        }
+      }
+
+      // Sort mixed results by date
+      finalEvents.sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime());
     }
 
-    // Limit to requested amount
+    // Limit to requested amount and add source summary
     finalEvents = finalEvents.slice(0, limit);
 
-    console.log(`Returning ${finalEvents.length} popular countdowns`);
+    // Count sources for debugging
+    const sourceCounts = finalEvents.reduce((acc, event) => {
+      const source = event.source || 'unknown';
+      acc[source] = (acc[source] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log(`Returning ${finalEvents.length} popular countdowns from sources:`, sourceCounts);
 
     return new Response(
       JSON.stringify({
