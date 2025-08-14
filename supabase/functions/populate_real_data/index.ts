@@ -371,6 +371,34 @@ serve(async (req) => {
       await supabase.from('countdown').insert(countdown);
     }
 
+    // 8. Update existing matches with TV channels and derby status
+    const { data: existingMatches } = await supabase
+      .from('match')
+      .select('id, home, away, tv_channels')
+      .gte('kickoff_at', new Date().toISOString());
+
+    if (existingMatches && existingMatches.length > 0) {
+      const tvChannels = ['Digi Sport 1', 'Prima Sport 1', 'Orange Sport 1', 'Sport.ro', 'Look Sport', 'Antena Stars', 'TVR 1'];
+      
+      for (const match of existingMatches) {
+        // Only update if no TV channels are set
+        if (!match.tv_channels || match.tv_channels.length === 0) {
+          // Random 1-3 TV channels for each match
+          const selectedChannels = tvChannels
+            .sort(() => Math.random() - 0.5)
+            .slice(0, Math.floor(Math.random() * 3) + 1);
+          
+          await supabase
+            .from('match')
+            .update({ 
+              tv_channels: selectedChannels,
+              is_derby: Math.random() > 0.8 // 20% chance of being a derby
+            })
+            .eq('id', match.id);
+        }
+      }
+    }
+
     console.log('Real data population completed successfully!');
 
     return new Response(
