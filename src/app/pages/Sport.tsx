@@ -46,14 +46,14 @@ export default function Sport() {
       return w === 'Sat' || w === 'Sun';
     };
 
-    let days = data.days as any[];
+    let days = data?.days || [];
     if (tab === 'today') days = days.filter((d: any) => d.date === todayKey);
     else if (tab === 'tomorrow') days = days.filter((d: any) => d.date === tomorrowKey);
     else if (tab === 'weekend') days = days.filter((d: any) => inWeekend(d.date));
 
     const matchesFilter = (m: any) => filterMatch(m, team, tv, q);
 
-    return days.map((g: any) => ({ ...g, matches: g.matches.filter(matchesFilter) })).filter((g: any) => g.matches.length > 0);
+    return days.map((g: any) => ({ ...g, matches: (g.matches || []).filter(matchesFilter) })).filter((g: any) => (g.matches || []).length > 0);
   }, [data, tab, team, tv, q]);
 
   return (
@@ -63,8 +63,8 @@ export default function Sport() {
         <h1 className="text-2xl font-semibold mb-3">Sport</h1>
         <Filters
           tabs={{ value: tab, onChange: setTab }}
-          team={{ value: team, onChange: (t) => { setTeam(t); track('team_filter_apply', { team: t }); } , options: data?.filters.teams || [] }}
-          tv={{ value: tv, onChange: (v) => { setTv(v); track('tv_filter_change', { tv: v }); }, options: data?.filters.tv || [] }}
+          team={{ value: team, onChange: (t) => { setTeam(t); track('team_filter_apply', { team: t }); } , options: data?.filters?.teams || [] }}
+          tv={{ value: tv, onChange: (v) => { setTv(v); track('tv_filter_change', { tv: v }); }, options: data?.filters?.tv || [] }}
           search={{ value: q, onChange: (v) => { setQ(v); } }}
           onReset={() => { setTab('today'); setTeam(null); setTv([]); setQ(''); }}
         />
