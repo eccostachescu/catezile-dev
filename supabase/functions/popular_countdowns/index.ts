@@ -13,10 +13,21 @@ serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const limit = parseInt(url.searchParams.get('limit') ?? '12');
-    const offset = parseInt(url.searchParams.get('offset') ?? '0');
-    const category = url.searchParams.get('category');
-    const timeStatus = url.searchParams.get('time_status');
+    
+    // Read from both URL params and request body
+    let requestData = {};
+    if (req.method === 'POST') {
+      try {
+        requestData = await req.json();
+      } catch (e) {
+        requestData = {};
+      }
+    }
+    
+    const limit = parseInt(requestData.limit || url.searchParams.get('limit') || '12');
+    const offset = parseInt(requestData.offset || url.searchParams.get('offset') || '0');
+    const category = requestData.category || url.searchParams.get('category');
+    const timeStatus = requestData.time_status || url.searchParams.get('time_status');
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
