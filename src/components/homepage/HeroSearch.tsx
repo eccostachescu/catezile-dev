@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Search, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search } from 'lucide-react';
 import { Chip } from '@/components/ui/cz-chip';
-import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HeroSearchProps {
   onSearch?: (query: string) => void;
@@ -18,7 +18,7 @@ const filters = [
   { key: 'month', label: 'Luna asta' },
 ];
 
-export function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilter = 'popular' }: HeroSearchProps) {
+export default function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilter = 'popular' }: HeroSearchProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -31,71 +31,113 @@ export function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilt
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
-      {/* Hero Title */}
-      <div className="text-center space-y-3">
-        <h1 className="text-hero font-heading font-bold text-cz-foreground">
-          Calendarul României
-        </h1>
-        <p className="text-subtitle max-w-2xl mx-auto">
-          Meciuri, filme, sărbători și evenimente — cu remindere smart
-        </p>
-      </div>
+    <section className="relative overflow-hidden py-16 md:py-24" style={{ background: 'var(--cz-hero-grad)' }}>
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Title */}
+          <h1 className="text-[42px] md:text-[56px] leading-[1.05] tracking-[-0.01em] font-bold text-[--cz-ink] mb-4">
+            Calendarul României
+          </h1>
+          
+          {/* Subtitle */}
+          <p className="text-[18px] md:text-[20px] text-[--cz-ink-muted] mb-8">
+            Meciuri, filme, sărbători și evenimente — cu remindere smart.
+          </p>
 
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="relative">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-cz-muted" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={onSearchFocus}
-            placeholder="Caută evenimente, filme, sport..."
-            className={cn(
-              "w-full px-6 py-4 md:py-5 pl-12 pr-6 rounded-full",
-              "bg-cz-surface border border-cz-border",
-              "text-cz-foreground placeholder:text-cz-muted",
-              "shadow-[0_8px_30px_rgba(0,0,0,.25)]",
-              "focus:outline-none focus:ring-2 focus:ring-cz-primary",
-              "transition-all duration-cz-fast ease-cz-smooth"
-            )}
-          />
+          {/* Search Bar XL */}
+          <form onSubmit={handleSearch} className="mb-6">
+            <div className="relative max-w-2xl mx-auto">
+              <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-[--cz-ink-muted] h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Caută meciuri, filme, evenimente..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => onSearchFocus?.()}
+                className="w-full pl-14 pr-24 py-4 md:py-5 bg-[--cz-surface] border border-[--cz-border] rounded-full text-lg text-[--cz-ink] placeholder-[--cz-ink-muted] focus:outline-none focus:ring-2 focus:ring-[--cz-primary] focus:border-transparent"
+                style={{ boxShadow: 'var(--cz-shadow)' }}
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[--cz-primary] text-white px-6 py-2 md:py-3 rounded-full hover:bg-[--cz-primary-600] transition-colors font-medium"
+              >
+                Caută
+              </button>
+            </div>
+          </form>
+
+          {/* Filter Chips */}
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6">
+            {filters.map((filter) => (
+              <Chip
+                key={filter.key}
+                active={activeFilter === filter.key}
+                onClick={() => handleFilterClick(filter.key)}
+                className="text-sm md:text-base"
+              >
+                {filter.label}
+              </Chip>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-4">
+            {/* LIVE Button - Only show when live events exist */}
+            <LiveNowButton />
+            
+            <button className="bg-[--cz-accent] text-black px-6 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity">
+              Creează countdown
+            </button>
+          </div>
         </div>
-      </form>
-
-      {/* Filter Chips */}
-      <div className="flex flex-wrap gap-2 md:gap-3 justify-center">
-        {filters.map((filter) => (
-          <Chip
-            key={filter.key}
-            active={activeFilter === filter.key}
-            onClick={() => {
-              window.plausible?.('hero_chip_select', { props: { filter: filter.key } });
-              handleFilterClick(filter.key);
-            }}
-            className="transition-all duration-cz-fast data-[active=true]:border-cz-primary data-[active=true]:text-white"
-          >
-            {filter.label}
-          </Chip>
-        ))}
       </div>
+    </section>
+  );
+}
 
-      {/* Live Indicator */}
-      <div className="flex justify-center">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/15 border border-red-500/20">
-          <div className="w-2 h-2 bg-red-300 rounded-full animate-live-pulse" />
-          <span className="text-xs font-medium text-red-300">LIVE acum</span>
-          <TrendingUp className="h-3 w-3 text-red-300" />
-        </div>
-      </div>
+// LiveNowButton Component
+function LiveNowButton() {
+  const [hasLiveEvents, setHasLiveEvents] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-      {/* CTA */}
-      <div className="text-center">
-        <button className="text-sm text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast">
-          Descoperă în weekend →
-        </button>
-      </div>
-    </div>
+  useEffect(() => {
+    async function checkLiveEvents() {
+      try {
+        const { data, error } = await supabase.functions.invoke('live_events_count');
+        if (!error && data?.count > 0) {
+          setHasLiveEvents(true);
+        }
+      } catch (err) {
+        console.log('Error checking live events:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkLiveEvents();
+  }, []);
+
+  const handleLiveClick = () => {
+    const liveSection = document.getElementById('live-now');
+    if (liveSection) {
+      liveSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Analytics
+    if (typeof window !== 'undefined' && window.plausible) {
+      window.plausible('Hero Live Button Click');
+    }
+  };
+
+  if (loading || !hasLiveEvents) return null;
+
+  return (
+    <button
+      onClick={handleLiveClick}
+      className="bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all hover:bg-red-500/25"
+      style={{ animation: 'live-pulse 1.5s ease-in-out infinite' }}
+    >
+      LIVE acum
+    </button>
   );
 }

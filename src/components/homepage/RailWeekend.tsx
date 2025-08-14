@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/cz-button';
-import { CardCountdown } from './CardCountdown';
+import CardCountdown from './CardCountdown';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -95,15 +95,14 @@ export function RailWeekend({ events, onReminderClick, onCardClick, className }:
             transition={{ duration: 0.3 }}
           >
             <CardCountdown
-              id={event.id}
-              title={event.title}
-              slug={event.slug}
-              startDate={event.startDate}
-              imageUrl={event.imageUrl}
-              location={event.location}
-              category={event.category}
-              categorySlug={event.categorySlug}
-              onReminderClick={onReminderClick}
+                  id={event.id}
+                  title={event.title}
+                  slug={event.slug}
+                  startDate={event.startDate}
+                  imageUrl={event.imageUrl}
+                  location={event.location}
+                  category={event.category}
+                  onReminderClick={onReminderClick}
             />
           </motion.div>
         ))}

@@ -1,5 +1,5 @@
 import { SEO } from "@/seo/SEO";
-import { NewHomepage } from "@/components/homepage/NewHomepage";
+import NewHomepage from "@/components/homepage/NewHomepage";
 import { useAuthTokenHandler } from "@/hooks/useAuthTokenHandler";
 
 export default function Home() {

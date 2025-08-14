@@ -25,66 +25,32 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 h-16 glass border-b border-cz-border backdrop-blur-xl">
+    <header className="sticky top-0 z-50 h-16 bg-[--cz-surface]/80 backdrop-blur-md border-b border-[--cz-border]">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to={routes.home()} className="font-heading font-semibold text-lg text-cz-foreground">
-          CateZile<span className="text-cz-accent">.</span>ro
+        <Link to={routes.home()} className="font-heading font-semibold text-lg text-[--cz-ink]">
+          CateZile<span className="text-[--cz-accent]">.</span>ro
         </Link>
 
-        {/* Desktop Search */}
-        <div className="hidden lg:flex flex-1 max-w-md mx-8">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cz-muted" />
-            <input
-              type="text"
-              placeholder="Caută evenimente, filme, sport..."
-              className={cn(
-                "w-full h-10 pl-10 pr-4 rounded-full",
-                "bg-cz-surface border border-cz-border",
-                "text-cz-foreground placeholder:text-cz-muted text-sm",
-                "focus:outline-none focus:ring-2 focus:ring-cz-accent focus:ring-offset-2 focus:ring-offset-cz-bg",
-                "transition-all duration-cz-fast"
-              )}
-            />
-          </div>
-        </div>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6">
-          <Link 
-            to="/tv" 
-            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
-          >
+        {/* Desktop Navigation - Extended */}
+        <nav className="hidden md:flex items-center space-x-6 flex-1 justify-center">
+          <Link to="/tv" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
             TV
           </Link>
-          <Link 
-            to={routes.movies()} 
-            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
-          >
+          <Link to="/filme" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
             Filme
           </Link>
-          <Link 
-            to={routes.sport()} 
-            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
-          >
+          <Link to="/sport" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
             Sport
           </Link>
-          <Link 
-            to="/sarbatori" 
-            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
-          >
+          <Link to="/sarbatori" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
             Sărbători
           </Link>
-          <Link 
-            to="/evenimente" 
-            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
-          >
+          <Link to="/evenimente" className="text-[--cz-ink-muted] hover:text-[--cz-ink] font-medium transition-colors">
             Evenimente
           </Link>
         </nav>
-
-        {/* Right Side Actions */}
+         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
           {/* Mobile Search */}
           <div className="lg:hidden">
@@ -180,9 +146,6 @@ export default function Header() {
           </div>
         </div>
       </div>
-
-      {/* Single Cookie Banner Instance */}
-      <CookieBannerStub />
     </header>
   );
 }
