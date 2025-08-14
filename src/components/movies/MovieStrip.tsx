@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/Card";
-import MovieCard from "@/components/cards/MovieCard";
+import { MovieCountdownCard } from "./MovieCountdownCard";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 export default function MovieStrip({ title, items = [] as any[] }: { title: string; items: any[] }) {
@@ -11,7 +11,32 @@ export default function MovieStrip({ title, items = [] as any[] }: { title: stri
         <CarouselContent>
           {items.map((m) => (
             <CarouselItem key={m.id} className="basis-3/4 sm:basis-1/3 md:basis-1/4 lg:basis-1/5">
-              <MovieCard title={m.title} posterUrl={m.poster_url || undefined} inCinemasAt={m.cinema_release_ro || undefined} onNetflixAt={m.netflix_date || undefined} onPrimeAt={(m as any).prime_date || undefined} />
+              <MovieCountdownCard 
+                movie={{
+                  id: m.id,
+                  title: m.title,
+                  slug: m.slug || m.id,
+                  poster_path: m.poster_url,
+                  cinema_release_ro: m.cinema_release_ro,
+                  overview: m.overview,
+                  genres: m.genres,
+                  runtime: m.runtime,
+                  popularity: m.popularity,
+                  next_date: m.cinema_release_ro ? {
+                    date: m.cinema_release_ro,
+                    type: 'cinema',
+                    platform: 'Cinema'
+                  } : m.netflix_date ? {
+                    date: m.netflix_date,
+                    type: 'streaming',
+                    platform: 'Netflix'
+                  } : m.prime_date ? {
+                    date: m.prime_date,
+                    type: 'streaming',
+                    platform: 'Prime Video'
+                  } : undefined
+                }}
+              />
             </CarouselItem>
           ))}
         </CarouselContent>

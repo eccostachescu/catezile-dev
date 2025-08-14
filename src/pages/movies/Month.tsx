@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { MovieHeader } from "@/components/movies/MovieHeader";
-import { MovieCard } from "@/components/movies/MovieCard";
+import { MovieCountdownCard } from "@/components/movies/MovieCountdownCard";
 import { MovieAdRail } from "@/components/movies/MovieAdRail";
 import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
@@ -191,7 +191,7 @@ export default function MoviesMonth() {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {monthData.cinema.map((movie) => (
-                      <MovieCard key={movie.id} movie={movie} />
+                      <MovieCountdownCard key={movie.id} movie={movie} />
                     ))}
                   </div>
                 </section>
@@ -205,7 +205,7 @@ export default function MoviesMonth() {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {movies.map((movie) => (
-                      <MovieCard key={movie.id} movie={movie} />
+                      <MovieCountdownCard key={movie.id} movie={movie} />
                     ))}
                   </div>
                 </section>

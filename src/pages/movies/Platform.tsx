@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
-import { MovieCard } from "@/components/movies/MovieCard";
+import { MovieCountdownCard } from "@/components/movies/MovieCountdownCard";
 import { MovieHeader } from "@/components/movies/MovieHeader";
 import { MovieAdRail } from "@/components/movies/MovieAdRail";
 import { useEffect, useState } from "react";
@@ -103,7 +103,7 @@ export default function Platform() {
             ) : movies.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {movies.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} />
+                  <MovieCountdownCard key={movie.id} movie={movie} />
                 ))}
               </div>
             ) : (

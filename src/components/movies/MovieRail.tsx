@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MovieCard } from "./MovieCard";
+import { MovieCountdownCard } from "./MovieCountdownCard";
 import { useRef } from "react";
 
 interface MovieRailProps {
@@ -74,9 +74,8 @@ export function MovieRail({ title, movies, showReminder = true, className = "" }
       >
         {movies.map((movie) => (
           <div key={movie.id} className="flex-none w-80">
-            <MovieCard
+            <MovieCountdownCard
               movie={movie}
-              showReminder={showReminder}
             />
           </div>
         ))}
