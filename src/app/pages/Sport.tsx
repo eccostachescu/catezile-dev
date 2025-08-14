@@ -15,7 +15,7 @@ export default function Sport() {
   const [data, setData] = useState(initial);
   const [loaded, setLoaded] = useState(!!initial);
 
-  const [tab, setTab] = useState<'today'|'tomorrow'|'weekend'|'all'>('today');
+  const [tab, setTab] = useState<'today'|'tomorrow'|'weekend'|'all'>('all');
   const [team, setTeam] = useState<string | null>(null);
   const [tv, setTv] = useState<string[]>([]);
   const [q, setQ] = useState<string>('');
@@ -78,7 +78,7 @@ export default function Sport() {
           team={{ value: team, onChange: (t) => { setTeam(t); track('team_filter_apply', { team: t }); } , options: data?.filters?.teams || [] }}
           tv={{ value: tv, onChange: (v) => { setTv(v); track('tv_filter_change', { tv: v }); }, options: data?.filters?.tv || [] }}
           search={{ value: q, onChange: (v) => { setQ(v); } }}
-          onReset={() => { setTab('today'); setTeam(null); setTv([]); setQ(''); }}
+          onReset={() => { setTab('all'); setTeam(null); setTv([]); setQ(''); }}
         />
 
         {!loaded ? (

@@ -47,23 +47,31 @@ export default function Filters({
             {team.value || 'Toate'}
           </button>
           {open && (
-            <div role="listbox" className="absolute z-10 mt-1 w-48 rounded-md border bg-popover p-1 shadow-md">
-              <input
-                value={teamQuery}
-                onChange={(e) => setTeamQuery(e.target.value)}
-                placeholder="Caută echipă..."
-                className="mb-1 w-full rounded-md border bg-background px-2 py-1 text-xs"
-                aria-label="Caută echipă"
-              />
-              <button
-                className={`w-full text-left px-2 py-1 text-sm rounded ${team.value===null? 'bg-muted' : ''}`}
-                onClick={() => { team.onChange(null); setOpen(false); setTeamQuery(''); }}
-              >
-                Toate
-              </button>
-              <div className="max-h-56 overflow-auto">
+            <div role="listbox" className="absolute z-50 mt-1 w-64 rounded-md border bg-popover shadow-lg">
+              <div className="p-2 border-b">
+                <input
+                  value={teamQuery}
+                  onChange={(e) => setTeamQuery(e.target.value)}
+                  placeholder="Caută echipă..."
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  aria-label="Caută echipă"
+                />
+              </div>
+              <div className="p-1">
+                <button
+                  className={`w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors ${team.value===null? 'bg-primary text-primary-foreground' : ''}`}
+                  onClick={() => { team.onChange(null); setOpen(false); setTeamQuery(''); }}
+                >
+                  Toate echipele
+                </button>
+              </div>
+              <div className="max-h-48 overflow-auto p-1">
                 {teamOptions.filter(o => !teamQuery || o.toLowerCase().includes(teamQuery.toLowerCase())).map((opt) => (
-                  <button key={opt} className={`w-full text-left px-2 py-1 text-sm rounded ${team.value===opt? 'bg-muted' : ''}`} onClick={() => { team.onChange(opt); setOpen(false); }}>
+                  <button 
+                    key={opt} 
+                    className={`w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors ${team.value===opt? 'bg-primary text-primary-foreground' : ''}`} 
+                    onClick={() => { team.onChange(opt); setOpen(false); setTeamQuery(''); }}
+                  >
                     {opt}
                   </button>
                 ))}
