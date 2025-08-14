@@ -51,13 +51,13 @@ export default function NewHomepage() {
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(query)}`;
+      window.location.href = `/cauta?q=${encodeURIComponent(query)}`;
     }
   };
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
-    // Implement filter logic or navigate to filtered page
+    // TODO: Implement filter logic for popular events
     console.log('Filter changed to:', filter);
   };
 
