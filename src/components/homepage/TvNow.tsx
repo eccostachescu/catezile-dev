@@ -26,10 +26,11 @@ interface TVProgram {
 interface TvNowProps {
   liveMatches?: TVMatch[];
   upcomingPrograms?: TVProgram[];
+  onTvClick?: () => void;
   className?: string;
 }
 
-export function TvNow({ liveMatches = [], upcomingPrograms = [], className }: TvNowProps) {
+export function TvNow({ liveMatches = [], upcomingPrograms = [], onTvClick, className }: TvNowProps) {
   const formatTime = (timeStr: string) => {
     return new Date(timeStr).toLocaleTimeString('ro-RO', {
       hour: '2-digit',
@@ -92,7 +93,7 @@ export function TvNow({ liveMatches = [], upcomingPrograms = [], className }: Tv
               În următoarele 3 ore
             </h3>
           </div>
-          <Link to="/tv">
+          <Link to="/tv" onClick={onTvClick}>
             <Button
               variant="ghost"
               size="sm"

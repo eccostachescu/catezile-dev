@@ -1,18 +1,22 @@
 import { Link } from "react-router-dom";
+import { Search, Menu, X } from "lucide-react";
 import ThemeSwitchStub from "@/components/ThemeSwitchStub";
 import SearchBar from "@/components/SearchBar";
 import { useAuth } from "@/lib/auth";
 import { routes } from "@/lib/routes";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/cz-button";
 import CookieBannerStub from "@/components/CookieBannerStub";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
   const { user, isAdmin, loading, signInWithEmail, signOut } = useAuth();
   const [email, setEmail] = useState("");
   const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,28 +25,72 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-        <Link to={routes.home()} className="font-bold text-lg tracking-tight">
-          CateZile.ro
+    <header className="sticky top-0 z-50 glass border-b border-cz-border">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <Link to={routes.home()} className="font-heading font-semibold text-lg text-cz-foreground">
+          CateZile<span className="text-cz-accent">.</span>ro
         </Link>
 
-        <div className="hidden sm:flex flex-1 max-w-lg mx-4">
-          <SearchBar />
+        {/* Desktop Search */}
+        <div className="hidden lg:flex flex-1 max-w-md mx-8">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cz-muted" />
+            <input
+              type="text"
+              placeholder="Caută evenimente, filme, sport..."
+              className={cn(
+                "w-full h-10 pl-10 pr-4 rounded-full",
+                "bg-cz-surface border border-cz-border",
+                "text-cz-foreground placeholder:text-cz-muted text-sm",
+                "focus:outline-none focus:ring-2 focus:ring-cz-accent focus:ring-offset-2 focus:ring-offset-cz-bg",
+                "transition-all duration-cz-fast"
+              )}
+            />
+          </div>
         </div>
 
-        <nav aria-label="Acțiuni" className="flex items-center gap-2">
-          <Link to="/evenimente" className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Evenimente</Link>
-          <Link to={routes.movies()} className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Filme</Link>
-          <Link to={routes.sport()} className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Sport</Link>
-          <Link to="/sarbatori" className="hidden sm:inline-block text-sm underline-offset-4 hover:underline">Sărbători</Link>
-          {/* Mobile search opens a dialog */}
-          <div className="sm:hidden">
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-6">
+          <Link 
+            to="/tv" 
+            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
+          >
+            TV
+          </Link>
+          <Link 
+            to={routes.movies()} 
+            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
+          >
+            Filme
+          </Link>
+          <Link 
+            to={routes.sport()} 
+            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
+          >
+            Sport
+          </Link>
+          <Link 
+            to="/sarbatori" 
+            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
+          >
+            Sărbători
+          </Link>
+          <Link 
+            to="/evenimente" 
+            className="text-sm font-medium text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast"
+          >
+            Evenimente
+          </Link>
+        </nav>
+
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-3">
+          {/* Mobile Search */}
+          <div className="lg:hidden">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" aria-haspopup="dialog" aria-label="Deschide căutarea">
-                  Caută
-                </Button>
+                <Button variant="ghost" size="sm" icon={<Search className="h-4 w-4" />} />
               </DialogTrigger>
               <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
@@ -55,42 +103,83 @@ export default function Header() {
 
           <ThemeSwitchStub />
 
+          {/* Auth */}
           {!user ? (
-            <>
-              <Link to={routes.authLogin()}>
-                <Button variant="outline" size="sm" aria-haspopup>
-                  Autentificare
-                </Button>
-              </Link>
-              {/* Keep inline magic-link dialog as fallback */}
-              {open && (
-                <form onSubmit={handleSignIn} className="absolute right-4 top-14 bg-popover border rounded-md p-3 shadow-md w-72">
-                  <label htmlFor="email" className="block text-sm mb-1">Email</label>
-                  <input id="email" type="email" required className="w-full h-9 rounded-md border bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="email@exemplu.ro" />
-                  <div className="mt-2 flex gap-2 justify-end">
-                    <Button type="button" size="sm" variant="ghost" onClick={()=>setOpen(false)}>Anulează</Button>
-                    <Button type="submit" size="sm" disabled={loading}>Trimite link</Button>
-                  </div>
-                </form>
-              )}
-            </>
+            <Link to={routes.authLogin()}>
+              <Button variant="subtle" size="sm">
+                Autentificare
+              </Button>
+            </Link>
           ) : (
             <div className="flex items-center gap-2">
-              <Link to={routes.account()} className="flex items-center gap-2 px-2">
-                <Avatar>
-                  <AvatarFallback>{user.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+              <Link to={routes.account()} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-cz-surface transition-colors duration-cz-fast">
+                <Avatar className="h-7 w-7">
+                  <AvatarFallback className="text-xs">{user.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:inline text-sm">Contul meu</span>
+                <span className="hidden sm:inline text-sm text-cz-foreground">Contul meu</span>
               </Link>
               {isAdmin && (
-                <Link to={routes.admin()} className="text-sm underline-offset-4 hover:underline">Admin</Link>
+                <Link to={routes.admin()} className="text-sm text-cz-muted hover:text-cz-foreground transition-colors duration-cz-fast">
+                  Admin
+                </Link>
               )}
-              <Button variant="ghost" size="sm" onClick={() => signOut()}>Delogare</Button>
+              <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                Delogare
+              </Button>
             </div>
           )}
-        </nav>
-      </div>
 
+          {/* Mobile Menu */}
+          <div className="lg:hidden">
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" icon={<Menu className="h-4 w-4" />} />
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 bg-cz-bg border-cz-border">
+                <div className="flex flex-col gap-6 pt-6">
+                  <nav className="flex flex-col gap-4">
+                    <Link 
+                      to="/tv" 
+                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-cz-foreground hover:bg-cz-surface rounded-lg transition-colors duration-cz-fast"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      TV
+                    </Link>
+                    <Link 
+                      to={routes.movies()} 
+                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-cz-foreground hover:bg-cz-surface rounded-lg transition-colors duration-cz-fast"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Filme
+                    </Link>
+                    <Link 
+                      to={routes.sport()} 
+                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-cz-foreground hover:bg-cz-surface rounded-lg transition-colors duration-cz-fast"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sport
+                    </Link>
+                    <Link 
+                      to="/sarbatori" 
+                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-cz-foreground hover:bg-cz-surface rounded-lg transition-colors duration-cz-fast"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sărbători
+                    </Link>
+                    <Link 
+                      to="/evenimente" 
+                      className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-cz-foreground hover:bg-cz-surface rounded-lg transition-colors duration-cz-fast"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Evenimente
+                    </Link>
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
 
       <CookieBannerStub />
     </header>

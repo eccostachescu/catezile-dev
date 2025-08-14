@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 interface HeroSearchProps {
   onSearch?: (query: string) => void;
   onFilterChange?: (filter: string) => void;
+  onSearchFocus?: () => void;
   activeFilter?: string;
 }
 
@@ -17,7 +18,7 @@ const filters = [
   { key: 'month', label: 'Luna asta' },
 ];
 
-export function HeroSearch({ onSearch, onFilterChange, activeFilter = 'popular' }: HeroSearchProps) {
+export function HeroSearch({ onSearch, onFilterChange, onSearchFocus, activeFilter = 'popular' }: HeroSearchProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
@@ -49,6 +50,7 @@ export function HeroSearch({ onSearch, onFilterChange, activeFilter = 'popular' 
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={onSearchFocus}
             placeholder="Caută evenimente, filme, sport..."
             className={cn(
               "w-full h-14 pl-12 pr-6 rounded-full",

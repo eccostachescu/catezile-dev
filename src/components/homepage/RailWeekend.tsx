@@ -18,10 +18,11 @@ interface WeekendEvent {
 interface RailWeekendProps {
   events: WeekendEvent[];
   onReminderClick?: (id: string) => void;
+  onCardClick?: (eventId: string) => void;
   className?: string;
 }
 
-export function RailWeekend({ events, onReminderClick, className }: RailWeekendProps) {
+export function RailWeekend({ events, onReminderClick, onCardClick, className }: RailWeekendProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {

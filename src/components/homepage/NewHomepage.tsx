@@ -11,12 +11,21 @@ import { Chip } from '@/components/ui/cz-chip';
 import { SkeletonCard } from '@/components/ui/cz-skeleton';
 import { supabase } from '@/integrations/supabase/client';
 
+declare global {
+  interface Window {
+    plausible?: (event: string, options?: { props?: Record<string, any> }) => void;
+  }
+}
+
 export function NewHomepage() {
   const [popularEvents, setPopularEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('popular');
 
   useEffect(() => {
+    // Track homepage view
+    window.plausible?.('home_view');
+    
     const fetchPopularEvents = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('popular_countdowns', {
@@ -36,8 +45,17 @@ export function NewHomepage() {
   }, []);
 
   const handleReminderClick = (id: string) => {
-    // Handle reminder logic
+    window.plausible?.('reminder_set', { props: { source: 'homepage', eventId: id } });
     console.log('Setting reminder for:', id);
+  };
+
+  const handleFilterChange = (filter: string) => {
+    window.plausible?.('chip_filter_select', { props: { filter } });
+    setActiveFilter(filter);
+  };
+
+  const handleCardClick = (type: 'popular' | 'weekend', eventId: string) => {
+    window.plausible?.(`${type}_card_click`, { props: { eventId } });
   };
 
   return (
@@ -47,7 +65,9 @@ export function NewHomepage() {
         <div className="container mx-auto px-4">
           <HeroSearch 
             activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
+            onFilterChange={handleFilterChange}
+            onSearch={(query) => window.plausible?.('search_submit', { props: { query } })}
+            onSearchFocus={() => window.plausible?.('search_focus')}
           />
         </div>
       </section>
@@ -72,18 +92,20 @@ export function NewHomepage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {popularEvents.map((event: any, index) => (
-                <CardCountdown
-                  key={event.id}
-                  id={event.id}
-                  title={event.title}
-                  slug={event.slug}
-                  startDate={event.starts_at}
-                  imageUrl={event.image_url}
-                  location={event.city}
-                  category={event.category_name}
-                  rank={index + 1}
-                  onReminderClick={handleReminderClick}
-                />
+                <div onClick={() => handleCardClick('popular', event.id)}>
+                  <CardCountdown
+                    key={event.id}
+                    id={event.id}
+                    title={event.title}
+                    slug={event.slug}
+                    startDate={event.starts_at}
+                    imageUrl={event.image_url}
+                    location={event.city}
+                    category={event.category_name}
+                    rank={index + 1}
+                    onReminderClick={handleReminderClick}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -101,6 +123,7 @@ export function NewHomepage() {
           <RailWeekend 
             events={[]} // Would be populated with weekend events
             onReminderClick={handleReminderClick}
+            onCardClick={(eventId) => handleCardClick('weekend', eventId)}
           />
         </Section>
 
@@ -109,6 +132,7 @@ export function NewHomepage() {
           <TvNow 
             liveMatches={[]} // Would be populated with live matches
             upcomingPrograms={[]} // Would be populated with upcoming programs
+            onTvClick={() => window.plausible?.('tvnow_click')}
           />
         </Section>
       </div>
