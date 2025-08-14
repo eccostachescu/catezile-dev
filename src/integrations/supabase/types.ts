@@ -754,6 +754,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "event_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "popular_countdowns_mv"
+            referencedColumns: ["category_id"]
+          },
+          {
             foreignKeyName: "event_city_id_fkey"
             columns: ["city_id"]
             isOneToOne: false
@@ -2631,15 +2638,7 @@ export type Database = {
           time_status: string | null
           title: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "event_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "category"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       popular_signals: {
         Row: {
