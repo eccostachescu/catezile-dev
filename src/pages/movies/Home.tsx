@@ -5,10 +5,10 @@ import { MovieHeader } from "@/components/movies/MovieHeader";
 import { MovieRail } from "@/components/movies/MovieRail";
 import { MovieFilters } from "@/components/movies/MovieFilters";
 import { MovieAdRail } from "@/components/movies/MovieAdRail";
-import { MovieCard } from "@/components/movies/MovieCard";
+import { MovieCountdownCard } from "@/components/movies/MovieCountdownCard";
 import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
-import { Calendar, Film } from "lucide-react";
+import { Calendar, Film, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -220,6 +220,30 @@ export default function MoviesHome() {
 
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
             <div className="xl:col-span-3 space-y-12">
+              {/* Popular Movies as Countdown Cards */}
+              <section className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-bold">Cele mai așteptate premiere</h2>
+                  </div>
+                </div>
+                
+                {isLoading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="aspect-[2/3] bg-muted rounded-lg animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {upcomingMovies.slice(0, 8).map((movie) => (
+                      <MovieCountdownCard key={movie.id} movie={movie} />
+                    ))}
+                  </div>
+                )}
+              </section>
+
               {/* Filters */}
               <MovieFilters
                 genres={uniqueGenres}
@@ -250,10 +274,10 @@ export default function MoviesHome() {
               )}
 
               {/* Upcoming in Cinema */}
-              {upcomingMovies.length > 0 && (
+              {upcomingMovies.length > 8 && (
                 <MovieRail
-                  title={`La cinema în ${new Date().toLocaleDateString('ro-RO', { month: 'long' })}`}
-                  movies={upcomingMovies.map(movie => ({
+                  title={`Toate premierele din ${new Date().toLocaleDateString('ro-RO', { month: 'long' })}`}
+                  movies={upcomingMovies.slice(8).map(movie => ({
                     ...movie,
                     next_date: movie.cinema_release_ro ? {
                       date: movie.cinema_release_ro,
