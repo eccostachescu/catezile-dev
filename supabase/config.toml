@@ -154,3 +154,6 @@ verify_jwt = false
 [functions.tv_popular_shows]
 verify_jwt = false
 
+[functions.import_multi_leagues]
+verify_jwt = false
+
