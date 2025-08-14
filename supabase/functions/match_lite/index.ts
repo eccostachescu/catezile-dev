@@ -10,8 +10,25 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const { id } = await req.json();
-    if (!id) return new Response(JSON.stringify({ error: 'Missing id' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    let id;
+    
+    // Handle both POST with JSON body and GET with query params
+    if (req.method === 'POST') {
+      const body = await req.json();
+      id = body.id;
+    } else if (req.method === 'GET') {
+      const url = new URL(req.url);
+      id = url.searchParams.get('id');
+    }
+    
+    if (!id) {
+      console.error('Missing id parameter');
+      return new Response(JSON.stringify({ error: 'Missing id parameter' }), { 
+        status: 400, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      });
+    }
+    
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
