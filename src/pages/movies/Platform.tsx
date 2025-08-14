@@ -59,7 +59,7 @@ export default function Platform() {
           ...mp.movie,
           next_date: {
             date: mp.available_from,
-            type: 'streaming',
+            type: 'streaming' as const,
             platform: platformName
           }
         })) || [];

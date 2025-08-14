@@ -74,7 +74,15 @@ export default function MoviesHome() {
       if (cinemaError) {
         console.error('Error fetching cinema movies:', cinemaError);
       } else {
-        setCinemaMovies(inCinema || []);
+        const moviesWithNextDate = (inCinema || []).map(movie => ({
+          ...movie,
+          next_date: movie.cinema_release_ro ? {
+            date: movie.cinema_release_ro,
+            type: 'released' as const,
+            platform: 'Cinema'
+          } : undefined
+        }));
+        setCinemaMovies(moviesWithNextDate);
       }
 
       // Fetch upcoming cinema movies (current + next month)
@@ -89,7 +97,15 @@ export default function MoviesHome() {
       if (upcomingError) {
         console.error('Error fetching upcoming movies:', upcomingError);
       } else {
-        setUpcomingMovies(upcoming || []);
+        const moviesWithNextDate = (upcoming || []).map(movie => ({
+          ...movie,
+          next_date: movie.cinema_release_ro ? {
+            date: movie.cinema_release_ro,
+            type: 'cinema' as const,
+            platform: 'Cinema'
+          } : undefined
+        }));
+        setUpcomingMovies(moviesWithNextDate);
       }
 
       // Fetch streaming movies from platforms
@@ -262,14 +278,7 @@ export default function MoviesHome() {
               {cinemaMovies.length > 0 && (
                 <MovieRail
                   title="În cinema acum"
-                  movies={cinemaMovies.map(movie => ({
-                    ...movie,
-                    next_date: {
-                      date: movie.cinema_release_ro!,
-                      type: 'released' as const,
-                      platform: 'Cinema'
-                    }
-                  }))}
+                  movies={cinemaMovies}
                 />
               )}
 
@@ -277,14 +286,7 @@ export default function MoviesHome() {
               {upcomingMovies.length > 8 && (
                 <MovieRail
                   title={`Toate premierele din ${new Date().toLocaleDateString('ro-RO', { month: 'long' })}`}
-                  movies={upcomingMovies.slice(8).map(movie => ({
-                    ...movie,
-                    next_date: movie.cinema_release_ro ? {
-                      date: movie.cinema_release_ro,
-                      type: 'cinema' as const,
-                      platform: 'Cinema'
-                    } : undefined
-                  }))}
+                  movies={upcomingMovies.slice(8)}
                 />
               )}
 
