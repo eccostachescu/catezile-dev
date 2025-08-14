@@ -49,7 +49,7 @@ export default function Platform() {
             .from('ott_platform')
             .select('id')
             .eq('slug', platform)
-            .single()
+            .maybeSingle()
           ).data?.id)
           .gte('available_from', new Date().toISOString().split('T')[0])
           .order('available_from', { ascending: true })

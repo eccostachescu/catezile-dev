@@ -88,7 +88,7 @@ export default function EventsHome() {
         .from('event_category')
         .select('id')
         .eq('slug', 'festival')
-        .single();
+        .maybeSingle();
 
       const { data: festivals } = festivalCategory ? await supabase
         .from('event')

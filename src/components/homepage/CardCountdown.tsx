@@ -17,9 +17,11 @@ interface CardCountdownProps {
   onReminderClick?: (id: string) => void;
 }
 
-// Real Countdown Component
+// Real Countdown Component with prominent display
 function RealCountdown({ targetDate, status }: { targetDate: string; status?: string }) {
-  const [timeLeft, setTimeLeft] = useState<string>("");
+  const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number, seconds: number, status: string}>({
+    days: 0, hours: 0, minutes: 0, seconds: 0, status: 'loading'
+  });
   const [isVisible, setIsVisible] = useState(false);
   const countdownRef = useRef<HTMLDivElement>(null);
 
@@ -46,8 +48,10 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
       const diff = target.getTime() - now.getTime();
 
       if (diff <= 0) {
-        if (status === "live") return "LIVE";
-        return "Trecut";
+        if (status === "live") {
+          return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "LIVE" };
+        }
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "Trecut" };
       }
 
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -55,8 +59,7 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      // Always show DD:HH:MM:SS format
-      return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      return { days, hours, minutes, seconds, status: "countdown" };
     };
 
     const updateTimer = () => {
@@ -68,18 +71,51 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
     return () => clearInterval(interval);
   }, [targetDate, status, isVisible]);
 
-  const getVariant = () => {
-    if (status === "live") return "live";
-    if (timeLeft === "Trecut") return "neutral";
-    if (timeLeft.includes("zile")) return "event";
-    return "sport";
-  };
+  const { days, hours, minutes, seconds, status: countdownStatus } = timeLeft;
 
   return (
-    <div ref={countdownRef}>
-      <Badge variant={getVariant()} className="text-sm font-bold px-3 py-1.5 bg-black/60 backdrop-blur-sm text-white border-none min-w-[120px] text-center">
-        {timeLeft || "..."}
-      </Badge>
+    <div ref={countdownRef} className="w-full">
+      {countdownStatus === "LIVE" && (
+        <div className="bg-red-600 text-white px-3 py-2 rounded-lg text-center font-bold">
+          <div className="flex items-center justify-center gap-1">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            LIVE
+          </div>
+        </div>
+      )}
+      
+      {countdownStatus === "Trecut" && (
+        <div className="bg-gray-500 text-white px-3 py-2 rounded-lg text-center font-bold">
+          Trecut
+        </div>
+      )}
+      
+      {countdownStatus === "countdown" && (
+        <div className="grid grid-cols-4 gap-1 text-center">
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(days).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Zile</div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(hours).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Ore</div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(minutes).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Min</div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(seconds).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Sec</div>
+          </div>
+        </div>
+      )}
+      
+      {countdownStatus === "loading" && (
+        <div className="bg-gray-300 animate-pulse rounded-lg py-4 text-center">
+          <div className="text-gray-500 text-sm">...</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -115,7 +151,7 @@ export default function CardCountdown({
               const lastTracked = sessionStorage.getItem(trackingKey);
               const now = Date.now();
               
-              if (!lastTracked || now - parseInt(lastTracked) > 10000) { // 10 second throttle
+              if (!lastTracked || now - parseInt(lastTracked) > 30000) { // 30 second throttle
                 try {
                   window.plausible('popular_card_impression', {
                     props: { 
@@ -178,15 +214,7 @@ export default function CardCountdown({
 
   const handleReminderClick = () => {
     onReminderClick?.(id);
-    if (typeof window !== 'undefined' && window.plausible) {
-      try {
-        window.plausible('reminder_click', {
-          props: { event_id: id, category: category || 'unknown' }
-        });
-      } catch (error) {
-        // Silently ignore analytics errors
-      }
-    }
+    // Remove analytics tracking to reduce rate limiting
   };
 
   return (
@@ -232,11 +260,6 @@ export default function CardCountdown({
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[--cz-overlay] to-transparent" />
         
-        {/* Real Countdown */}
-        <div className="absolute top-3 right-3">
-          <RealCountdown targetDate={startDate} status={status} />
-        </div>
-        
         {/* Rank Badge */}
         {rank && (
           <div className="absolute top-3 left-3">
@@ -247,8 +270,13 @@ export default function CardCountdown({
         )}
       </div>
 
+      {/* Hero Countdown Display */}
+      <div className="p-4">
+        <RealCountdown targetDate={startDate} status={status} />
+      </div>
+
       {/* Content */}
-      <div className="p-4 space-y-3 min-h-[128px]">
+      <div className="px-4 pb-4 space-y-3 min-h-[100px]">
         {/* Title */}
         <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={() => window.location.href = `/evenimente/${slug}`}>
           {title}

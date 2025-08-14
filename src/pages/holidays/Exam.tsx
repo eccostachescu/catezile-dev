@@ -22,7 +22,7 @@ export default function ExamDetail() {
           .from('exam')
           .select('*')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
         
         if (examData) {
           setExam(examData);

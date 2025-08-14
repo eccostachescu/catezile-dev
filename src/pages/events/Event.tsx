@@ -53,7 +53,7 @@ export default function EventDetail() {
         `)
         .eq('slug', eventSlug)
         .eq('status', 'PUBLISHED')
-        .single();
+        .maybeSingle();
 
       if (error || !eventData) {
         console.error('Event not found:', error);

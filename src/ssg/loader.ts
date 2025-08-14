@@ -266,7 +266,7 @@ export async function loadExam(slug: string) {
       .from('exam')
       .select('*')
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
     
     if (!exam) return null;
     
@@ -402,7 +402,7 @@ export async function loadMovie(slug: string) {
         )
       `)
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
 
     // Fallback to tmdb_id if no slug match
     if (!movie && /^\d+$/.test(slug)) {
@@ -417,7 +417,7 @@ export async function loadMovie(slug: string) {
           )
         `)
         .eq('tmdb_id', parseInt(slug))
-        .single();
+        .maybeSingle();
       movie = movieByTmdb;
     }
 

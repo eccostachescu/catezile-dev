@@ -71,7 +71,7 @@ export default function AdminEventEditor() {
       if (id) {
         await supabase.from('event').update(parsed.data as any).eq('id', id);
       } else {
-        const { data: ins } = await supabase.from('event').insert(parsed.data as any).select('id').single();
+        const { data: ins } = await supabase.from('event').insert(parsed.data as any).select('id').maybeSingle();
         if (ins?.id) navigate(`/admin/events/${ins.id}`, { replace: true });
       }
       alert('Salvat.');

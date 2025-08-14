@@ -70,7 +70,7 @@ export default function AdminDeploy() {
         .from('settings')
         .select('*')
         .eq('key', 'deployment')
-        .single();
+        .maybeSingle();
 
       if (settingsData?.value && typeof settingsData.value === 'object' && !Array.isArray(settingsData.value)) {
         const value = settingsData.value as Record<string, any>;
