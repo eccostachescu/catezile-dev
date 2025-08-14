@@ -63,13 +63,13 @@ serve(async (req) => {
       const { data: featuredEvents } = await supabase
         .from('event')
         .select(`
-          id, slug, title, starts_at, image_url, city, country, category_id,
+          id, slug, title, start_at, image_url, city, country, category_id,
           category:category_id(name, slug)
         `)
         .eq('featured', true)
         .eq('status', 'PUBLISHED')
-        .gte('starts_at', new Date().toISOString())
-        .order('starts_at', { ascending: true })
+        .gte('start_at', new Date().toISOString())
+        .order('start_at', { ascending: true })
         .limit(12 - finalEvents.length);
 
       if (featuredEvents && featuredEvents.length > 0) {
@@ -78,7 +78,7 @@ serve(async (req) => {
           id: event.id,
           slug: event.slug,
           title: event.title,
-          starts_at: event.starts_at,
+          starts_at: event.start_at,
           image_url: event.image_url,
           city: event.city,
           country: event.country,
@@ -86,8 +86,8 @@ serve(async (req) => {
           category_name: event.category?.name || null,
           category_slug: event.category?.slug || null,
           score: 0,
-          time_status: event.starts_at <= new Date().toISOString() ? 'PAST' :
-                      event.starts_at <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() ? 'UPCOMING' : 'FUTURE'
+          time_status: event.start_at <= new Date().toISOString() ? 'PAST' :
+                      event.start_at <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() ? 'UPCOMING' : 'FUTURE'
         }));
 
         // Merge and deduplicate

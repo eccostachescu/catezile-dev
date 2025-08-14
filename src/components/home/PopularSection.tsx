@@ -25,10 +25,17 @@ export default function PopularSection() {
     const fetchPopular = async () => {
       try {
         const response = await fetch('https://ibihfzhrsllndxhfwgvb.supabase.co/functions/v1/popular_countdowns?limit=8');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Popular countdowns data:', data);
         setEvents(data.events || []);
       } catch (error) {
         console.error('Failed to fetch popular countdowns:', error);
+        setEvents([]);
       } finally {
         setLoading(false);
       }
