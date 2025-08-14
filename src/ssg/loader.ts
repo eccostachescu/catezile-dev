@@ -91,7 +91,9 @@ export async function loadSportList(params?: { days?: number } | string) {
     const from = new Date();
     const to = new Date(from.getTime() + days * 24 * 60 * 60 * 1000);
     
-    const { data: matches } = await supabase
+    console.log('Loading sport matches from:', from.toISOString(), 'to:', to.toISOString());
+    
+    const { data: matches, error } = await supabase
       .from('match')
       .select(`
         id,
@@ -109,7 +111,18 @@ export async function loadSportList(params?: { days?: number } | string) {
       .lte('kickoff_at', to.toISOString())
       .order('kickoff_at');
 
+    console.log('Loaded matches:', matches?.length || 0, 'Error:', error);
+
+    if (error) {
+      console.error('Error loading matches:', error);
+      return {
+        days: [],
+        filters: { teams: [], tv: [] }
+      };
+    }
+
     if (!matches || matches.length === 0) {
+      console.log('No matches found in date range');
       return {
         days: [],
         filters: { teams: [], tv: [] }

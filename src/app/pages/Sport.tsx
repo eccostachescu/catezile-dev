@@ -11,6 +11,7 @@ import { filterMatch } from "@/components/sport/filter";
 
 export default function Sport() {
   const initial = getInitialData<{ days: any[]; filters: { teams: string[]; tv: string[] } }>();
+  console.log('Sport page: Initial data:', initial);
   const [data, setData] = useState(initial);
   const [loaded, setLoaded] = useState(!!initial);
 
@@ -24,10 +25,14 @@ export default function Sport() {
     async function run() {
       try {
         if (!initial) {
+          console.log('Sport page: Loading data...');
           const res = await loadSportList({ days: 14 });
+          console.log('Sport page: Loaded data:', res);
           if (!cancelled) setData(res as any);
         }
-      } catch {}
+      } catch (err) {
+        console.error('Sport page: Error loading data:', err);
+      }
       if (!cancelled) setLoaded(true);
     }
     if (!initial) run();
