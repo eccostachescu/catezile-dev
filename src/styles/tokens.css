@@ -2,21 +2,21 @@
 /* Light Mode Default + Dark Mode Toggle */
 
 :root {
-  /* Light Mode Colors (Default) */
-  --cz-bg: #F7F8FB;            /* smoky off-white */
-  --cz-surface: #FFFFFF;       /* card */
-  --cz-ink: #0B1220;           /* text principal */
-  --cz-ink-muted: #64748B;     /* slate-ish */
-  --cz-border: #E6E8EF;        /* linii subtile */
+  /* Light Mode Colors (Default) - More Vivid */
+  --cz-bg: #F9FAFD;            /* porcelain */
+  --cz-surface: #FFFFFF;       /* card alb curat */
+  --cz-ink: #0A1020;           /* text principal */
+  --cz-ink-muted: #6B7280;     /* slate */
+  --cz-border: #E8EBF3;        /* linii subtile */
   --cz-primary: #5B8CFF;       /* brand blue */
   --cz-primary-600: #4E79F2;
-  --cz-accent: #FFC857;        /* amber */
+  --cz-accent: #FFB703;        /* amber mai cald */
   --cz-success: #16A34A;
   --cz-danger: #DC2626;
   --cz-overlay: rgba(8,12,24,.55);
   
   /* Light Mode Gradients */
-  --cz-hero-grad: radial-gradient(1200px 400px at 50% -50%, rgba(91,140,255,.12), transparent);
+  --cz-hero-grad: radial-gradient(1100px 380px at 50% -40%, rgba(91,140,255,.14), transparent);
   --cz-chip-grad: linear-gradient(135deg, rgba(91,140,255,.12), rgba(255,200,87,.10));
   
   /* Light Mode Shadows */
