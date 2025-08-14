@@ -116,9 +116,9 @@ export async function loadSportList(params?: { days?: number } | string) {
       };
     }
 
-    // Group matches by date
+    // Group matches by date (using YYYY-MM-DD format)
     const groupedByDate = matches.reduce((acc: any, match: any) => {
-      const date = new Intl.DateTimeFormat('ro-RO', { timeZone: 'Europe/Bucharest' }).format(new Date(match.kickoff_at));
+      const date = new Date(match.kickoff_at).toISOString().split('T')[0]; // YYYY-MM-DD format
       if (!acc[date]) {
         acc[date] = [];
       }
