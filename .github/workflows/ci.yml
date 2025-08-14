@@ -24,4 +24,4 @@ jobs:
       - name: Playwright install
         run: npx playwright install --with-deps
       - name: Playwright tests
-        run: npx playwright test --config=.playwright.config.ts
+        run: npx playwright test
