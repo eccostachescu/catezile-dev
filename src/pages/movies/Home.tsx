@@ -45,6 +45,7 @@ export default function MoviesHome() {
   const loadMoviesData = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading movies data...');
       
       // Get current date for filtering
       const today = new Date();
@@ -74,6 +75,7 @@ export default function MoviesHome() {
       if (cinemaError) {
         console.error('Error fetching cinema movies:', cinemaError);
       } else {
+        console.log('Raw cinema movies:', inCinema);
         const moviesWithNextDate = (inCinema || []).map(movie => ({
           ...movie,
           next_date: movie.cinema_release_ro ? {
@@ -82,6 +84,7 @@ export default function MoviesHome() {
             platform: 'Cinema'
           } : undefined
         }));
+        console.log('Cinema movies with next_date:', moviesWithNextDate);
         setCinemaMovies(moviesWithNextDate);
       }
 
@@ -97,6 +100,7 @@ export default function MoviesHome() {
       if (upcomingError) {
         console.error('Error fetching upcoming movies:', upcomingError);
       } else {
+        console.log('Raw upcoming movies:', upcoming);
         const moviesWithNextDate = (upcoming || []).map(movie => ({
           ...movie,
           next_date: movie.cinema_release_ro ? {
@@ -105,6 +109,7 @@ export default function MoviesHome() {
             platform: 'Cinema'
           } : undefined
         }));
+        console.log('Upcoming movies with next_date:', moviesWithNextDate);
         setUpcomingMovies(moviesWithNextDate);
       }
 

@@ -14,6 +14,7 @@ import BFSlug from "./pages/BFSlug";
 import Sport from "./pages/Sport";
 import Match from "./pages/Match";
 import Movies from "./pages/Movies";
+import MoviesHome from "../pages/movies/Home";
 import MovieMonth from "../pages/movies/Month";
 import MoviePlatform from "../pages/movies/Platform";
 import MovieDetail from "../pages/movies/Movie";
@@ -92,7 +93,7 @@ const AppShell = () => {
                 <Route path="/liga-1/echipe" element={<Liga1TeamsPage />} />
                 <Route path="/liga-1/echipe/:slug" element={<Liga1TeamDetailPage />} />
                 <Route path="/superliga" element={<Navigate to="/liga-1" replace />} />
-                <Route path="/filme" element={<Movies />} />
+                <Route path="/filme" element={<MoviesHome />} />
                 <Route path="/filme/:year-:month" element={<MovieMonth />} />
                 <Route path="/filme/netflix" element={<MoviePlatform />} />
                 <Route path="/filme/prime" element={<MoviePlatform />} />
