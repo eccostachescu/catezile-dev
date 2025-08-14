@@ -2,27 +2,27 @@
 /* Light Mode Default + Dark Mode Toggle */
 
 :root {
-  /* Light Mode Colors (Default) - More Vivid */
-  --cz-bg: #F9FAFD;            /* porcelain */
-  --cz-surface: #FFFFFF;       /* card alb curat */
-  --cz-ink: #0A1020;           /* text principal */
-  --cz-ink-muted: #6B7280;     /* slate */
-  --cz-border: #E8EBF3;        /* linii subtile */
-  --cz-primary: #5B8CFF;       /* brand blue */
-  --cz-primary-600: #4E79F2;
-  --cz-accent: #FFB703;        /* amber mai cald */
-  --cz-success: #16A34A;
-  --cz-danger: #DC2626;
-  --cz-overlay: rgba(8,12,24,.55);
+  /* Light Mode Colors - Elegant & Vivid */
+  --cz-bg: 240 245 251;            /* elegant ice blue - hsl(240, 40%, 98%) */
+  --cz-surface: 0 0 100;           /* pure white - hsl(0, 0%, 100%) */
+  --cz-ink: 225 39 11;             /* deep navy - hsl(225, 39%, 11%) */
+  --cz-ink-muted: 215 16 47;       /* sophisticated gray - hsl(215, 16%, 47%) */
+  --cz-border: 220 35 91;          /* soft lavender border - hsl(220, 35%, 91%) */
+  --cz-primary: 235 85 64;         /* vibrant blue - hsl(235, 85%, 64%) */
+  --cz-primary-600: 235 85 58;     /* darker primary - hsl(235, 85%, 58%) */
+  --cz-accent: 45 93 58;           /* warm golden - hsl(45, 93%, 58%) */
+  --cz-success: 142 76 36;         /* fresh green - hsl(142, 76%, 36%) */
+  --cz-danger: 0 84 60;            /* clean red - hsl(0, 84%, 60%) */
+  --cz-overlay: 225 39 11 / 0.55;  /* overlay with alpha */
   
   /* Light Mode Gradients */
-  --cz-hero-grad: radial-gradient(1100px 380px at 50% -40%, rgba(91,140,255,.14), transparent);
-  --cz-chip-grad: linear-gradient(135deg, rgba(91,140,255,.12), rgba(255,200,87,.10));
+  --cz-hero-grad: radial-gradient(1200px 400px at 50% -50%, hsl(235 85 64 / 0.08), transparent);
+  --cz-chip-grad: linear-gradient(135deg, hsl(235 85 64 / 0.08), hsl(45 93 58 / 0.06));
   
   /* Light Mode Shadows */
-  --cz-shadow: 0 10px 30px rgba(16,24,40,.08);
-  --cz-shadow-hover: 0 12px 35px rgba(16,24,40,.12);
-  --cz-shadow-card: 0 4px 16px rgba(16,24,40,.06);
+  --cz-shadow: 0 8px 32px hsl(225 39 11 / 0.06);
+  --cz-shadow-hover: 0 12px 40px hsl(225 39 11 / 0.08);
+  --cz-shadow-card: 0 4px 20px hsl(225 39 11 / 0.04);
   
   /* Motion */
   --cz-ease-smooth: cubic-bezier(.2,.8,.2,1);
@@ -32,21 +32,21 @@
 
 /* Dark Mode (Toggle .dark on <html>) */
 .dark {
-  --cz-bg: #0D111A;
-  --cz-surface: #111624;
-  --cz-ink: #E8ECF8;
-  --cz-ink-muted: #A7B4CA;
-  --cz-border: #1E2636;
-  --cz-shadow: 0 12px 40px rgba(0,0,0,.35);
-  --cz-shadow-hover: 0 15px 45px rgba(0,0,0,.45);
-  --cz-shadow-card: 0 6px 20px rgba(0,0,0,.25);
-  --cz-hero-grad: linear-gradient(180deg, #0D111A 0%, #131829 45%, #0D111A 100%);
+  --cz-bg: 225 39 7;              /* deep dark blue - hsl(225, 39%, 7%) */
+  --cz-surface: 225 30 11;        /* elevated surface - hsl(225, 30%, 11%) */
+  --cz-ink: 220 35 91;            /* light text - hsl(220, 35%, 91%) */
+  --cz-ink-muted: 215 16 67;      /* muted text - hsl(215, 16%, 67%) */
+  --cz-border: 225 30 15;         /* subtle border - hsl(225, 30%, 15%) */
+  --cz-shadow: 0 12px 40px hsl(0 0 0 / 0.4);
+  --cz-shadow-hover: 0 15px 50px hsl(0 0 0 / 0.5);
+  --cz-shadow-card: 0 6px 24px hsl(0 0 0 / 0.3);
+  --cz-hero-grad: linear-gradient(180deg, hsl(225 39 7) 0%, hsl(225 30 9) 45%, hsl(225 39 7) 100%);
 }
 
 /* Base styles */
 body {
-  background-color: var(--cz-bg);
-  color: var(--cz-ink);
+  background-color: hsl(var(--cz-bg));
+  color: hsl(var(--cz-ink));
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -67,7 +67,7 @@ body {
 .text-subtitle {
   font-size: 18px;
   line-height: 1.4;
-  color: var(--cz-ink-muted);
+  color: hsl(var(--cz-ink-muted));
 }
 
 @media (min-width: 768px) {
