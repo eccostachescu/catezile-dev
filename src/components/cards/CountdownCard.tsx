@@ -127,7 +127,7 @@ export default function CountdownCard({
       className
     )}>
       <Link 
-        to={`/countdown/${slug}`}
+        to={`/evenimente/${slug}`}
         onClick={handleCardClick}
         className="block"
       >
