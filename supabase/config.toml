@@ -133,3 +133,9 @@ verify_jwt = false
 [functions.healthcheck]
 verify_jwt = false
 
+[functions.popular_countdowns]
+verify_jwt = false
+
+[functions.popular_refresh]
+verify_jwt = false
+
