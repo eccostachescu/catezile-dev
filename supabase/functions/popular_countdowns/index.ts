@@ -113,8 +113,6 @@ serve(async (req) => {
       .select('*')
       .gte('cinema_release_ro', today)
       .lte('cinema_release_ro', futureDate)
-      .not('poster_url', 'is', null)
-      .neq('poster_url', '')
       .order('cinema_release_ro', { ascending: true })
       .limit(8);
 
