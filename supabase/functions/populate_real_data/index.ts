@@ -47,10 +47,25 @@ serve(async (req) => {
       if (fixturesError) throw fixturesError;
       console.log('✅ import_liga1_fixtures completed:', fixturesResult);
     } catch (error) {
-      console.error('❌ Error importing fixtures:', error);
+      console.error('❌ Error importing Liga 1 fixtures:', error);
     }
 
-    // Step 4: Import Romanian TV schedule
+    // Step 4: Import multi-league sports data
+    console.log('⚽ Importing international sports leagues...');
+    try {
+      const { data: multiLeagueResult, error: multiLeagueError } = await supabase.functions.invoke('import_multi_leagues', {
+        body: { 
+          league_codes: ['PL', 'PD', 'SA', 'BL1', 'FL1', 'CL'], // Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League
+          season: 2025 
+        }
+      });
+      if (multiLeagueError) throw multiLeagueError;
+      console.log('✅ import_multi_leagues completed:', multiLeagueResult);
+    } catch (error) {
+      console.error('❌ Error importing multi-league data:', error);
+    }
+
+    // Step 5: Import Romanian TV schedule
     console.log('📺 Importing Romanian TV shows...');
     try {
       const { data: tvResult, error: tvError } = await supabase.functions.invoke('import_ro_tv_schedule');
@@ -60,7 +75,7 @@ serve(async (req) => {
       console.error('❌ Error importing TV shows:', error);
     }
 
-    // Step 5: Refresh search index
+    // Step 6: Refresh search index
     console.log('📋 Refreshing search index...');
     try {
       const { data: searchResult, error: searchError } = await supabase.functions.invoke('search_index_refresh');
@@ -70,7 +85,7 @@ serve(async (req) => {
       console.error('❌ Error refreshing search:', error);
     }
 
-    // Step 6: Check final counts
+    // Step 7: Check final counts
     console.log('📊 Checking final counts...');
     const [moviesCount, matchesCount, holidayCount, eventsCount] = await Promise.all([
       supabase.from('movie').select('id', { count: 'exact', head: true }),
