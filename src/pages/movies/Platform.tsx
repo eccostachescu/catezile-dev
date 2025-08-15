@@ -6,11 +6,14 @@ import { MovieHeader } from "@/components/movies/MovieHeader";
 import { MovieAdRail } from "@/components/movies/MovieAdRail";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 export default function Platform() {
   const { platform } = useParams();
   const [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   const platformNames: Record<string, string> = {
     netflix: "Netflix",
@@ -25,23 +28,39 @@ export default function Platform() {
 
   const platformName = platformNames[platform || ""] || (platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Unknown Platform");
 
-  useEffect(() => {
-    async function loadPlatformMovies() {
-      if (!platform) return;
-      
-      try {
-        // For now, show all movies since streaming platform data is not yet populated
-        // TODO: Filter by actual platform data when streaming_ro is populated
-        const { data, error } = await supabase
+  async function loadPlatformMovies() {
+    if (!platform) return;
+    
+    try {
+      // First try to get movies that have streaming data for this platform
+      const { data, error } = await supabase
+        .from('movie')
+        .select('*')
+        .not('streaming_ro', 'is', null)
+        .order('popularity', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      // Filter movies that have the platform in their streaming_ro JSON
+      const platformMovies = (data || []).filter(movie => {
+        if (!movie.streaming_ro) return false;
+        const streamingData = typeof movie.streaming_ro === 'string' 
+          ? JSON.parse(movie.streaming_ro) 
+          : movie.streaming_ro;
+        return streamingData && streamingData[platform];
+      });
+
+      // If no platform-specific movies found, show some popular movies
+      if (platformMovies.length === 0) {
+        const { data: allMovies } = await supabase
           .from('movie')
           .select('*')
           .order('popularity', { ascending: false })
-          .limit(50);
-
-        if (error) throw error;
-
-        // Format movies with next_date for compatibility
-        const formattedMovies = (data || []).map(movie => ({
+          .limit(20);
+        
+        // Format all movies for display
+        const formattedMovies = (allMovies || []).map(movie => ({
           ...movie,
           next_date: movie.cinema_release_ro ? {
             date: movie.cinema_release_ro,
@@ -49,15 +68,61 @@ export default function Platform() {
             platform: 'Cinema'
           } : null
         }));
-
+        
         setMovies(formattedMovies);
-      } catch (error) {
-        console.error('Error loading platform movies:', error);
-      } finally {
-        setLoading(false);
+      } else {
+        // Format platform movies with streaming dates
+        const formattedMovies = platformMovies.map(movie => {
+          const streamingData = typeof movie.streaming_ro === 'string' 
+            ? JSON.parse(movie.streaming_ro) 
+            : movie.streaming_ro;
+          
+          return {
+            ...movie,
+            next_date: streamingData[platform] ? {
+              date: streamingData[platform],
+              type: 'streaming' as const,
+              platform: platformName
+            } : movie.cinema_release_ro ? {
+              date: movie.cinema_release_ro,
+              type: 'cinema' as const,
+              platform: 'Cinema'
+            } : null
+          };
+        });
+        
+        setMovies(formattedMovies);
       }
+    } catch (error) {
+      console.error('Error loading platform movies:', error);
+    } finally {
+      setLoading(false);
     }
+  }
 
+  async function syncFromTMDB() {
+    if (!platform || syncing) return;
+    
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-platform-movies', {
+        body: { platform, limit: 20 }
+      });
+
+      if (error) throw error;
+      
+      console.log('Sync result:', data);
+      
+      // Reload movies after sync
+      await loadPlatformMovies();
+    } catch (error) {
+      console.error('Error syncing from TMDB:', error);
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  useEffect(() => {
     loadPlatformMovies();
   }, [platform]);
 
@@ -73,10 +138,23 @@ export default function Platform() {
       />
       
       <Container className="py-8">
-        <MovieHeader
-          title={`Filme pe ${platformName}`}
-          subtitle={`Următoarele filme care vor apărea pe ${platformName} în România`}
-        />
+        <div className="flex items-center justify-between mb-6">
+          <MovieHeader
+            title={`Filme pe ${platformName}`}
+            subtitle={`Următoarele filme care vor apărea pe ${platformName} în România`}
+          />
+          
+          <Button 
+            onClick={syncFromTMDB}
+            disabled={syncing}
+            variant="outline"
+            size="sm"
+            className="ml-4"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Sincronizare...' : 'Actualizează din TMDB'}
+          </Button>
+        </div>
 
         <div className="grid lg:grid-cols-4 gap-6 mt-8">
           <div className="lg:col-span-3">
@@ -94,9 +172,17 @@ export default function Platform() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mb-4">
                   Nu am găsit filme programate pe {platformName} în perioada următoare.
                 </p>
+                <Button 
+                  onClick={syncFromTMDB}
+                  disabled={syncing}
+                  variant="default"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                  {syncing ? 'Sincronizare...' : 'Importă din TMDB'}
+                </Button>
               </div>
             )}
           </div>
