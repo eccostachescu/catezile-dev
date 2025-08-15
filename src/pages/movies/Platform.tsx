@@ -23,43 +23,25 @@ export default function Platform() {
     "apple-tv": "Apple TV+"
   };
 
-  const platformName = platformNames[platform || ""] || "undefined";
+  const platformName = platformNames[platform || ""] || (platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Unknown Platform");
 
   useEffect(() => {
     async function loadPlatformMovies() {
       if (!platform) return;
       
       try {
-        // Query movies that have the platform in their streaming_ro data
+        // For now, show all movies since streaming platform data is not yet populated
+        // TODO: Filter by actual platform data when streaming_ro is populated
         const { data, error } = await supabase
           .from('movie')
           .select('*')
-          .not('streaming_ro', 'is', null)
           .order('popularity', { ascending: false })
           .limit(50);
 
         if (error) throw error;
 
-        // Filter movies that have the specific platform based on the platform mapping
-        const platformMapping: Record<string, string> = {
-          netflix: "Netflix",
-          prime: "Prime Video",
-          "prime-video": "Prime Video",
-          max: "HBO Max",
-          "hbo-max": "HBO Max",
-          disney: "Disney+",
-          "disney-plus": "Disney+",
-          "apple-tv": "Apple TV+"
-        };
-
-        const platformField = platformMapping[platform] || platform;
-        
-        const platformMovies = (data || []).filter((movie: any) => {
-          return movie.streaming_ro && movie.streaming_ro[platformField];
-        });
-
         // Format movies with next_date for compatibility
-        const formattedMovies = platformMovies.map(movie => ({
+        const formattedMovies = (data || []).map(movie => ({
           ...movie,
           next_date: movie.cinema_release_ro ? {
             date: movie.cinema_release_ro,
