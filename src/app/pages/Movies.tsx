@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MovieCard from "@/components/cards/MovieCard";
+import { MovieCardEnhanced } from "@/components/movies/MovieCardEnhanced";
 import MovieStrip from "@/components/movies/MovieStrip";
 import { GridSkeleton } from "@/components/movies/Skeletons";
 import { routes } from "@/lib/routes";
@@ -38,7 +39,7 @@ export default function Movies() {
     async function load() {
       setLoading(true);
       try {
-        let q = supabase.from('movie').select('id, title, poster_url, cinema_release_ro, netflix_date, prime_date, status, genres, provider').order('cinema_release_ro', { ascending: true }).limit(48);
+        let q = supabase.from('movie').select('id, title, poster_url, cinema_release_ro, netflix_date, prime_date, status, genres, provider, streaming_ro').order('cinema_release_ro', { ascending: true }).limit(48);
         if (status) q = q.eq('status', status);
         if (genre) q = q.contains('genres', [genre]);
         if (year) q = q.gte('cinema_release_ro', `${year}-01-01`).lte('cinema_release_ro', `${year}-12-31`);
@@ -131,9 +132,18 @@ export default function Movies() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {items.map((m) => (
-                <Link to={routes.movie(m.id)} key={m.id} className="block">
-                  <MovieCard title={m.title} posterUrl={m.poster_url || undefined} inCinemasAt={m.cinema_release_ro || undefined} onNetflixAt={m.netflix_date || undefined} onPrimeAt={(m as any).prime_date || undefined} />
-                </Link>
+                <MovieCardEnhanced 
+                  key={m.id}
+                  movie={{
+                    id: m.id,
+                    title: m.title,
+                    poster_url: m.poster_url,
+                    cinema_release_ro: m.cinema_release_ro,
+                    streaming_ro: m.streaming_ro,
+                    genres: m.genres,
+                    status: m.status
+                  }}
+                />
               ))}
             </div>
           )}

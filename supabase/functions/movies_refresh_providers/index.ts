@@ -70,7 +70,16 @@ serve(async (req) => {
         // Extract flatrate (subscription) providers
         if (ro?.flatrate) {
           for (const provider of ro.flatrate) {
-            streaming[provider.provider_name] = null; // Will be populated with actual dates later
+            const providerName = provider.provider_name;
+            
+            // Map specific providers we care about
+            if (providerName === 'Netflix') {
+              streaming['Netflix'] = null;
+            } else if (providerName === 'Amazon Prime Video') {
+              streaming['Prime Video'] = null;
+            } else if (providerName === 'HBO Max') {
+              streaming['HBO Max'] = null;
+            }
           }
         }
 
