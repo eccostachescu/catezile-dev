@@ -28,7 +28,6 @@ serve(async (req) => {
     const offset = parseInt(requestData.offset || url.searchParams.get('offset') || '0');
     const category = requestData.category || url.searchParams.get('category');
     const timeStatus = requestData.time_status || url.searchParams.get('time_status');
-    const onlyWithImage = requestData.onlyWithImage || url.searchParams.get('onlyWithImage') === 'true';
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -36,7 +35,7 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    console.log(`Fetching popular countdowns - limit: ${limit}, offset: ${offset}, category: ${category}, timeStatus: ${timeStatus}, onlyWithImage: ${onlyWithImage}`);
+    console.log(`Fetching popular countdowns with real images only - limit: ${limit}, offset: ${offset}, category: ${category}, timeStatus: ${timeStatus}`);
 
     // Build query
     let query = supabase
@@ -55,10 +54,11 @@ serve(async (req) => {
       query = query.eq('time_status', timeStatus);
     }
 
-    // Filter only events with images if requested
-    if (onlyWithImage) {
-      query = query.not('image_url', 'is', null).neq('image_url', '');
-    }
+    // Always filter only events with real images (not auto-generated)
+    // Include events with image_credit indicating real sources
+    query = query.not('image_url', 'is', null)
+      .neq('image_url', '')
+      .or('image_credit.eq.TMDB,image_credit.eq.TVMaze,image_credit.eq.Manual,image_credit.eq.Admin,image_credit.eq.Upload');
 
     // Add pagination and ordering
     const { data: popularEvents, error } = await query
@@ -76,17 +76,19 @@ serve(async (req) => {
 
     let finalEvents = popularEvents || [];
 
-    // If we don't have enough popular countdowns, mix in different types of content
+    // If we don't have enough popular countdowns with real images, mix in other content with real images
     if (finalEvents.length < limit) {
-      console.log('Mixing in additional content sources');
+      console.log('Mixing in additional content sources with real images only');
 
-      // 1. First try user-created countdowns (approved)
+      // 1. First try user-created countdowns (approved) - only with real images
       const { data: userCountdowns } = await supabase
         .from('countdown')
         .select('*')
         .eq('status', 'APPROVED')
         .eq('privacy', 'PUBLIC')
         .gte('target_at', new Date().toISOString())
+        .not('image_url', 'is', null)
+        .neq('image_url', '')
         .order('created_at', { ascending: false })
         .limit(3);
 
@@ -110,7 +112,7 @@ serve(async (req) => {
         finalEvents = [...finalEvents, ...transformedCountdowns];
       }
 
-      // 2. Then add upcoming matches with TV coverage
+      // 2. Then add upcoming matches with TV coverage - only with real images
       const { data: liveMatches } = await supabase
         .from('match')
         .select('*')
@@ -118,6 +120,8 @@ serve(async (req) => {
         .lt('kickoff_at', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
         .not('tv_channels', 'is', null)
         .neq('tv_channels', '{}')
+        .not('image_url', 'is', null)
+        .neq('image_url', '')
         .order('kickoff_at', { ascending: true })
         .limit(3);
 
@@ -141,12 +145,14 @@ serve(async (req) => {
         finalEvents = [...finalEvents, ...transformedMatches];
       }
 
-      // 3. Add upcoming movies in cinema
+      // 3. Add upcoming movies in cinema - only with real TMDB images
       const { data: upcomingMovies } = await supabase
         .from('movie')
         .select('*')
         .gte('cinema_release_ro', new Date().toISOString().split('T')[0])
         .lt('cinema_release_ro', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .not('poster_url', 'is', null)
+        .neq('poster_url', '')
         .order('cinema_release_ro', { ascending: true })
         .limit(2);
 
@@ -177,12 +183,15 @@ serve(async (req) => {
         let featuredQuery = supabase
           .from('event')
           .select(`
-            id, slug, title, start_at, image_url, city, country, category_id,
+            id, slug, title, start_at, image_url, image_credit, city, country, category_id,
             category:category_id(name, slug)
           `)
           .eq('featured', true)
           .eq('status', 'PUBLISHED')
-          .gte('start_at', new Date().toISOString());
+          .gte('start_at', new Date().toISOString())
+          .not('image_url', 'is', null)
+          .neq('image_url', '')
+          .or('image_credit.eq.TMDB,image_credit.eq.TVMaze,image_credit.eq.Manual,image_credit.eq.Admin,image_credit.eq.Upload');
 
         const { data: featuredEvents } = await featuredQuery
           .order('start_at', { ascending: true })
