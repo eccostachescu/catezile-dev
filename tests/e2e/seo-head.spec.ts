@@ -12,6 +12,7 @@ async function ogContent(page, prop) {
 test.describe('SEO Head tags', () => {
   test('Event page has title, canonical, og:image and robots index', async ({ page }) => {
     await page.goto('/evenimente/untold');
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('head title')).toBeVisible();
     await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute('href', /\/evenimente\//);
     await expect(page.locator('head meta[property="og:image"]')).toBeVisible();
@@ -21,6 +22,7 @@ test.describe('SEO Head tags', () => {
 
   test('Embed page is noindex', async ({ page }) => {
     await page.goto('/embed/abc');
+    await page.waitForLoadState('networkidle');
     const robots = await metaContent(page, 'robots');
     expect(robots).toBe('noindex,nofollow');
   });

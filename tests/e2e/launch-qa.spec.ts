@@ -78,7 +78,7 @@ test.describe('Launch QA - Critical User Flows', () => {
       await page.goto('/filme');
       
       // Movies grid loads
-      await expect(page.locator('[data-testid="movie-card"]')).toHaveCount({ min: 1 });
+      await expect(await page.locator('[data-testid="movie-card"]').count()).toBeGreaterThan(0);
       
       // Movie details page
       const movieCard = page.locator('[data-testid="movie-card"]').first();
@@ -100,14 +100,14 @@ test.describe('Launch QA - Critical User Flows', () => {
       
       // Monthly movies page
       await page.goto('/filme/2024-12');
-      await expect(page.locator('[data-testid="movie-card"]')).toHaveCount({ min: 1 });
+      await expect(await page.locator('[data-testid="movie-card"]').count()).toBeGreaterThan(0);
     });
 
     test('Holidays & School Calendar', async ({ page }) => {
       await page.goto('/sarbatori');
       
       // Current year holidays
-      await expect(page.locator('[data-testid="holiday-card"]')).toHaveCount({ min: 1 });
+      await expect(await page.locator('[data-testid="holiday-card"]').count()).toBeGreaterThan(0);
       
       // Weekend badges
       const weekendBadge = page.locator('[data-testid="weekend-badge"]');
@@ -120,7 +120,7 @@ test.describe('Launch QA - Critical User Flows', () => {
       if (await bridgesCalc.isVisible()) {
         await bridgesCalc.click();
         // Should show at least 3 recommendations
-        await expect(page.locator('[data-testid="bridge-recommendation"]')).toHaveCount({ min: 3 });
+        await expect(await page.locator('[data-testid="bridge-recommendation"]').count()).toBeGreaterThanOrEqual(3);
       }
     });
 
@@ -128,7 +128,7 @@ test.describe('Launch QA - Critical User Flows', () => {
       await page.goto('/evenimente');
       
       // Events list
-      await expect(page.locator('[data-testid="event-card"]')).toHaveCount({ min: 1 });
+      await expect(await page.locator('[data-testid="event-card"]').count()).toBeGreaterThan(0);
       
       // Event details
       const eventCard = page.locator('[data-testid="event-card"]').first();
@@ -151,19 +151,21 @@ test.describe('Launch QA - Critical User Flows', () => {
       
       // Search input
       const searchInput = page.locator('[data-testid="search-input"]');
+      await searchInput.waitFor({ state: 'visible' });
       await searchInput.fill('liga');
       
       // Suggestions should appear
-      await expect(page.locator('[data-testid="search-suggestion"]')).toHaveCount({ min: 1 });
+      await page.waitForSelector('[data-testid="search-suggestion"]', { timeout: 5000 });
+      await expect(await page.locator('[data-testid="search-suggestion"]').count()).toBeGreaterThan(0);
       
       // Test diacritics insensitive
       await searchInput.clear();
       await searchInput.fill('școală');
-      await expect(page.locator('[data-testid="search-suggestion"]')).toHaveCount({ min: 1 });
+      await expect(await page.locator('[data-testid="search-suggestion"]').count()).toBeGreaterThan(0);
       
       // Search results page
       await page.goto('/cauta?q=liga');
-      await expect(page.locator('[data-testid="search-result"]')).toHaveCount({ min: 1 });
+      await expect(await page.locator('[data-testid="search-result"]').count()).toBeGreaterThan(0);
     });
 
     test('Monetization & Affiliate Links', async ({ page }) => {
@@ -196,7 +198,7 @@ test.describe('Launch QA - Critical User Flows', () => {
       
       // JSON-LD structured data
       const jsonLd = page.locator('script[type="application/ld+json"]');
-      await expect(jsonLd).toHaveCount({ min: 1 });
+      await expect(await jsonLd.count()).toBeGreaterThan(0);
       
       // OG tags
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /.+/);
