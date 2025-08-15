@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Calendar, Clock, Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/cz-badge';
 import { formatRoDate } from '@/lib/date';
+import { getEventImageSmart } from '@/lib/images';
 
 interface CardCountdownProps {
   id: string;
@@ -135,6 +136,14 @@ export default function CardCountdown({
   const cardRef = useRef<HTMLDivElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [smartImage, setSmartImage] = useState<string | null>(imageUrl || null);
+
+  // Obține imagini smart dacă nu avem una
+  useEffect(() => {
+    if (!imageUrl && title && category) {
+      getEventImageSmart({ title, category }).then(setSmartImage);
+    }
+  }, [title, category, imageUrl]);
 
   // Track impression when card becomes visible (throttled)
   useEffect(() => {
@@ -233,9 +242,9 @@ export default function CardCountdown({
     >
       {/* Image Container */}
       <div className="aspect-video relative overflow-hidden">
-        {imageUrl && !imageError ? (
+        {(smartImage || imageUrl) && !imageError ? (
           <img
-            src={imageUrl}
+            src={smartImage || imageUrl}
             alt={`${title} - ${category || 'Eveniment'}`}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"

@@ -4,16 +4,16 @@ interface EventImageOptions {
   force?: boolean;
 }
 
-// Default images pentru fiecare categorie
+// Default images pentru fiecare categorie - folosim Unsplash temporar
 const DEFAULT_IMAGES = {
-  'Conferințe': '/images/defaults/conference.jpg',
-  'Sport': '/images/defaults/sports.jpg',
-  'Teatru': '/images/defaults/theater.jpg',
-  'Concerte': '/images/defaults/concert.jpg',
-  'Festival': '/images/defaults/festival.jpg',
-  'Sărbători': '/images/defaults/holidays.jpg',
-  'Guvern': '/images/defaults/government.jpg',
-  'Black Friday': '/images/defaults/shopping.jpg'
+  'Conferințe': 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&h=600&fit=crop',
+  'Sport': 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop',
+  'Teatru': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop',
+  'Concerte': 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+  'Festival': 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&h=600&fit=crop',
+  'Sărbători': 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop',
+  'Guvern': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a08b?w=800&h=600&fit=crop',
+  'Black Friday': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop'
 } as const;
 
 // Cache pentru imagini ca să nu repetăm request-uri
@@ -54,15 +54,18 @@ async function getUnsplashImage(title: string, category?: string): Promise<strin
     const keywords = generateKeywords(title, category);
     const cacheKey = `unsplash:${keywords}`;
     
+    console.log(`Searching for image: "${keywords}" for event: "${title}"`);
+    
     // Check cache primul
     if (imageCache.has(cacheKey)) {
+      console.log(`Found cached image for: ${keywords}`);
       return imageCache.get(cacheKey)!;
     }
     
-    const response = await fetch(`/api/unsplash-image?query=${encodeURIComponent(keywords)}`);
+    const response = await fetch(`${window.location.origin}/functions/v1/unsplash-image?query=${encodeURIComponent(keywords)}`);
     
     if (!response.ok) {
-      console.warn('Unsplash API failed:', response.status);
+      console.warn('Unsplash API failed:', response.status, response.statusText);
       return null;
     }
     
@@ -70,10 +73,12 @@ async function getUnsplashImage(title: string, category?: string): Promise<strin
     const imageUrl = data.imageUrl;
     
     if (imageUrl) {
+      console.log(`Got image from Unsplash: ${imageUrl}`);
       imageCache.set(cacheKey, imageUrl);
       return imageUrl;
     }
     
+    console.log(`No image found for: ${keywords}`);
     return null;
   } catch (error) {
     console.warn('Error fetching image from Unsplash:', error);
@@ -95,8 +100,11 @@ function isGenericImage(url: string): boolean {
 export async function getEventImageSmart({ title, category, force = false }: EventImageOptions): Promise<string> {
   const cacheKey = `event:${title}:${category}`;
   
+  console.log(`Getting smart image for: "${title}" (${category})`);
+  
   // Check cache dacă nu forțam refresh
   if (!force && imageCache.has(cacheKey)) {
+    console.log(`Using cached image for: ${title}`);
     return imageCache.get(cacheKey)!;
   }
   
@@ -105,6 +113,7 @@ export async function getEventImageSmart({ title, category, force = false }: Eve
     const unsplashImage = await getUnsplashImage(title, category);
     
     if (unsplashImage && !isGenericImage(unsplashImage)) {
+      console.log(`Using Unsplash image for: ${title}`);
       imageCache.set(cacheKey, unsplashImage);
       return unsplashImage;
     }
@@ -114,6 +123,7 @@ export async function getEventImageSmart({ title, category, force = false }: Eve
   
   // 2. Fallback la imagine default
   const defaultImage = getDefaultCategoryImage(category);
+  console.log(`Using default image for: ${title} -> ${defaultImage}`);
   imageCache.set(cacheKey, defaultImage);
   return defaultImage;
 }
