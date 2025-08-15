@@ -34,25 +34,33 @@ function resolveElement(pathname: string) {
   return <Home />;
 }
 
-function buildInitialData(pathname: string) {
-  if (pathname === '/') return { kind: 'home' } as any;
-  if (pathname === '/black-friday') return { kind: 'black-friday' } as any;
-  if (pathname === '/filme') return { kind: 'movies' } as any;
+interface RenderData {
+  kind: string;
+  slug?: string;
+  id?: string;
+  year?: number;
+  [key: string]: unknown;
+}
+
+function buildInitialData(pathname: string): RenderData {
+  if (pathname === '/') return { kind: 'home' };
+  if (pathname === '/black-friday') return { kind: 'black-friday' };
+  if (pathname === '/filme') return { kind: 'movies' };
   const m1 = pathname.match(/^\/evenimente\/(.+)$/);
-  if (m1) return { kind: 'event', slug: m1[1] } as any;
+  if (m1) return { kind: 'event', slug: m1[1] };
   const m2 = pathname.match(/^\/sport\/(.+)$/);
-  if (m2) return { kind: 'match', id: m2[1] } as any;
+  if (m2) return { kind: 'match', id: m2[1] };
   const m3 = pathname.match(/^\/filme\/(.+)$/);
-  if (m3) return { kind: 'movie', id: m3[1] } as any;
+  if (m3) return { kind: 'movie', id: m3[1] };
   const m4y = pathname.match(/^\/categorii\/([^/]+)\/(\d{4})$/);
-  if (m4y) return { kind: 'category', slug: m4y[1], year: Number(m4y[2]) } as any;
+  if (m4y) return { kind: 'category', slug: m4y[1], year: Number(m4y[2]) };
   const m4 = pathname.match(/^\/categorii\/([^/]+)$/);
-  if (m4) return { kind: 'category', slug: m4[1] } as any;
+  if (m4) return { kind: 'category', slug: m4[1] };
   const m5 = pathname.match(/^\/c\/(.+)$/);
-  if (m5) return { kind: 'countdown', id: m5[1] } as any;
+  if (m5) return { kind: 'countdown', id: m5[1] };
   const m6 = pathname.match(/^\/embed\/(.+)$/);
-  if (m6) return { kind: 'embed', id: m6[1] } as any;
-  return { kind: 'generic' } as any;
+  if (m6) return { kind: 'embed', id: m6[1] };
+  return { kind: 'generic' };
 }
 
 export async function prerender({ url }: { url: string }) {

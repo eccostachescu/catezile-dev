@@ -16,7 +16,7 @@ function iso(dt?: string | Date | null) {
 
 async function gzipText(text: string): Promise<Response> {
   // Use CompressionStream for gzip
-  // @ts-ignore: Deno has CompressionStream
+  // @ts-expect-error: Deno has CompressionStream
   const cs = new CompressionStream('gzip');
   const writer = cs.writable.getWriter();
   await writer.write(new TextEncoder().encode(text));
