@@ -39,9 +39,9 @@ export function TvNow({ liveMatches = [], upcomingPrograms = [], onTvClick, clas
   };
 
   return (
-    <div className={cn("grid md:grid-cols-2 gap-6", className)}>
-      {/* Live Now */}
-      <Card className="p-6">
+    <div className={cn("flex justify-center", className)}>
+      {/* Live Now - Centered */}
+      <Card className="p-6 max-w-md w-full">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -80,69 +80,6 @@ export function TvNow({ liveMatches = [], upcomingPrograms = [], onTvClick, clas
           <div className="text-center py-8 text-cz-muted">
             <Tv className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Nu sunt meciuri live acum</p>
-          </div>
-        )}
-      </Card>
-
-      {/* Upcoming */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-cz-muted" />
-            <h3 className="font-heading font-semibold text-cz-foreground">
-              În următoarele 3 ore
-            </h3>
-          </div>
-          <Link to="/tv" onClick={onTvClick}>
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<ExternalLink className="h-3 w-3" />}
-              iconPosition="trailing"
-            >
-              Vezi tot
-            </Button>
-          </Link>
-        </div>
-
-        {upcomingPrograms.length > 0 ? (
-          <div className="space-y-3">
-            {upcomingPrograms.slice(0, 6).map((program) => (
-              <div key={program.id} className="flex items-center gap-3">
-                {/* Channel Logo */}
-                <div className="flex-shrink-0 w-8 h-8 rounded bg-cz-surface border border-cz-border flex items-center justify-center">
-                  {program.channelLogo ? (
-                    <img 
-                      src={program.channelLogo} 
-                      alt={program.channel}
-                      className="w-6 h-6 object-contain filter grayscale"
-                    />
-                  ) : (
-                    <Tv className="h-4 w-4 text-cz-muted" />
-                  )}
-                </div>
-
-                {/* Program Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-cz-foreground text-sm truncate">
-                    {program.title}
-                  </div>
-                  <div className="text-xs text-cz-muted">
-                    {program.channel}
-                  </div>
-                </div>
-
-                {/* Time */}
-                <div className="flex-shrink-0 text-xs text-cz-muted font-mono">
-                  {formatTime(program.time)}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-cz-muted">
-            <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Nu sunt programe programate</p>
           </div>
         )}
       </Card>
