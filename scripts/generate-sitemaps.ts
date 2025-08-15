@@ -121,6 +121,48 @@ async function buildCountdowns(): Promise<{ section: string; items: { loc: strin
   return { section: 'countdowns', items };
 }
 
+async function buildTVShows(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
+  const now = new Date();
+  const items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] = [
+    { loc: `${SITE_URL}/tv/emisiuni`, changefreq: 'daily', priority: 0.8 }
+  ];
+  
+  // Add upcoming episodes pages
+  const { data: episodes } = await supabase
+    .from('v_tv_episodes_upcoming')
+    .select('*')
+    .limit(1000);
+  
+  (episodes || []).forEach((ep: any) => {
+    if (ep.slug && ep.season && ep.number) {
+      const url = `${SITE_URL}/tv/${ep.slug}/s${ep.season}e${ep.number}`;
+      items.push({ 
+        loc: url, 
+        lastmod: isoRo(ep.airstamp), 
+        changefreq: 'weekly', 
+        priority: 0.6 
+      });
+    }
+  });
+  
+  // Add show detail pages
+  const { data: shows } = await supabase
+    .from('show_mapping')
+    .select('slug, verified')
+    .not('slug', 'is', null)
+    .eq('verified', true);
+    
+  (shows || []).forEach((show: any) => {
+    items.push({ 
+      loc: `${SITE_URL}/tv/${show.slug}`, 
+      changefreq: 'weekly', 
+      priority: 0.7 
+    });
+  });
+  
+  return { section: 'tv-shows', items };
+}
+
 async function buildDiscovery(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
   const items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] = [];
   const { data: tags } = await supabase.from('tag').select('slug');
@@ -139,6 +181,7 @@ export async function generateSitemaps(outBaseDir?: string) {
     buildEvents(),
     buildSport(),
     buildMovies(),
+    buildTVShows(),
     buildCountdowns(),
     buildDiscovery(),
     buildStatic(),
