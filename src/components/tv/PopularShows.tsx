@@ -133,6 +133,21 @@ export default function PopularShows() {
     };
   };
 
+  const handleReminderClick = (showId: string) => {
+    // Extract show index from ID
+    const index = parseInt(showId.replace('show-', ''));
+    const show = shows[index];
+    
+    if (show) {
+      console.log(`Setting reminder for: ${show.title} on ${show.channel}`);
+      // Here you can implement actual reminder logic:
+      // - Save to localStorage
+      // - Send to backend
+      // - Show confirmation toast
+      alert(`Reminder set for "${show.title}" on ${show.channel}!`);
+    }
+  };
+
   return (
     <section className="py-12 bg-muted/50">
       <div className="container mx-auto px-4">
@@ -193,6 +208,7 @@ export default function PopularShows() {
                   category={countdownData.category}
                   status={countdownData.status}
                   rank={countdownData.rank}
+                  onReminderClick={handleReminderClick}
                 />
               );
             })}
