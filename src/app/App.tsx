@@ -101,9 +101,11 @@ const AppShell = () => {
                 <Route path="/filme/:year-:month" element={<MovieMonth />} />
                 <Route path="/filme/netflix" element={<MoviePlatform />} />
                 <Route path="/filme/prime" element={<MoviePlatform />} />
+                <Route path="/filme/prime-video" element={<MoviePlatform />} />
                 <Route path="/filme/max" element={<MoviePlatform />} />
                 <Route path="/filme/hbo-max" element={<MoviePlatform />} />
                 <Route path="/filme/disney" element={<MoviePlatform />} />
+                <Route path="/filme/disney-plus" element={<MoviePlatform />} />
                 <Route path="/filme/apple-tv" element={<MoviePlatform />} />
                 <Route path="/filme/:slug" element={<MovieDetail />} />
                 

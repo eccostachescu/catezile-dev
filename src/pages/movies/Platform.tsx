@@ -14,10 +14,12 @@ export default function Platform() {
 
   const platformNames: Record<string, string> = {
     netflix: "Netflix",
-    prime: "Prime Video", 
+    prime: "Prime Video",
+    "prime-video": "Prime Video", 
     max: "HBO Max",
     "hbo-max": "HBO Max",
     disney: "Disney+",
+    "disney-plus": "Disney+",
     "apple-tv": "Apple TV+"
   };
 
@@ -42,9 +44,11 @@ export default function Platform() {
         const platformMapping: Record<string, string> = {
           netflix: "Netflix",
           prime: "Prime Video",
+          "prime-video": "Prime Video",
           max: "HBO Max",
           "hbo-max": "HBO Max",
           disney: "Disney+",
+          "disney-plus": "Disney+",
           "apple-tv": "Apple TV+"
         };
 
