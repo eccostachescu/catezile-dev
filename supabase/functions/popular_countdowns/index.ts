@@ -43,6 +43,9 @@ serve(async (req) => {
       .from('popular_countdowns_mv')
       .select('*');
 
+    // Always exclude past events from popular countdowns
+    query = query.gte('starts_at', new Date().toISOString());
+
     // Add filters
     if (category && category !== 'all') {
       query = query.eq('category_slug', category);
@@ -198,8 +201,7 @@ serve(async (req) => {
             category_name: event.category?.name || null,
             category_slug: event.category?.slug || null,
             score: 0,
-            time_status: event.start_at <= new Date().toISOString() ? 'PAST' :
-                        event.start_at <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() ? 'UPCOMING' : 'FUTURE',
+            time_status: event.start_at <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() ? 'UPCOMING' : 'FUTURE',
             source: 'featured_event'
           }));
 
