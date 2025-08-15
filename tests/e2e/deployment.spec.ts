@@ -2,15 +2,11 @@ import { describe, test, expect } from '@playwright/test';
 
 test.describe('Deployment System E2E', () => {
   test('admin can access deployment controls', async ({ page, context }) => {
-    // Mock admin authentication
-    await context.addCookies([
-      {
-        name: 'sb-access-token',
-        value: 'mock-admin-token',
-        domain: 'localhost',
-        path: '/'
-      }
-    ]);
+    // Mock admin authentication by setting localStorage
+    await page.addInitScript(() => {
+      localStorage.setItem('isAdmin', 'true');
+      localStorage.setItem('sb-access-token', 'mock-admin-token');
+    });
 
     await page.goto('/admin/deploy');
     
@@ -22,14 +18,10 @@ test.describe('Deployment System E2E', () => {
   });
 
   test('manual build trigger works', async ({ page, context }) => {
-    await context.addCookies([
-      {
-        name: 'sb-access-token', 
-        value: 'mock-admin-token',
-        domain: 'localhost',
-        path: '/'
-      }
-    ]);
+    await page.addInitScript(() => {
+      localStorage.setItem('isAdmin', 'true');
+      localStorage.setItem('sb-access-token', 'mock-admin-token');
+    });
 
     await page.goto('/admin/deploy');
     

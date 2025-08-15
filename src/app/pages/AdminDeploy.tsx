@@ -316,7 +316,7 @@ export default function AdminDeploy() {
           </CardHeader>
           <CardContent>
             {settings?.build_status && (
-              <div className="space-y-2">
+              <div className="space-y-2" data-testid="build-status">
                 {getStatusBadge(settings.build_status)}
                 {settings.last_build_at && (
                   <p className="text-xs text-muted-foreground">
@@ -338,7 +338,7 @@ export default function AdminDeploy() {
             <CardTitle className="text-sm font-medium">Cache Version</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">v{settings?.cache_version || 1}</div>
+            <div className="text-2xl font-bold" data-testid="cache-version">v{settings?.cache_version || 1}</div>
             <p className="text-xs text-muted-foreground">
               Cache busting pentru fetch-uri client
             </p>
@@ -351,7 +351,7 @@ export default function AdminDeploy() {
           </CardHeader>
           <CardContent>
             {health && (
-              <div className="space-y-2">
+              <div className="space-y-2" data-testid="health-status">
                 {getHealthBadge(health.status)}
                 <p className="text-xs text-muted-foreground">
                   {health.responseTime}ms - {format(new Date(health.timestamp), 'HH:mm')}
@@ -376,6 +376,7 @@ export default function AdminDeploy() {
               id="build-lock"
               checked={settings?.build_locked || false}
               onCheckedChange={toggleBuildLock}
+              data-testid="build-lock-switch"
             />
             <Label htmlFor="build-lock" className="flex items-center">
               <Lock className="w-4 h-4 mr-2" />
@@ -390,13 +391,14 @@ export default function AdminDeploy() {
               onClick={() => triggerBuild('Manual build', true)}
               disabled={!!actionLoading}
               className="w-full"
+              data-testid="build-now-button"
             >
               {actionLoading === 'build' ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <Play className="w-4 h-4 mr-2" />
               )}
-              Build Acum
+              {actionLoading === 'build' ? 'Building...' : 'Build Acum'}
             </Button>
 
             <Button 
@@ -404,6 +406,7 @@ export default function AdminDeploy() {
               onClick={purgeCache}
               disabled={!!actionLoading}
               className="w-full"
+              data-testid="purge-cache-button"
             >
               {actionLoading === 'cache' ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -449,7 +452,7 @@ export default function AdminDeploy() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {health.checks.map((check, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded">
+                <div key={index} className="flex items-center justify-between p-3 border rounded" data-testid={`health-check-${check.name}`}>
                   <div>
                     <div className="font-medium">{check.name}</div>
                     <div className="text-sm text-muted-foreground">{check.message}</div>
@@ -475,10 +478,10 @@ export default function AdminDeploy() {
             Ultimele 20 de builduri și operațiuni
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {logs.map((log) => (
-              <div key={log.id} className="flex items-center justify-between p-3 border rounded">
+          <CardContent>
+            <div className="space-y-3" data-testid="deployment-history">
+              {logs.map((log) => (
+                <div key={log.id} className="flex items-center justify-between p-3 border rounded" data-testid={`deployment-log-${log.id}`}>
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
                     {getStatusBadge(log.status)}
