@@ -12,6 +12,8 @@ import { loadMovie } from "@/ssg/loader";
 import MovieHero from "@/components/movies/MovieHero";
 import TrailerEmbed from "@/components/movies/TrailerEmbed";
 import ActionsBar from "@/components/movies/ActionsBar";
+import { MovieMeta } from "@/components/movies/MovieMeta";
+import { MovieWhereToWatch } from "@/components/movies/MovieWhereToWatch";
 
 export default function Movie() {
   const { pathname } = useLocation();
@@ -51,8 +53,32 @@ export default function Movie() {
           <Container className="py-6 space-y-6">
             <section aria-labelledby="movie-info" className="space-y-4">
               <h2 id="movie-info" className="sr-only">Detalii film</h2>
+              
+              {/* Movie metadata */}
+              <MovieMeta 
+                runtime={m.runtime}
+                genres={m.genres}
+                certification={m.certification}
+                popularity={m.popularity}
+                releaseYear={m.cinema_release_ro ? new Date(m.cinema_release_ro).getFullYear() : undefined}
+              />
+              
               <ActionsBar url={typeof window !== 'undefined' ? window.location.href : ''} cinemaDate={m.cinema_release_ro} netflixDate={m.netflix_date} primeDate={m.prime_date} />
-              {m.overview && <p className="text-muted-foreground max-w-3xl">{m.overview}</p>}
+              
+              {/* Overview */}
+              {m.overview && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-lg">Despre film</h3>
+                  <p className="text-muted-foreground max-w-3xl leading-relaxed">{m.overview}</p>
+                </div>
+              )}
+              
+              {/* Where to watch */}
+              {m.platforms && m.platforms.length > 0 && (
+                <MovieWhereToWatch platforms={m.platforms} />
+              )}
+              
+              {/* Trailer */}
               <TrailerEmbed youtubeKey={m.trailer_youtube_key} />
             </section>
           </Container>
