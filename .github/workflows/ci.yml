@@ -13,8 +13,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install deps
-        run: npm ci || npm i
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund || (rm package-lock.json && npm install --no-audit --no-fund)
+          else
+            npm install --no-audit --no-fund
+          fi
       - name: Typecheck
         run: npx tsc -p tsconfig.json --noEmit
       - name: Lint
