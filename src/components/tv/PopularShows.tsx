@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Tv, Calendar } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import CardCountdown from "@/components/homepage/CardCountdown";
 
 interface PopularShow {
   title: string;
@@ -77,18 +76,61 @@ export default function PopularShows() {
     loadShows();
   }, [selectedCategory, selectedChannel]);
 
-  const getTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      reality: 'bg-red-100 text-red-800',
-      cooking: 'bg-orange-100 text-orange-800',
-      music: 'bg-purple-100 text-purple-800',
-      talent: 'bg-blue-100 text-blue-800',
-      fashion: 'bg-pink-100 text-pink-800',
-      adventure: 'bg-green-100 text-green-800',
-      entertainment: 'bg-yellow-100 text-yellow-800',
-      survival: 'bg-gray-100 text-gray-800'
+  // Convert show to countdown-compatible format
+  const convertShowToCountdown = (show: PopularShow, index: number) => {
+    // Calculate next airing time based on typical schedule
+    const today = new Date();
+    const nextAiring = new Date();
+    
+    if (show.airs_today) {
+      // Parse typical time (e.g., "20:30")
+      const [hours, minutes] = show.typical_time.split(':').map(Number);
+      nextAiring.setHours(hours, minutes, 0, 0);
+      
+      // If it's already past today's time, move to next typical day
+      if (nextAiring <= today) {
+        const nextDay = show.next_typical_day;
+        const dayMap: Record<string, number> = {
+          'duminică': 0, 'luni': 1, 'marți': 2, 'miercuri': 3, 
+          'joi': 4, 'vineri': 5, 'sâmbătă': 6
+        };
+        
+        const targetDay = dayMap[nextDay] || 1;
+        const daysUntil = (targetDay - today.getDay() + 7) % 7 || 7;
+        nextAiring.setDate(today.getDate() + daysUntil);
+      }
+    } else {
+      // Use next typical day
+      const nextDay = show.next_typical_day;
+      const dayMap: Record<string, number> = {
+        'duminică': 0, 'luni': 1, 'marți': 2, 'miercuri': 3, 
+        'joi': 4, 'vineri': 5, 'sâmbătă': 6
+      };
+      
+      const targetDay = dayMap[nextDay] || 1;
+      const daysUntil = (targetDay - today.getDay() + 7) % 7 || 7;
+      nextAiring.setDate(today.getDate() + daysUntil);
+      
+      const [hours, minutes] = show.typical_time.split(':').map(Number);
+      nextAiring.setHours(hours, minutes, 0, 0);
+    }
+
+    return {
+      id: `show-${index}`,
+      title: show.title,
+      slug: `tv/${show.title.toLowerCase().replace(/\s+/g, '-')}`,
+      startDate: nextAiring.toISOString(),
+      location: show.channel,
+      category: show.type === 'reality' ? 'Reality TV' : 
+                show.type === 'cooking' ? 'Cooking' :
+                show.type === 'music' ? 'Muzică' :
+                show.type === 'talent' ? 'Talent' :
+                show.type === 'fashion' ? 'Fashion' :
+                show.type === 'adventure' ? 'Aventură' :
+                show.type === 'survival' ? 'Survival' : 'TV',
+      status: show.airs_today ? "upcoming" as const : "upcoming" as const,
+      rank: index + 1
     };
-    return colors[type] || 'bg-gray-100 text-gray-800';
   };
 
   return (
@@ -131,70 +173,35 @@ export default function PopularShows() {
 
         {/* Shows Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <CardHeader>
-                  <div className="h-4 bg-muted rounded mb-2"></div>
-                  <div className="h-6 bg-muted rounded"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-4 bg-muted rounded mb-2"></div>
-                  <div className="h-3 bg-muted rounded w-2/3"></div>
-                </CardContent>
-              </Card>
+              <Skeleton key={i} className="aspect-[4/5] rounded-lg" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {shows.map((show, index) => (
-              <Card key={index} className={`hover:shadow-lg transition-shadow ${show.airs_today ? 'ring-2 ring-primary' : ''}`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg leading-tight">{show.title}</CardTitle>
-                    {show.airs_today && (
-                      <Badge variant="default" className="shrink-0">
-                        Azi
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Tv className="h-4 w-4" />
-                    {show.channel}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {show.description}
-                  </p>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge className={getTypeColor(show.type)}>
-                      {show.type.charAt(0).toUpperCase() + show.type.slice(1)}
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-2 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      De obicei la {show.typical_time}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {show.typical_days.join(', ')}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {shows.map((show, index) => {
+              const countdownData = convertShowToCountdown(show, index);
+              return (
+                <CardCountdown
+                  key={`show-${index}`}
+                  id={countdownData.id}
+                  title={countdownData.title}
+                  slug={countdownData.slug}
+                  startDate={countdownData.startDate}
+                  location={countdownData.location}
+                  category={countdownData.category}
+                  status={countdownData.status}
+                  rank={countdownData.rank}
+                />
+              );
+            })}
           </div>
         )}
-
+        
         {!loading && shows.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              Nu au fost găsite emisiuni pentru filtrele selectate.
-            </p>
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Nu sunt emisiuni disponibile pentru filtrele selectate.</p>
           </div>
         )}
       </div>
