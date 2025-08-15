@@ -173,17 +173,18 @@ serve(async (req) => {
       try {
         console.log(`Processing: ${movie.title} (${movie.id})`);
         
-        // Fetch detailed movie data
+        // Fetch detailed movie data with enhanced metadata
         const detailed = await fetchTMDB(
-          `/movie/${movie.id}?append_to_response=release_dates,watch/providers,videos`
+          `/movie/${movie.id}?append_to_response=release_dates,watch/providers,videos,keywords,credits`
         ) as TMDBMovie;
 
         const cinemaRelease = extractCinemaReleaseRO(detailed.release_dates);
         const streamingRO = extractStreamingRO(detailed['watch/providers']);
         const trailerKey = extractTrailerKey(detailed.videos);
 
-        // Create slug from title
-        const slug = detailed.title
+        // Enhanced slug generation with year for better SEO
+        const releaseYear = cinemaRelease?.date ? new Date(cinemaRelease.date).getFullYear() : '';
+        const slug = (detailed.title + (releaseYear ? ` ${releaseYear}` : ''))
           .toLowerCase()
           .replace(/[^a-z0-9\s-]/g, '')
           .replace(/\s+/g, '-')
@@ -194,6 +195,19 @@ serve(async (req) => {
         const today = new Date().toISOString().split('T')[0];
         const status = cinemaRelease?.date && cinemaRelease.date <= today ? 'RELEASED' : 'SCHEDULED';
 
+        // Enhanced overview with Romanian context
+        let enhancedOverview = detailed.overview || '';
+        if (enhancedOverview && cinemaRelease?.date) {
+          const releaseInfo = status === 'RELEASED' 
+            ? `Filmul a fost lansat în cinematografele românești pe ${new Date(cinemaRelease.date).toLocaleDateString('ro-RO')}.`
+            : `Filmul urmează să fie lansat în cinematografele românești pe ${new Date(cinemaRelease.date).toLocaleDateString('ro-RO')}.`;
+          enhancedOverview = `${enhancedOverview}\n\n${releaseInfo}`;
+        }
+
+        // Extract director and main cast for enhanced metadata
+        const director = detailed.credits?.crew?.find((person: any) => person.job === 'Director')?.name || '';
+        const mainCast = detailed.credits?.cast?.slice(0, 5)?.map((actor: any) => actor.name).join(', ') || '';
+
         // Upsert movie
         const { error: upsertError } = await supabase
           .from('movie')
@@ -201,14 +215,19 @@ serve(async (req) => {
             tmdb_id: detailed.id,
             title: detailed.title,
             original_title: detailed.original_title,
-            overview: detailed.overview,
+            overview: enhancedOverview,
             poster_path: detailed.poster_path,
             backdrop_path: detailed.backdrop_path,
             runtime: detailed.runtime,
             genres: detailed.genres?.map(g => g.name) || [],
             certification: cinemaRelease?.certification,
             cinema_release_ro: cinemaRelease?.date,
-            streaming_ro: streamingRO,
+            streaming_ro: {
+              ...streamingRO,
+              director,
+              main_cast: mainCast,
+              keywords: detailed.keywords?.keywords?.slice(0, 10)?.map((k: any) => k.name) || []
+            },
             release_calendar: detailed.release_dates || {},
             trailer_key: trailerKey,
             popularity: detailed.popularity || 0,
