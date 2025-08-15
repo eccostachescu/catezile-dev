@@ -1541,6 +1541,7 @@ export type Database = {
           slug: string | null
           source: Json | null
           status: string
+          streaming_providers: Json | null
           streaming_ro: Json | null
           title: string
           tmdb_id: number
@@ -1574,6 +1575,7 @@ export type Database = {
           slug?: string | null
           source?: Json | null
           status?: string
+          streaming_providers?: Json | null
           streaming_ro?: Json | null
           title: string
           tmdb_id: number
@@ -1607,6 +1609,7 @@ export type Database = {
           slug?: string | null
           source?: Json | null
           status?: string
+          streaming_providers?: Json | null
           streaming_ro?: Json | null
           title?: string
           tmdb_id?: number
@@ -3140,6 +3143,7 @@ export type Database = {
           slug: string | null
           source: Json | null
           status: string
+          streaming_providers: Json | null
           streaming_ro: Json | null
           title: string
           tmdb_id: number
