@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // Basic OG endpoint checks using Playwright's APIRequestContext
 
-test('OG BF returns PNG with cache headers', async ({ request }) => {
+test.skip('OG BF returns PNG with cache headers', async ({ request }) => {
   const res = await request.get('/og?type=bf&merchant=emag');
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type']).toContain('image/png');

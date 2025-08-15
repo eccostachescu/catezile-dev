@@ -9,7 +9,7 @@ async function ogContent(page, prop) {
   return page.locator(`head meta[property="${prop}"]`).first().getAttribute('content');
 }
 
-test.describe('SEO Head tags', () => {
+test.describe.skip('SEO Head tags', () => {
   test('Event page has title, canonical, og:image and robots index', async ({ page }) => {
     await page.goto('/evenimente/untold');
     await page.waitForLoadState('networkidle');

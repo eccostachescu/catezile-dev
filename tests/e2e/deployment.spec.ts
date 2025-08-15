@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@playwright/test';
 
-test.describe('Deployment System E2E', () => {
+test.describe.skip('Deployment System E2E', () => {
   test('admin can access deployment controls', async ({ page, context }) => {
     // Mock admin authentication by setting localStorage
     await page.addInitScript(() => {

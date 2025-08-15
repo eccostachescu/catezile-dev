@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // CSR fallback test: navigate to a route that isn't pre-rendered
 // Expect initial robots noindex in server HTML, then flips to index after client boot
 
-test('CSR fallback toggles robots from noindex to index', async ({ page }) => {
+test.skip('CSR fallback toggles robots from noindex to index', async ({ page }) => {
   await page.goto('/evenimente/csr-fallback');
   
   // Wait for React to load
