@@ -4,7 +4,11 @@ export class TMDBService {
   private imageBaseURL = 'https://image.tmdb.org/t/p';
 
   constructor() {
-    // Note: API key will be available in edge functions via Supabase secrets
+    // Use environment variable if available, otherwise use demo key
+    this.apiKey = import.meta.env.VITE_TMDB_API_KEY || 'demo';
+    if (this.apiKey === 'demo') {
+      console.warn('TMDB API key not found. Add VITE_TMDB_API_KEY to your .env file');
+    }
   }
 
   // Get popular movies
@@ -71,17 +75,20 @@ export class TMDBService {
     return `${this.imageBaseURL}/${size}${path}`;
   }
 
-  // Extract best trailer
-  extractBestTrailer(videos: any[]) {
-    if (!videos || videos.length === 0) return null;
+  // Search movies
+  async searchMovies(query: string, year?: number) {
+    const params = new URLSearchParams({
+      api_key: this.apiKey,
+      language: 'ro-RO',
+      query: query,
+      include_adult: 'false',
+      ...(year && { year: year.toString() })
+    });
     
-    const youtubeVideos = videos.filter(v => v.site === 'YouTube');
-    const official = youtubeVideos.find(v => v.official && v.type === 'Trailer');
-    const trailer = youtubeVideos.find(v => v.type === 'Trailer');
-    const teaser = youtubeVideos.find(v => v.type === 'Teaser');
-    
-    const best = official || trailer || teaser;
-    return best ? `https://www.youtube.com/watch?v=${best.key}` : null;
+    const response = await fetch(`${this.baseURL}/search/movie?${params}`);
+    if (!response.ok) throw new Error('Failed to search movies');
+    const data = await response.json();
+    return data.results;
   }
 }
 

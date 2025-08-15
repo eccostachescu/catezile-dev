@@ -40,6 +40,7 @@ import AdminSearch from "./pages/AdminSearch";
 import { TVShows } from "./pages/TVShows";
 import { TVShow } from "./pages/TVShow";
 import { AdminTVShows } from "./pages/AdminTVShows";
+import AdminTMDB from "./pages/AdminTMDB";
 import { SEOProvider } from "@/seo/SEOProvider";
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
@@ -222,6 +223,14 @@ const AppShell = () => {
                   element={
                     <ProtectedRoute>
                       <AdminTVShows />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/tmdb"
+                  element={
+                    <ProtectedRoute>
+                      <AdminTMDB />
                     </ProtectedRoute>
                   }
                 />
