@@ -88,10 +88,10 @@ Please provide a thorough code review focusing on the areas mentioned in the sys
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `token ${anthropicApiKey}`,
+        'Authorization': `Bearer ${anthropicApiKey}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'Claude-Code-Review-Bot'
+        'x-api-key': anthropicApiKey,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
