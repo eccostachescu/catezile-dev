@@ -26,9 +26,9 @@ export default defineConfig({
     /* Romanian locale for testing */
     locale: 'ro-RO',
     timezoneId: 'Europe/Bucharest',
-    /* Faster timeouts */
-    navigationTimeout: 10000,
-    actionTimeout: 5000,
+    /* Faster timeouts - but reasonable for dev */
+    navigationTimeout: 15000,
+    actionTimeout: 10000,
   },
   /* Configure projects for major browsers */
   projects: [

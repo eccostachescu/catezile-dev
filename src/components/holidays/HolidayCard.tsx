@@ -54,7 +54,7 @@ export function HolidayCard({ holiday, instance, showYear = false }: HolidayCard
   };
 
   return (
-    <Card className="transition-all hover:shadow-md">
+    <Card className="transition-all hover:shadow-md" data-testid="holiday-card">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg leading-6">

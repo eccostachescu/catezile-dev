@@ -103,7 +103,7 @@ export function MovieCardEnhanced({ movie, showReminder = true, className = "" }
   const movieSlug = movie.slug || movie.id;
 
   return (
-    <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-lg ${className}`}>
+    <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-lg ${className}`} data-testid="movie-card">
       <Link to={`/filme/${movieSlug}`} className="block">
         <div className="relative aspect-[2/3] overflow-hidden">
           {posterUrl ? (

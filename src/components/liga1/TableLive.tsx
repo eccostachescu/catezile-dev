@@ -8,7 +8,7 @@ export function TableLive({ rows, loading }: { rows: Array<{ team_name: string; 
     return <div className="text-sm text-muted-foreground">Clasamentul nu este disponibil încă.</div>;
   }
   return (
-    <Table>
+    <Table data-testid="liga1-table">
       <TableHeader>
         <TableRow>
           <TableHead>#</TableHead>

@@ -15,7 +15,7 @@ export interface MovieCardProps {
 export default function MovieCard({ id, title, posterUrl = "/placeholder.svg", inCinemasAt, onNetflixAt, onPrimeAt }: MovieCardProps) {
   const when = inCinemasAt || onNetflixAt || onPrimeAt;
   return (
-    <Card className="hover-scale overflow-hidden">
+    <Card className="hover-scale overflow-hidden" data-testid="movie-card">
       <div className="grid grid-cols-3 gap-0">
         <img src={posterUrl} alt={`Poster ${title}`} className="col-span-1 aspect-[2/3] object-cover" loading="lazy" />
         <div className="col-span-2">

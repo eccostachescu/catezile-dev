@@ -58,7 +58,7 @@ export function MovieCard({ movie, showReminder = true, className = "" }: MovieC
   };
 
   return (
-    <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-lg ${className}`}>
+    <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-lg ${className}`} data-testid="movie-card">
       <Link to={`/filme/${movie.slug}`} className="block">
         <div className="relative aspect-[2/3] overflow-hidden">
           {posterUrl ? (

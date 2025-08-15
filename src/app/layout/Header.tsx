@@ -28,7 +28,7 @@ export default function Header() {
           <Link to="/tv/emisiuni" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
             Emisiuni
           </Link>
-          <Link to="/filme" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
+          <Link to="/filme" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]" data-testid="movies-link">
             Filme
           </Link>
           <Link to="/sport" className="text-[--cz-ink] hover:text-[--cz-accent] font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-[--cz-surface]">
@@ -101,6 +101,7 @@ export default function Header() {
                       to="/filme" 
                       className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-[--cz-ink] hover:bg-[--cz-surface] rounded-lg transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
+                      data-testid="movies-link-mobile"
                     >
                       Filme
                     </Link>
