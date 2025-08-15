@@ -2405,13 +2405,21 @@ export type Database = {
       tv_program: {
         Row: {
           channel_id: string
+          channel_name: string | null
           city: string | null
           competition: string | null
           created_at: string | null
+          description: string | null
           ends_at: string | null
+          episode_number: number | null
+          external_id: string | null
+          genres: string[] | null
           id: string
+          image_url: string | null
           kind: string
           match_id: string | null
+          season: number | null
+          show_name: string | null
           source: string
           starts_at: string
           status: string | null
@@ -2421,13 +2429,21 @@ export type Database = {
         }
         Insert: {
           channel_id: string
+          channel_name?: string | null
           city?: string | null
           competition?: string | null
           created_at?: string | null
+          description?: string | null
           ends_at?: string | null
+          episode_number?: number | null
+          external_id?: string | null
+          genres?: string[] | null
           id?: string
+          image_url?: string | null
           kind?: string
           match_id?: string | null
+          season?: number | null
+          show_name?: string | null
           source?: string
           starts_at: string
           status?: string | null
@@ -2437,13 +2453,21 @@ export type Database = {
         }
         Update: {
           channel_id?: string
+          channel_name?: string | null
           city?: string | null
           competition?: string | null
           created_at?: string | null
+          description?: string | null
           ends_at?: string | null
+          episode_number?: number | null
+          external_id?: string | null
+          genres?: string[] | null
           id?: string
+          image_url?: string | null
           kind?: string
           match_id?: string | null
+          season?: number | null
+          show_name?: string | null
           source?: string
           starts_at?: string
           status?: string | null
@@ -2467,6 +2491,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tv_show: {
+        Row: {
+          country_code: string | null
+          created_at: string | null
+          external_id: string | null
+          genres: string[] | null
+          id: string
+          image_url: string | null
+          name: string
+          network_name: string | null
+          source: string | null
+          summary: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string | null
+          external_id?: string | null
+          genres?: string[] | null
+          id?: string
+          image_url?: string | null
+          name: string
+          network_name?: string | null
+          source?: string | null
+          summary?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string | null
+          external_id?: string | null
+          genres?: string[] | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          network_name?: string | null
+          source?: string | null
+          summary?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       ugc_quota: {
         Row: {
