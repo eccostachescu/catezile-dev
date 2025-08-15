@@ -18,401 +18,86 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    console.log('Starting real data population...');
+    console.log('🚀 Starting data population...');
 
-    // 1. Populate Categories
-    const categories = [
-      { name: 'Sport', slug: 'sport' },
-      { name: 'Concerte', slug: 'concerte' },
-      { name: 'Teatru', slug: 'teatru' },
-      { name: 'Film', slug: 'film' },
-      { name: 'Conferințe', slug: 'conferinte' },
-      { name: 'Festival', slug: 'festival' },
-      { name: 'Sărbători', slug: 'sarbatori' },
-      { name: 'Guvern', slug: 'guvern' },
-      { name: 'Educație', slug: 'educatie' }
-    ];
-
-    for (const category of categories) {
-      await supabase.from('category').upsert(category, { onConflict: 'slug' });
+    // Step 1: Generate holidays
+    console.log('📋 Generating holidays...');
+    try {
+      const { data: holidaysResult, error: holidaysError } = await supabase.functions.invoke('holidays_generate');
+      if (holidaysError) throw holidaysError;
+      console.log('✅ holidays_generate completed:', holidaysResult);
+    } catch (error) {
+      console.error('❌ Error generating holidays:', error);
     }
 
-    // 2. Populate Real Romanian Events
-    const realEvents = [
-      {
-        title: 'Untold Festival 2025',
-        start_at: '2025-08-01T18:00:00+03:00',
-        end_at: '2025-08-04T06:00:00+03:00',
-        city: 'Cluj-Napoca',
-        description: 'Cel mai mare festival de muzică electronică din România',
-        image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
-        status: 'PUBLISHED',
-        featured: true,
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Neversea Festival 2025',
-        start_at: '2025-07-03T18:00:00+03:00',
-        end_at: '2025-07-06T06:00:00+03:00',
-        city: 'Constanța',
-        description: 'Festival de muzică pe plaja Mării Negre',
-        image_url: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800',
-        status: 'PUBLISHED',
-        featured: true,
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Festivalul George Enescu 2025',
-        start_at: '2025-09-01T19:00:00+03:00',
-        end_at: '2025-09-28T22:00:00+03:00',
-        city: 'București',
-        description: 'Festival international de muzică clasică',
-        image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
-        status: 'PUBLISHED',
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Electric Castle 2025',
-        start_at: '2025-07-16T18:00:00+03:00',
-        end_at: '2025-07-20T06:00:00+03:00',
-        city: 'Bonțida',
-        description: 'Festival de muzică la Castelul Banffy',
-        image_url: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800',
-        status: 'PUBLISHED',
-        featured: true,
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Rock la Mureș 2025',
-        start_at: '2025-08-15T19:00:00+03:00',
-        end_at: '2025-08-17T02:00:00+03:00',
-        city: 'Târgu Mureș',
-        description: 'Festival de rock în aer liber',
-        image_url: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800',
-        status: 'PUBLISHED',
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Zilele Bucureștiului 2025',
-        start_at: '2025-09-20T10:00:00+03:00',
-        end_at: '2025-09-22T23:00:00+03:00',
-        city: 'București',
-        description: 'Sărbătoarea capitalei cu concerte și evenimente',
-        image_url: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800',
-        status: 'PUBLISHED',
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Jazz in the Park 2025',
-        start_at: '2025-09-05T19:00:00+03:00',
-        end_at: '2025-09-08T23:00:00+03:00',
-        city: 'Cluj-Napoca',
-        description: 'Festival de jazz în Parcul Central',
-        image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
-        status: 'PUBLISHED',
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Peninsula / Félsziget 2025',
-        start_at: '2025-08-07T18:00:00+03:00',
-        end_at: '2025-08-10T06:00:00+03:00',
-        city: 'Târgu Mureș',
-        description: 'Festival multicultural în inima Transilvaniei',
-        image_url: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800',
-        status: 'PUBLISHED',
-        timezone: 'Europe/Bucharest'
-      },
-      {
-        title: 'Concert extraordinar Inna - București',
-        start_at: '2025-09-15T20:00:00+03:00',
-        end_at: '2025-09-15T23:30:00+03:00',
-        city: 'București',
-        description: 'Artista internațională Inna revine la București cu un show extraordinar',
-        image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop&q=80',
-        status: 'PUBLISHED',
-        featured: true,
-        timezone: 'Europe/Bucharest'
-      }
-    ];
-
-    // Get category IDs for proper assignment
-    const { data: categoryData } = await supabase.from('category').select('id, slug');
-    const categoryMap = new Map(categoryData?.map(c => [c.slug, c.id]) || []);
-
-    for (const event of realEvents) {
-      const eventWithCategory = {
-        ...event,
-        category_id: categoryMap.get('festival') || categoryMap.get('concerte')
-      };
-      await supabase.from('event').insert(eventWithCategory);
+    // Step 2: Sync TMDB movies
+    console.log('📋 Syncing TMDB movies...');
+    try {
+      const { data: moviesResult, error: moviesError } = await supabase.functions.invoke('movies_sync_tmdb');
+      if (moviesError) throw moviesError;
+      console.log('✅ movies_sync_tmdb completed:', moviesResult);
+    } catch (error) {
+      console.error('❌ Error syncing movies:', error);
     }
 
-    // 3. Populate Real Sports Matches
-    const realMatches = [
-      {
-        home: 'FCSB',
-        away: 'CFR Cluj',
-        kickoff_at: '2025-08-16T21:30:00+03:00',
-        tv_channels: ['Digi Sport 1', 'Orange Sport 1'],
-        status: 'SCHEDULED',
-        city: 'București',
-        stadium: 'Arena Națională'
-      },
-      {
-        home: 'CS Universitatea Craiova',
-        away: 'FC Rapid 1923',
-        kickoff_at: '2025-08-17T19:00:00+03:00',
-        tv_channels: ['Prima Sport 1'],
-        status: 'SCHEDULED',
-        city: 'Craiova',
-        stadium: 'Stadionul Ion Oblemenco'
-      },
-      {
-        home: 'FC Dinamo București',
-        away: 'Sepsi OSK',
-        kickoff_at: '2025-08-18T21:00:00+03:00',
-        tv_channels: ['Digi Sport 2'],
-        status: 'SCHEDULED',
-        city: 'București',
-        stadium: 'Stadionul Dinamo'
-      },
-      {
-        home: 'FC Botoșani',
-        away: 'Petrolul Ploiești',
-        kickoff_at: '2025-08-19T18:30:00+03:00',
-        tv_channels: ['Orange Sport 2'],
-        status: 'SCHEDULED',
-        city: 'Botoșani',
-        stadium: 'Stadionul Municipal'
-      }
-    ];
-
-    for (const match of realMatches) {
-      const matchWithImage = {
-        ...match,
-        image_url: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=800&h=600&fit=crop&q=80'
-      };
-      await supabase.from('match').insert(matchWithImage);
+    // Step 3: Import Liga 1 fixtures
+    console.log('📋 Importing Liga 1 fixtures...');
+    try {
+      const { data: fixturesResult, error: fixturesError } = await supabase.functions.invoke('import_liga1_fixtures');
+      if (fixturesError) throw fixturesError;
+      console.log('✅ import_liga1_fixtures completed:', fixturesResult);
+    } catch (error) {
+      console.error('❌ Error importing fixtures:', error);
     }
 
-    // 4. Populate Real Movies (using TMDB data structure)
-    const realMovies = [
-      {
-        title: 'Dune: Part Three',
-        original_title: 'Dune: Part Three',
-        tmdb_id: 1001,
-        cinema_release_ro: '2025-08-30',
-        overview: 'Continuarea epicii science-fiction regizată de Denis Villeneuve.',
-        genres: ['Science Fiction', 'Aventură', 'Dramă'],
-        runtime: 155,
-        status: 'SCHEDULED',
-        poster_path: '/8aQF5ZQh4VQCP6wfm8OdYWUQRz7.jpg',
-        backdrop_path: '/c9xmB53umjnrCMS4pZz11clF3yJ.jpg',
-        popularity: 8.5
-      },
-      {
-        title: 'Avatar 3',
-        original_title: 'Avatar: Fire and Ash',
-        tmdb_id: 1002,
-        cinema_release_ro: '2025-12-20',
-        overview: 'Următorul capitol din universul Avatar creat de James Cameron.',
-        genres: ['Aventură', 'Science Fiction', 'Familie'],
-        runtime: 190,
-        status: 'SCHEDULED',
-        poster_path: '/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg',
-        backdrop_path: '/bQ0junHa9I4zaz5Ej9bAyqMUOHU.jpg',
-        popularity: 9.2
-      },
-      {
-        title: 'The Batman Part II',
-        original_title: 'The Batman Part II',
-        tmdb_id: 1003,
-        cinema_release_ro: '2025-10-03',
-        overview: 'Robert Pattinson revine în rolul lui Batman.',
-        genres: ['Acțiune', 'Crimă', 'Dramă'],
-        runtime: 170,
-        status: 'SCHEDULED',
-        poster_path: '/74xTEgt7R36Fpooo50r9T25onhq.jpg',
-        backdrop_path: '/b0PlSFdDwbyK0cf5RxwDpaOJQvQ.jpg',
-        popularity: 8.8
-      }
-    ];
-
-    for (const movie of realMovies) {
-      await supabase.from('movie').insert(movie);
+    // Step 4: Import Romanian TV schedule
+    console.log('📺 Importing Romanian TV shows...');
+    try {
+      const { data: tvResult, error: tvError } = await supabase.functions.invoke('import_ro_tv_schedule');
+      if (tvError) throw tvError;
+      console.log('✅ import_ro_tv_schedule completed:', tvResult);
+    } catch (error) {
+      console.error('❌ Error importing TV shows:', error);
     }
 
-    // 5. Populate Real Romanian Holidays
-    const realHolidays = [
-      {
-        name: 'Anul Nou',
-        slug: 'anul-nou',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=1',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'Epifania',
-        slug: 'epifania',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=1;BYMONTHDAY=6',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'Ziua Muncii',
-        slug: 'ziua-muncii',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=5;BYMONTHDAY=1',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'Ziua Copilului',
-        slug: 'ziua-copilului',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=1',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'Adormirea Maicii Domnului',
-        slug: 'adormirea-maicii-domnului',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=8;BYMONTHDAY=15',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'Sfântul Andrei',
-        slug: 'sfantul-andrei',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=11;BYMONTHDAY=30',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'Ziua Națională',
-        slug: 'ziua-nationala',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=1',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'Crăciunul',
-        slug: 'craciunul',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25',
-        official_ref: 'Legea 202/2008'
-      },
-      {
-        name: 'A doua zi de Crăciun',
-        slug: 'a-doua-zi-de-craciun',
-        kind: 'public',
-        rule: 'RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=26',
-        official_ref: 'Legea 202/2008'
-      }
-    ];
-
-    for (const holiday of realHolidays) {
-      await supabase.from('holiday').upsert(holiday, { onConflict: 'slug' });
+    // Step 5: Refresh search index
+    console.log('📋 Refreshing search index...');
+    try {
+      const { data: searchResult, error: searchError } = await supabase.functions.invoke('search_index_refresh');
+      if (searchError) throw searchError;
+      console.log('✅ search_index_refresh completed:', searchResult);
+    } catch (error) {
+      console.error('❌ Error refreshing search:', error);
     }
 
-    // 6. Generate holiday instances for 2025
-    const holidayInstances = [
-      { holiday_id: null, date: '2025-01-01', year: 2025, is_weekend: false }, // Anul Nou
-      { holiday_id: null, date: '2025-01-06', year: 2025, is_weekend: true }, // Epifania
-      { holiday_id: null, date: '2025-05-01', year: 2025, is_weekend: false }, // Ziua Muncii
-      { holiday_id: null, date: '2025-06-01', year: 2025, is_weekend: true }, // Ziua Copilului
-      { holiday_id: null, date: '2025-08-15', year: 2025, is_weekend: false }, // Adormirea Maicii Domnului
-      { holiday_id: null, date: '2025-11-30', year: 2025, is_weekend: true }, // Sfântul Andrei
-      { holiday_id: null, date: '2025-12-01', year: 2025, is_weekend: false }, // Ziua Națională
-      { holiday_id: null, date: '2025-12-25', year: 2025, is_weekend: false }, // Crăciunul
-      { holiday_id: null, date: '2025-12-26', year: 2025, is_weekend: false }, // A doua zi de Crăciun
-    ];
+    // Step 6: Check final counts
+    console.log('📊 Checking final counts...');
+    const [moviesCount, matchesCount, holidayCount, eventsCount] = await Promise.all([
+      supabase.from('movie').select('id', { count: 'exact', head: true }),
+      supabase.from('match').select('id', { count: 'exact', head: true }),
+      supabase.from('holiday_instance').select('id', { count: 'exact', head: true }),
+      supabase.from('event').select('id', { count: 'exact', head: true })
+    ]);
 
-    // Get holiday IDs and update instances
-    const { data: holidayData } = await supabase.from('holiday').select('id, slug');
-    const holidayMap = new Map(holidayData?.map(h => [h.slug, h.id]) || []);
+    const summary = {
+      movies: moviesCount.count || 0,
+      matches: matchesCount.count || 0, 
+      holidays: holidayCount.count || 0,
+      events: eventsCount.count || 0
+    };
 
-    const holidaySlugs = ['anul-nou', 'epifania', 'ziua-muncii', 'ziua-copilului', 'adormirea-maicii-domnului', 'sfantul-andrei', 'ziua-nationala', 'craciunul', 'a-doua-zi-de-craciun'];
-    
-    for (let i = 0; i < holidayInstances.length; i++) {
-      holidayInstances[i].holiday_id = holidayMap.get(holidaySlugs[i]) || null;
-      if (holidayInstances[i].holiday_id) {
-        await supabase.from('holiday_instance').insert(holidayInstances[i]);
-      }
-    }
+    console.log('📈 Movies:', summary.movies);
+    console.log('⚽ Matches:', summary.matches);
+    console.log('📅 Holiday instances:', summary.holidays);
+    console.log('🎉 Events:', summary.events);
+    console.log('🎉 All data population completed successfully!');
 
-    // 7. Create some real countdowns based on the events
-    const realCountdowns = [
-      {
-        title: 'Untold Festival 2025',
-        target_at: '2025-08-01T18:00:00+03:00',
-        status: 'APPROVED',
-        privacy: 'PUBLIC',
-        city: 'Cluj-Napoca',
-        image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800'
-      },
-      {
-        title: 'Neversea Festival 2025',
-        target_at: '2025-07-03T18:00:00+03:00',
-        status: 'APPROVED',
-        privacy: 'PUBLIC',
-        city: 'Constanța',
-        image_url: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800'
-      },
-      {
-        title: 'Electric Castle 2025',
-        target_at: '2025-07-16T18:00:00+03:00',
-        status: 'APPROVED',
-        privacy: 'PUBLIC',
-        city: 'Bonțida',
-        image_url: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800'
-      }
-    ];
-
-    for (const countdown of realCountdowns) {
-      await supabase.from('countdown').insert(countdown);
-    }
-
-    // 8. Update existing matches with TV channels and derby status
-    const { data: existingMatches } = await supabase
-      .from('match')
-      .select('id, home, away, tv_channels')
-      .gte('kickoff_at', new Date().toISOString());
-
-    if (existingMatches && existingMatches.length > 0) {
-      const tvChannels = ['Digi Sport 1', 'Prima Sport 1', 'Orange Sport 1', 'Sport.ro', 'Look Sport', 'Antena Stars', 'TVR 1'];
-      
-      for (const match of existingMatches) {
-        // Only update if no TV channels are set
-        if (!match.tv_channels || match.tv_channels.length === 0) {
-          // Random 1-3 TV channels for each match
-          const selectedChannels = tvChannels
-            .sort(() => Math.random() - 0.5)
-            .slice(0, Math.floor(Math.random() * 3) + 1);
-          
-          await supabase
-            .from('match')
-            .update({ 
-              tv_channels: selectedChannels,
-              is_derby: Math.random() > 0.8 // 20% chance of being a derby
-            })
-            .eq('id', match.id);
-        }
-      }
-    }
-
-    console.log('Real data population completed successfully!');
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Database populated with real Romanian data',
-        data: {
-          categories: categories.length,
-          events: realEvents.length,
-          matches: realMatches.length,
-          movies: realMovies.length,
-          holidays: realHolidays.length,
-          countdowns: realCountdowns.length
-        }
+        message: 'Database populated with real data including TV shows',
+        data: summary
       }),
       { 
         headers: { 
