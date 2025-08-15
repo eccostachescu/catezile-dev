@@ -34,25 +34,23 @@ export function TVEpisodeCard({ episode, className = "" }: TVEpisodeCardProps) {
   const airDate = new Date(episode.airstamp);
   const now = new Date();
   const isPast = airDate.getTime() < now.getTime();
+  
+  // Use show image as fallback
+  const imageUrl = episode.show_image_url || '/lovable-uploads/7ae2643e-bb54-41a5-8229-8083f11a64e9.png';
 
   return (
     <Card className={`group hover:shadow-lg transition-shadow overflow-hidden ${className}`}>
       {/* Hero image with countdown overlay */}
       <div className="relative h-48 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5">
-        {episode.show_image_url ? (
-          <img
-            src={episode.show_image_url}
-            alt={episode.show_name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Tv className="h-16 w-16 text-muted-foreground" />
-          </div>
-        )}
+        <img
+          src={imageUrl}
+          alt={episode.show_name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            // Fallback to default concert image
+            (e.target as HTMLImageElement).src = '/lovable-uploads/7ae2643e-bb54-41a5-8229-8083f11a64e9.png';
+          }}
+        />
         
         {/* Countdown overlay - matching EventCard style */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

@@ -38,6 +38,7 @@ import TVGuide from "./pages/TVGuide";
 import TVChannelPage from "./pages/TVChannel";
 import AdminSearch from "./pages/AdminSearch";
 import { TVShows } from "./pages/TVShows";
+import { TVShow } from "./pages/TVShow";
 import { AdminTVShows } from "./pages/AdminTVShows";
 import { SEOProvider } from "@/seo/SEOProvider";
 import { AuthProvider } from "@/lib/auth";
@@ -132,6 +133,7 @@ const AppShell = () => {
                 <Route path="/echipa/:teamSlug" element={<TeamPage />} />
                 <Route path="/tv" element={<TVGuide />} />
                 <Route path="/tv/emisiuni" element={<TVShows />} />
+                <Route path="/tv/emisiuni/:slug" element={<TVShow />} />
                 <Route path="/tv/:channelSlug" element={<TVChannelPage />} />
 
                 {/* Data Import */}
