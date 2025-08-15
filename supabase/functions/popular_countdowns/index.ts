@@ -105,15 +105,20 @@ serve(async (req) => {
     }
 
     // 3. Get upcoming movies with posters
+    const today = new Date().toISOString().split('T')[0];
+    const futureDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
     const { data: upcomingMovies } = await supabase
       .from('movie')
       .select('*')
-      .gte('cinema_release_ro', new Date().toISOString().split('T')[0])
-      .lt('cinema_release_ro', new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      .gte('cinema_release_ro', today)
+      .lt('cinema_release_ro', futureDate)
       .not('poster_url', 'is', null)
       .neq('poster_url', '')
       .order('cinema_release_ro', { ascending: true })
-      .limit(5);
+      .limit(8);
+
+    console.log(`Found ${upcomingMovies?.length || 0} upcoming movies with posters`);
 
     if (upcomingMovies) {
       const transformedMovies = upcomingMovies.map(movie => ({
