@@ -25,11 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          echo "Removing problematic package-lock.json to force regeneration"
-          rm -f package-lock.json
-          npm install --no-audit --no-fund
-          echo "Dependencies installed successfully"
+        run: npm install --no-audit --no-fund
 
       - name: Run tests
         run: npm test --if-present

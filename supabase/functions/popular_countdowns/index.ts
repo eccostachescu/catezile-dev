@@ -104,15 +104,15 @@ serve(async (req) => {
       finalEvents = [...finalEvents, ...transformedMatches];
     }
 
-    // 3. Get upcoming movies with posters
+    // 3. Get upcoming movies with posters (within next 6 months)
     const today = new Date().toISOString().split('T')[0];
-    const futureDate = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const futureDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     
     const { data: upcomingMovies } = await supabase
       .from('movie')
       .select('*')
       .gte('cinema_release_ro', today)
-      .lt('cinema_release_ro', futureDate)
+      .lte('cinema_release_ro', futureDate)
       .not('poster_url', 'is', null)
       .neq('poster_url', '')
       .order('cinema_release_ro', { ascending: true })
