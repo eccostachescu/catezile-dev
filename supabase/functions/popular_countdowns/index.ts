@@ -113,27 +113,40 @@ serve(async (req) => {
       .select('*')
       .gte('cinema_release_ro', today)
       .lte('cinema_release_ro', futureDate)
+      .not('poster_url', 'is', null)
+      .neq('poster_url', '')
       .order('cinema_release_ro', { ascending: true })
       .limit(8);
 
     console.log(`Found ${upcomingMovies?.length || 0} upcoming movies with posters`);
 
     if (upcomingMovies) {
-      const transformedMovies = upcomingMovies.map(movie => ({
-        id: movie.id,
-        slug: movie.slug,
-        title: movie.title,
-        starts_at: movie.cinema_release_ro + 'T00:00:00Z',
-        image_url: movie.poster_url || `https://images.unsplash.com/photo-1489599577372-f67b0af1a506?w=400&h=600&fit=crop&q=60`,
-        city: null,
-        country: 'RO',
-        category_id: null,
-        category_name: 'Filme',
-        category_slug: 'filme',
-        score: 0,
-        time_status: 'UPCOMING',
-        source: 'movie_api'
-      }));
+      const transformedMovies = upcomingMovies.map(movie => {
+        // Build proper poster URL - prioritize poster_url, fallback to poster_path with TMDB base
+        let imageUrl = movie.poster_url;
+        if (!imageUrl && movie.poster_path) {
+          imageUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+        }
+        if (!imageUrl) {
+          imageUrl = `https://images.unsplash.com/photo-1489599577372-f67b0af1a506?w=400&h=600&fit=crop&q=60`;
+        }
+
+        return {
+          id: movie.id,
+          slug: movie.slug,
+          title: movie.title,
+          starts_at: movie.cinema_release_ro + 'T00:00:00Z',
+          image_url: imageUrl,
+          city: null,
+          country: 'RO',
+          category_id: null,
+          category_name: 'Filme',
+          category_slug: 'filme',
+          score: 0,
+          time_status: 'UPCOMING',
+          source: 'movie_api'
+        };
+      });
 
       finalEvents = [...finalEvents, ...transformedMovies];
     }
