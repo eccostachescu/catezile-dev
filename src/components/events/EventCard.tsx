@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/Badge";
-import { Button } from "@/components/Button";
+import { Badge } from "@/components/ui/cz-badge";
+import { Button } from "@/components/ui/cz-button";
 import { MapPin, Clock, Bell } from "lucide-react";
 import ReminderButton from "@/components/ReminderButton";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { fmtShortDate, fmtTime } from "@/lib/i18n/formats";
 import { simpleCountdown } from "@/lib/i18n/countdown";
+import { motion } from 'framer-motion';
+import { getEventImageSmart } from '@/lib/images';
+import { formatRoDate } from '@/lib/date';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface Event {
   id: string;
@@ -27,14 +31,124 @@ interface EventCardProps {
   className?: string;
 }
 
+// Countdown Component matching homepage design
+function RealCountdown({ targetDate, status }: { targetDate: string; status?: string }) {
+  const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number, seconds: number, status: string}>({
+    days: 0, hours: 0, minutes: 0, seconds: 0, status: 'loading'
+  });
+  const [isVisible, setIsVisible] = useState(false);
+  const countdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!countdownRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setIsVisible(entries[0].isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(countdownRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const target = new Date(targetDate);
+      const diff = target.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        if (status === "live") {
+          return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "LIVE" };
+        }
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "Trecut" };
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      return { days, hours, minutes, seconds, status: "countdown" };
+    };
+
+    const updateTimer = () => {
+      setTimeLeft(calculateTimeLeft());
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate, status, isVisible]);
+
+  const { days, hours, minutes, seconds, status: countdownStatus } = timeLeft;
+
+  return (
+    <div ref={countdownRef} className="w-full">
+      {countdownStatus === "LIVE" && (
+        <div className="bg-red-600 text-white px-3 py-2 rounded-lg text-center font-bold">
+          <div className="flex items-center justify-center gap-1">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            LIVE
+          </div>
+        </div>
+      )}
+      
+      {countdownStatus === "Trecut" && (
+        <div className="bg-gray-500 text-white px-3 py-2 rounded-lg text-center font-bold">
+          Trecut
+        </div>
+      )}
+      
+      {countdownStatus === "countdown" && (
+        <div className="grid grid-cols-4 gap-1 text-center">
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(days).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Zile</div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(hours).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Ore</div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(minutes).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Min</div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
+            <div className="text-lg font-bold leading-none">{String(seconds).padStart(2, '0')}</div>
+            <div className="text-xs opacity-80">Sec</div>
+          </div>
+        </div>
+      )}
+      
+      {countdownStatus === "loading" && (
+        <div className="bg-gray-300 animate-pulse rounded-lg py-4 text-center">
+          <div className="text-gray-500 text-sm">...</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function EventCard({ event, className }: EventCardProps) {
   const { t } = useI18n();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [smartImage, setSmartImage] = useState<string | null>(event.image_url || null);
+
   const startDate = new Date(event.starts_at);
   const endDate = event.ends_at ? new Date(event.ends_at) : null;
-  
-  const dayMonth = fmtShortDate(event.starts_at);
-  const time = fmtTime(event.starts_at);
-  const countdownLabel = simpleCountdown(event.starts_at, event.ends_at || undefined);
+
+  // Get smart images if we don't have one
+  useEffect(() => {
+    if (!event.image_url && event.title && event.category?.name) {
+      getEventImageSmart({ title: event.title, category: event.category.name }).then(setSmartImage);
+    }
+  }, [event.title, event.category?.name, event.image_url]);
 
   const formatLocation = () => {
     const parts = [];
@@ -43,84 +157,127 @@ export default function EventCard({ event, className }: EventCardProps) {
     return parts.join(', ');
   };
 
+  const getCategoryVariant = (cat: string) => {
+    switch (cat?.toLowerCase()) {
+      case 'sport': return 'sport';
+      case 'film': case 'movie': return 'film';
+      case 'holiday': case 'sarbatoare': return 'holiday';
+      case 'religioasa': return 'holiday';
+      default: return 'event';
+    }
+  };
+
+  const getGradientFallback = () => {
+    const gradients = {
+      sport: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%)',
+      film: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 50%, #ef4444 100%)',
+      holiday: 'linear-gradient(135deg, #166534 0%, #16a34a 50%, #22c55e 100%)',
+      event: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a855f7 100%)',
+      default: 'linear-gradient(135deg, #1a2440 0%, #10192e 50%, #0b1020 100%)'
+    };
+    
+    const categoryKey = event.category?.name?.toLowerCase() || 'default';
+    return gradients[categoryKey as keyof typeof gradients] || gradients.default;
+  };
+
   return (
-    <article className={cn(
-      "group bg-card border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200",
-      className
-    )}>
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={cn(
+        "group relative bg-[--cz-surface] border border-[--cz-border] rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[var(--cz-shadow-hover)]",
+        className
+      )}
+      style={{ boxShadow: 'var(--cz-shadow-card)' }}
+    >
+      {/* Clickable Image Container */}
       <Link to={`/evenimente/${event.slug}`} className="block">
-        {event.image_url ? (
-          <div className="aspect-video relative overflow-hidden">
+        <div className="aspect-video relative overflow-hidden">
+          {(smartImage || event.image_url) && !imageError ? (
             <img
-              src={event.image_url}
-              alt={event.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              src={smartImage || event.image_url}
+              alt={`${event.title} - ${event.category?.name || 'Eveniment'}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
+              decoding="async"
+              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+              onLoad={() => {
+                setImageLoaded(true);
+              }}
+              onError={(e) => {
+                setImageError(true);
+              }}
             />
-            <div className="absolute top-4 left-4 bg-background/90 rounded-lg p-3 text-center min-w-[60px]">
-              <div className="text-lg font-bold leading-none">{dayMonth}</div>
-              {countdownLabel !== 'încheiat' && (
-                <div className="text-xs text-primary mt-1 font-medium">{countdownLabel}</div>
-              )}
+          ) : (
+            <div 
+              className="w-full h-full relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+              style={{ 
+                background: getGradientFallback(),
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              {/* Overlay pattern */}
+              <div className="absolute inset-0 bg-black/10" />
+              
+              {/* Content overlay */}
+              <div className="relative text-center text-white/90 p-4">
+                <div className="text-lg font-semibold mb-1 line-clamp-2">{event.title}</div>
+                <div className="text-sm opacity-80">{event.category?.name || 'Eveniment'}</div>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="aspect-video bg-muted flex items-center justify-center relative">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-muted-foreground">{dayMonth}</div>
-              {countdownLabel !== 'încheiat' && (
-                <div className="text-sm text-primary font-medium">{countdownLabel}</div>
-              )}
-            </div>
-          </div>
-        )}
+          )}
+          
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[--cz-overlay] to-transparent" />
+        </div>
       </Link>
 
-      <div className="p-4 space-y-3">
-        <div className="space-y-2">
-          {event.category && (
-            <Badge variant="secondary" className="text-xs">
-              {event.category.name}
-            </Badge>
-          )}
-          
-          <Link to={`/evenimente/${event.slug}`}>
-            <h3 className="font-semibold text-lg leading-tight group-hover:text-primary transition-colors">
-              {event.title}
-            </h3>
-          </Link>
-          
-          {event.subtitle && (
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {event.subtitle}
-            </p>
-          )}
-        </div>
+      {/* Hero Countdown Display */}
+      <div className="p-4">
+        <RealCountdown targetDate={event.starts_at} />
+      </div>
 
-        <div className="space-y-2 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 flex-shrink-0" />
-            <span>{time}</span>
-            {endDate && (
-              <>
-                <span>–</span>
-                <span>{endDate.toLocaleTimeString('ro-RO', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}</span>
-              </>
-            )}
+      {/* Content */}
+      <div className="px-4 pb-4 space-y-3 min-h-[100px]">
+        {/* Category Badge */}
+        {event.category && (
+          <Badge variant={getCategoryVariant(event.category.name)} className="text-xs">
+            {event.category.name}
+          </Badge>
+        )}
+        
+        {/* Clickable Title */}
+        <Link to={`/evenimente/${event.slug}`}>
+          <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer">
+            {event.title}
+          </h3>
+        </Link>
+        
+        {event.subtitle && (
+          <p className="text-sm text-[--cz-ink-muted] line-clamp-2">
+            {event.subtitle}
+          </p>
+        )}
+        
+        {/* Meta Info */}
+        <div className="flex items-center justify-between text-sm text-[--cz-ink-muted]">
+          <div className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            <span>{formatRoDate(startDate, false)}</span>
           </div>
           
           {formatLocation() && (
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 flex-shrink-0" />
+            <div className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
               <span className="truncate">{formatLocation()}</span>
             </div>
           )}
         </div>
-
-        <div className="flex items-center justify-between pt-2">
+        
+        {/* Actions */}
+        <div className="flex items-center justify-between">
           <ReminderButton 
             when={startDate}
             kind="event"
@@ -129,11 +286,11 @@ export default function EventCard({ event, className }: EventCardProps) {
           
           <Link to={`/evenimente/${event.slug}`}>
             <Button variant="outline" size="sm">
-              {t('events.details')}
+              Detalii
             </Button>
           </Link>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }

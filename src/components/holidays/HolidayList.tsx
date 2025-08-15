@@ -61,7 +61,7 @@ export function HolidayList({ instances, showYear = false }: HolidayListProps) {
             {monthNames[group.month]} {showYear && group.year}
           </h2>
           
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {group.instances
               .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
               .map((instance) => (
