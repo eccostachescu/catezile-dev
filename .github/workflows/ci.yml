@@ -15,11 +15,10 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci --no-audit --no-fund || (rm package-lock.json && npm install --no-audit --no-fund)
-          else
-            npm install --no-audit --no-fund
-          fi
+          echo "Removing problematic package-lock.json to force regeneration"
+          rm -f package-lock.json
+          npm install --no-audit --no-fund
+          echo "Dependencies installed successfully"
       - name: Typecheck
         run: npx tsc -p tsconfig.json --noEmit
       - name: Lint
