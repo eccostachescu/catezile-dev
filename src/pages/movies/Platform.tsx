@@ -14,55 +14,55 @@ export default function Platform() {
 
   const platformNames: Record<string, string> = {
     netflix: "Netflix",
-    prime: "Amazon Prime Video", 
-    max: "Max",
+    prime: "Prime Video", 
+    max: "HBO Max",
     "hbo-max": "HBO Max",
     disney: "Disney+",
     "apple-tv": "Apple TV+"
   };
 
-  const platformName = platformNames[platform || ""] || platform;
+  const platformName = platformNames[platform || ""] || "undefined";
 
   useEffect(() => {
     async function loadPlatformMovies() {
       if (!platform) return;
       
       try {
-        // Get movies from this platform with upcoming dates
-        const { data: moviePlatforms } = await supabase
-          .from('movie_platform')
-          .select(`
-            available_from,
-            movie:movie_id (
-              id,
-              title,
-              slug,
-              poster_path,
-              overview,
-              genres,
-              runtime,
-              popularity,
-              cinema_release_ro
-            )
-          `)
-          .eq('platform_id', (await supabase
-            .from('ott_platform')
-            .select('id')
-            .eq('slug', platform)
-            .maybeSingle()
-          ).data?.id)
-          .gte('available_from', new Date().toISOString().split('T')[0])
-          .order('available_from', { ascending: true })
-          .limit(20);
+        // Query movies that have the platform in their streaming_ro data
+        const { data, error } = await supabase
+          .from('movie')
+          .select('*')
+          .not('streaming_ro', 'is', null)
+          .order('popularity', { ascending: false })
+          .limit(50);
 
-        const formattedMovies = moviePlatforms?.map(mp => ({
-          ...mp.movie,
-          next_date: {
-            date: mp.available_from,
-            type: 'streaming' as const,
-            platform: platformName
-          }
-        })) || [];
+        if (error) throw error;
+
+        // Filter movies that have the specific platform based on the platform mapping
+        const platformMapping: Record<string, string> = {
+          netflix: "Netflix",
+          prime: "Prime Video",
+          max: "HBO Max",
+          "hbo-max": "HBO Max",
+          disney: "Disney+",
+          "apple-tv": "Apple TV+"
+        };
+
+        const platformField = platformMapping[platform] || platform;
+        
+        const platformMovies = (data || []).filter((movie: any) => {
+          return movie.streaming_ro && movie.streaming_ro[platformField];
+        });
+
+        // Format movies with next_date for compatibility
+        const formattedMovies = platformMovies.map(movie => ({
+          ...movie,
+          next_date: movie.cinema_release_ro ? {
+            date: movie.cinema_release_ro,
+            type: 'cinema' as const,
+            platform: 'Cinema'
+          } : null
+        }));
 
         setMovies(formattedMovies);
       } catch (error) {
@@ -73,7 +73,7 @@ export default function Platform() {
     }
 
     loadPlatformMovies();
-  }, [platform, platformName]);
+  }, [platform]);
 
   const title = `Filme pe ${platformName} — Noutăți și date de lansare`;
   const description = `Descoperă filmele care vor apărea pe ${platformName} în România. Data de lansare, trailere și reminder-e pentru noile filme.`;
