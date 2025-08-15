@@ -7,7 +7,7 @@ test('Basic smoke test - homepage loads', async ({ page }) => {
 
 test('Navigation exists', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('nav')).toBeVisible();
+  await expect(page.locator('nav').first()).toBeVisible();
 });
 
 test('Health check works', async ({ request }) => {
