@@ -26,7 +26,7 @@ export default function NewHomepage() {
   useEffect(() => {
     const fetchPopularEvents = async () => {
       try {
-        // Remove image filter to debug what data we're getting, but ensure we have good fallbacks
+        // Get popular countdowns (now with sample data that has images)
         const { data, error } = await supabase.functions.invoke('popular_countdowns', {
           body: { 
             limit: 12, 
@@ -34,26 +34,15 @@ export default function NewHomepage() {
           }
         });
 
-        console.log('🔍 Popular events API response:', data);
-        console.log('🔍 Popular events error:', error);
-
         if (error) {
-          console.error('❌ Error fetching popular events:', error);
+          console.error('Error fetching popular events:', error);
           return;
         }
 
         const eventData = data?.events || [];
-        console.log('🔍 Events with image URLs:', eventData.map(e => ({
-          id: e.id,
-          title: e.title,
-          image_url: e.image_url,
-          source: e.source,
-          has_image: !!e.image_url
-        })));
-        
         setEvents(eventData);
       } catch (error) {
-        console.error('❌ Error in popular events fetch:', error);
+        console.error('Error in popular events fetch:', error);
       } finally {
         setLoading(false);
       }

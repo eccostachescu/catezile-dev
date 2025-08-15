@@ -136,16 +136,6 @@ export default function CardCountdown({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // Debug logging for image URLs
-  useEffect(() => {
-    console.log(`🖼️ Card ${title}:`, {
-      imageUrl,
-      hasImageUrl: !!imageUrl,
-      category,
-      id
-    });
-  }, [imageUrl, title, category, id]);
-
   // Track impression when card becomes visible (throttled)
   useEffect(() => {
     if (!cardRef.current) return;
@@ -248,10 +238,8 @@ export default function CardCountdown({
             sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
             onLoad={() => {
               setImageLoaded(true);
-              console.log(`✅ Image loaded successfully: ${imageUrl}`);
             }}
             onError={(e) => {
-              console.log(`❌ Image failed to load: ${imageUrl}`);
               setImageError(true);
             }}
           />
@@ -296,7 +284,7 @@ export default function CardCountdown({
       {/* Content */}
       <div className="px-4 pb-4 space-y-3 min-h-[100px]">
         {/* Title */}
-        <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={() => window.location.href = `/evenimente/${slug}`}>
+        <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={() => window.location.href = `/countdown/${slug}`}>
           {title}
         </h3>
         
