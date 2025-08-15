@@ -18,6 +18,7 @@ interface CountdownCardProps {
   rank?: number;
   score?: number;
   className?: string;
+  source?: string; // Add source to determine routing
 }
 
 interface TimeLeft {
@@ -37,7 +38,8 @@ export default function CountdownCard({
   categorySlug,
   rank,
   score,
-  className
+  className,
+  source
 }: CountdownCardProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0 });
 
@@ -121,13 +123,29 @@ export default function CountdownCard({
     }
   };
 
+  // Determine the correct route based on source
+  const getRouteUrl = () => {
+    switch (source) {
+      case 'match_api':
+        return `/sport/${slug}`;
+      case 'movie_api':
+        return `/filme/${slug}`;
+      case 'user_countdown':
+        return `/c/${id}`;
+      case 'published_event':
+      case 'popular_events':
+      default:
+        return `/evenimente/${slug}`;
+    }
+  };
+
   return (
     <Card className={cn(
       "group relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1",
       className
     )}>
       <Link 
-        to={`/evenimente/${slug}`}
+        to={getRouteUrl()}
         onClick={handleCardClick}
         className="block"
       >

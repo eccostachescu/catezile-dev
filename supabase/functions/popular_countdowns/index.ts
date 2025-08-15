@@ -113,8 +113,6 @@ serve(async (req) => {
       .select('*')
       .gte('cinema_release_ro', today)
       .lte('cinema_release_ro', futureDate)
-      .not('poster_url', 'is', null)
-      .neq('poster_url', '')
       .order('cinema_release_ro', { ascending: true })
       .limit(8);
 
@@ -126,7 +124,7 @@ serve(async (req) => {
         slug: movie.slug,
         title: movie.title,
         starts_at: movie.cinema_release_ro + 'T00:00:00Z',
-        image_url: movie.poster_url,
+        image_url: movie.poster_url || `https://images.unsplash.com/photo-1489599577372-f67b0af1a506?w=400&h=600&fit=crop&q=60`,
         city: null,
         country: 'RO',
         category_id: null,

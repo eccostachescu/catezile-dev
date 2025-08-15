@@ -16,6 +16,7 @@ interface PopularEvent {
   category_name?: string;
   category_slug?: string;
   score: number;
+  source?: string; // Add source field
 }
 
 export default function Popular() {
@@ -139,6 +140,7 @@ export default function Popular() {
                   categorySlug={event.category_slug}
                   rank={index + 1}
                   score={event.score}
+                  source={event.source} // Pass source for correct routing
                 />
               ))}
             </div>
