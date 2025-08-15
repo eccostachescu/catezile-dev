@@ -134,6 +134,7 @@ const AppShell = () => {
                 <Route path="/tv" element={<TVGuide />} />
                 <Route path="/tv/emisiuni" element={<TVShows />} />
                 <Route path="/tv/emisiuni/:slug" element={<TVShow />} />
+                <Route path="/countdown/tv/:slug" element={<TVShow />} />
                 <Route path="/tv/:channelSlug" element={<TVChannelPage />} />
 
                 {/* Data Import */}

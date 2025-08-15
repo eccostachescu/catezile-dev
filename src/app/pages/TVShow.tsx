@@ -74,12 +74,29 @@ export function TVShow() {
         const { data: tvmazeShow } = await supabase
           .from('tvmaze_show')
           .select('*')
-          .ilike('name', `%${slug?.replace('-', ' ')}%`)
+          .ilike('name', `%${slug?.replace(/-/g, ' ')}%`)
           .single();
 
         if (tvmazeShow) {
           setShow(tvmazeShow);
           await loadEpisodes(tvmazeShow.tvmaze_id);
+        } else {
+          // Final fallback: check if it's a countdown URL that should redirect to /tv/emisiuni/
+          const cleanSlug = slug?.replace('insula-iubirii', 'insula-iubirii')
+            .replace(/countdown\/tv\//, '');
+          
+          if (cleanSlug && cleanSlug !== slug) {
+            const { data: fallbackShow } = await supabase
+              .from('tvmaze_show')
+              .select('*')
+              .ilike('name', `%${cleanSlug.replace(/-/g, ' ')}%`)
+              .single();
+              
+            if (fallbackShow) {
+              setShow(fallbackShow);
+              await loadEpisodes(fallbackShow.tvmaze_id);
+            }
+          }
         }
       }
     } catch (error) {
