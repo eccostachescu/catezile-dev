@@ -144,25 +144,30 @@ export default function CardCountdown({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Track impression analytics with throttling
+            // Track impression analytics with enhanced throttling
             if (typeof window !== 'undefined' && window.plausible) {
               // Only track if we haven't tracked this card recently
               const trackingKey = `card_impression_${id}`;
               const lastTracked = sessionStorage.getItem(trackingKey);
               const now = Date.now();
               
-              if (!lastTracked || now - parseInt(lastTracked) > 30000) { // 30 second throttle
-                try {
-                  window.plausible('popular_card_impression', {
-                    props: { 
-                      event_id: id,
-                      category: category || 'unknown'
-                    }
-                  });
-                  sessionStorage.setItem(trackingKey, now.toString());
-                } catch (error) {
-                  // Silently ignore analytics errors
-                }
+              // Increased throttle to 60 seconds and add randomization to prevent bursts
+              if (!lastTracked || now - parseInt(lastTracked) > 60000) {
+                // Add random delay to spread out analytics calls
+                const delay = Math.random() * 2000; // 0-2 second random delay
+                setTimeout(() => {
+                  try {
+                    window.plausible('popular_card_impression', {
+                      props: { 
+                        event_id: id,
+                        category: category || 'unknown'
+                      }
+                    });
+                    sessionStorage.setItem(trackingKey, now.toString());
+                  } catch (error) {
+                    // Silently ignore analytics errors
+                  }
+                }, delay);
               }
             }
             observer.unobserve(entry.target);
