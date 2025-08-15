@@ -835,13 +835,6 @@ export type Database = {
             foreignKeyName: "event_alt_airings_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_alt_airings_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
             referencedRelation: "popular_signals"
             referencedColumns: ["event_id"]
           },
@@ -905,13 +898,6 @@ export type Database = {
             foreignKeyName: "event_moderation_log_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_moderation_log_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
             referencedRelation: "popular_signals"
             referencedColumns: ["event_id"]
           },
@@ -949,13 +935,6 @@ export type Database = {
             foreignKeyName: "event_offer_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_offer_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
             referencedRelation: "popular_signals"
             referencedColumns: ["event_id"]
           },
@@ -980,13 +959,6 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "event"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "event_tag_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "popular_countdowns_mv"
             referencedColumns: ["id"]
           },
           {
@@ -2914,32 +2886,6 @@ export type Database = {
       }
     }
     Views: {
-      popular_countdowns_mv: {
-        Row: {
-          category_id: string | null
-          category_name: string | null
-          category_slug: string | null
-          city: string | null
-          country: string | null
-          id: string | null
-          image_credit: string | null
-          image_url: string | null
-          score: number | null
-          slug: string | null
-          starts_at: string | null
-          time_status: string | null
-          title: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "category"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       popular_signals: {
         Row: {
           event_id: string | null
@@ -3234,6 +3180,24 @@ export type Database = {
       get_newsletter_subscriber_count: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      get_popular_countdowns: {
+        Args: { limit_count?: number; offset_count?: number }
+        Returns: {
+          category_id: string
+          category_name: string
+          category_slug: string
+          city: string
+          country: string
+          id: string
+          image_credit: string
+          image_url: string
+          score: number
+          slug: string
+          starts_at: string
+          time_status: string
+          title: string
+        }[]
       }
       get_profile_without_email: {
         Args: { profile_id: string }

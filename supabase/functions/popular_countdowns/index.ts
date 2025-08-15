@@ -37,34 +37,13 @@ serve(async (req) => {
 
     console.log(`Fetching popular countdowns with real images only - limit: ${limit}, offset: ${offset}, category: ${category}, timeStatus: ${timeStatus}`);
 
-    // Build query
-    let query = supabase
-      .from('popular_countdowns_mv')
-      .select('*');
+    // Build query using the database function instead of materialized view
+    let baseQuery = supabase.rpc('get_popular_countdowns', {
+      limit_count: limit + offset,
+      offset_count: 0
+    });
 
-    // Always exclude past events from popular countdowns
-    query = query.gte('starts_at', new Date().toISOString());
-
-    // Add filters
-    if (category && category !== 'all') {
-      query = query.eq('category_slug', category);
-    }
-
-    if (timeStatus && timeStatus !== 'all') {
-      query = query.eq('time_status', timeStatus);
-    }
-
-    // Always filter only events with real images (not auto-generated)
-    // Include events with image_credit indicating real sources
-    query = query.not('image_url', 'is', null)
-      .neq('image_url', '')
-      .or('image_credit.eq.TMDB,image_credit.eq.TVMaze,image_credit.eq.Manual,image_credit.eq.Admin,image_credit.eq.Upload');
-
-    // Add pagination and ordering
-    const { data: popularEvents, error } = await query
-      .order('score', { ascending: false })
-      .order('starts_at', { ascending: true })
-      .range(offset, offset + limit - 1);
+    const { data: allPopularEvents, error } = await baseQuery;
 
     if (error) {
       console.error('Error fetching popular countdowns:', error);
@@ -73,6 +52,30 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Filter by category and time status if needed, and apply image filtering
+    let filteredEvents = (allPopularEvents || []).filter(event => {
+      // Always exclude past events from popular countdowns
+      if (new Date(event.starts_at) < new Date()) return false;
+      
+      // Filter by category
+      if (category && category !== 'all' && event.category_slug !== category) return false;
+      
+      // Filter by time status
+      if (timeStatus && timeStatus !== 'all' && event.time_status !== timeStatus) return false;
+      
+      // Always filter only events with real images (not auto-generated)
+      // Include events with image_credit indicating real sources
+      if (!event.image_url || event.image_url === '') return false;
+      if (event.image_credit && !['TMDB', 'TVMaze', 'Manual', 'Admin', 'Upload'].includes(event.image_credit)) {
+        return false;
+      }
+      
+      return true;
+    });
+
+    // Apply pagination
+    const popularEvents = filteredEvents.slice(offset, offset + limit);
 
     let finalEvents = popularEvents || [];
 
