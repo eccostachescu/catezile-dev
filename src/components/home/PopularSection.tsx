@@ -27,7 +27,10 @@ export default function PopularSection() {
       try {
         // Use Supabase SDK instead of direct fetch
         const { data, error } = await supabase.functions.invoke('popular_countdowns', {
-          body: { limit: 8 }
+          body: { 
+            limit: 8,
+            exclude_past: true // Exclude past events from popular section
+          }
         });
         
         if (error) {

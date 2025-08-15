@@ -30,7 +30,8 @@ export default function NewHomepage() {
         const { data, error } = await supabase.functions.invoke('popular_countdowns', {
           body: { 
             limit: 12, 
-            onlyWithImage: false // We'll handle fallbacks in the component
+            onlyWithImage: false, // We'll handle fallbacks in the component
+            exclude_past: true // Exclude past events from popular section
           }
         });
 

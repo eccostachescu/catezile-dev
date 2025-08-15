@@ -316,7 +316,7 @@ export default function CardCountdown({
             </Badge>
           )}
           
-          {onReminderClick && (
+          {onReminderClick && status !== "past" && new Date(startDate) > new Date() && (
             <button
               onClick={handleReminderClick}
               className="flex items-center gap-1 text-[--cz-primary] hover:text-[--cz-primary-600] transition-colors text-sm font-medium"
