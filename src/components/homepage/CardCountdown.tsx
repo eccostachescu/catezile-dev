@@ -191,9 +191,9 @@ export default function CardCountdown({
   };
 
   const getImageFallback = () => {
-    // Use Unsplash images as fallbacks instead of non-existent local files
+    // Use appropriate Unsplash images as fallbacks for each category
     const fallbackImages = {
-      sport: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop',
+      sport: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop', // Football/soccer field
       film: 'https://images.unsplash.com/photo-1489599510072-12d66b9ac1ae?w=800&h=600&fit=crop',
       holiday: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop',
       event: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
