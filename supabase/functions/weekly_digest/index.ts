@@ -24,7 +24,8 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ total }), { status: 200, headers: { 'Content-Type':'application/json', ...corsHeaders } });
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type':'application/json', ...corsHeaders } });
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500, headers: { 'Content-Type':'application/json', ...corsHeaders } });
   }
 });

@@ -57,7 +57,7 @@ export async function setupRomanianEnvironment(page: Page) {
     // Mock timezone
     Object.defineProperty(Intl, 'DateTimeFormat', {
       value: class extends Intl.DateTimeFormat {
-        constructor(locales?: string, options?: any) {
+        constructor(locales?: string, options?: Intl.DateTimeFormatOptions) {
           super(locales || locale.locale, { 
             ...options, 
             timeZone: locale.timeZone 
@@ -72,8 +72,8 @@ export async function setupRomanianEnvironment(page: Page) {
     
     // Override Date constructor
     const OriginalDate = Date;
-    (global as any).Date = class extends OriginalDate {
-      constructor(...args: any[]) {
+    (global as Record<string, unknown>).Date = class extends OriginalDate {
+      constructor(...args: unknown[]) {
         if (args.length === 0) {
           super(mockDate.getTime());
         } else {

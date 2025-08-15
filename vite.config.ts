@@ -30,7 +30,11 @@ export default defineConfig(async ({ mode }) => {
       {
         name: 'sitemaps-generator',
         async buildStart() {
-          try { await generateSitemaps(); } catch {}
+          try { 
+            await generateSitemaps(); 
+          } catch {
+            // Ignore sitemap generation errors during build
+          }
         },
         configureServer() {
           generateSitemaps().catch(() => {});

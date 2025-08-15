@@ -1,6 +1,46 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.54.0";
 
+// Types for better type safety
+interface MatchData {
+  id: string;
+  home: string;
+  away: string;
+  kickoff_at: string;
+  status: string;
+  score: ScoreData | null;
+}
+
+interface ScoreData {
+  home: { ht: number | null; ft: number | null };
+  away: { ht: number | null; ft: number | null };
+  minute?: number;
+}
+
+interface SportFixture {
+  fixture: {
+    date: string;
+    status: {
+      short: string;
+      elapsed: number | null;
+    };
+  };
+  teams: {
+    home: { name: string };
+    away: { name: string };
+  };
+  goals: {
+    home: number | null;
+    away: number | null;
+  };
+  score: {
+    halftime: {
+      home: number | null;
+      away: number | null;
+    };
+  };
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
@@ -74,16 +114,16 @@ serve(async (req: Request) => {
     }
 
     // Fetch provider data (api-football by date)
-    let providerFixtures: any[] = [];
+    const providerFixtures: SportFixture[] = [];
     if (provider === "api-football") {
       if (!baseUrl || !apiKey || !leagueId) throw new Error("Missing SPORTS_API_URL/KEY or LIGA1_PROVIDER_LEAGUE_ID");
-      const days = new Set(matches.map((m: any) => new Date(m.kickoff_at).toISOString().slice(0, 10)));
+      const days = new Set(matches.map((m: MatchData) => new Date(m.kickoff_at).toISOString().slice(0, 10)));
       for (const d of days) {
         const url = `${baseUrl.replace(/\/$/, "")}/fixtures?league=${encodeURIComponent(leagueId)}&date=${d}`;
         const res = await fetch(url, { headers: { "x-apisports-key": apiKey } });
         if (res.ok) {
           const body = await res.json();
-          (body.response || []).forEach((x: any) => providerFixtures.push(x));
+          (body.response || []).forEach((x: SportFixture) => providerFixtures.push(x));
         }
       }
     } else {
@@ -98,7 +138,7 @@ serve(async (req: Request) => {
     function findProviderFixture(home: string, away: string, kickoff: string) {
       const targetDay = kickoff.slice(0, 10);
       const nh = norm(home), na = norm(away);
-      return providerFixtures.find((f: any) => {
+      return providerFixtures.find((f: SportFixture) => {
         const fx = f.fixture || f;
         const tm = f.teams || {};
         const day = String(fx.date || "").slice(0, 10);
@@ -115,14 +155,14 @@ serve(async (req: Request) => {
       const goals = pf.goals || {};
       const score = pf.score || {};
       const st = statusMap[String(fx.status?.short || "NS").toUpperCase()] || "SCHEDULED";
-      const nextScore: any = {
+      const nextScore: ScoreData = {
         home: { ht: score?.halftime?.home ?? null, ft: goals?.home ?? null },
         away: { ht: score?.halftime?.away ?? null, ft: goals?.away ?? null },
       };
       const minute = fx.status?.elapsed ?? null;
       if (minute != null) nextScore.minute = minute;
 
-      const upd: any = {};
+      const upd: Record<string, unknown> = {};
       if (m.status !== st) upd.status = st;
       if (JSON.stringify(m.score || {}) !== JSON.stringify(nextScore)) upd.score = nextScore;
 
@@ -143,18 +183,27 @@ serve(async (req: Request) => {
     if (changedUpcoming > 0) {
       try {
         const url = `${supabaseUrl}/functions/v1/rebuild_hook`;
-        await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${serviceKey}` }, body: JSON.stringify({ scope: "sport" }) }).catch(() => {});
-      } catch {}
+        await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${serviceKey}` }, body: JSON.stringify({ scope: "sport" }) }).catch(() => {
+          // Ignore rebuild hook errors
+        });
+      } catch {
+        // Ignore rebuild hook errors
+      }
     }
 
     return new Response(JSON.stringify({ updated_live, finished }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
     try {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const supabase = createClient(supabaseUrl, serviceKey);
-      await supabase.from("ingestion_log").insert({ source: "liga1-live", status: "ERROR", message: e?.message || String(e) }).then(() => {});
-    } catch {}
-    return new Response(JSON.stringify({ error: e?.message || "Eroare" }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      await supabase.from("ingestion_log").insert({ source: "liga1-live", status: "ERROR", message: errorMessage }).then(() => {
+        // Log insertion complete
+      });
+    } catch {
+      // Ignore logging errors
+    }
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
   }
 });

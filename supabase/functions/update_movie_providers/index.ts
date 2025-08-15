@@ -2,6 +2,18 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.54.0";
 
+// Types for better type safety
+interface StreamingProvider {
+  provider_name: string;
+  provider_id: number;
+  logo_path: string;
+}
+
+interface ProviderData {
+  netflix?: { available: boolean };
+  prime?: { available: boolean };
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -49,10 +61,10 @@ serve(async (req) => {
         const prov = await tmdb(`/movie/${m.tmdb_id}/watch/providers`);
         const ro = prov?.results?.[REGION_RO] || {};
         const flatrate = ro.flatrate || [];
-        const names: string[] = flatrate.map((x: any) => x.provider_name);
+        const names: string[] = flatrate.map((x: StreamingProvider) => x.provider_name);
         const hasNetflix = names.some(n => n.toLowerCase().includes('netflix'));
         const hasPrime = names.some(n => n.toLowerCase().includes('prime'));
-        const provider: any = { ...(m.provider || {}) };
+        const provider: ProviderData = { ...(m.provider || {}) };
         if (hasNetflix) provider.netflix = { ...(provider.netflix || {}), available: true };
         if (hasPrime) provider.prime = { ...(provider.prime || {}), available: true };
         if (!hasNetflix && provider.netflix) provider.netflix.available = false;
@@ -63,17 +75,19 @@ serve(async (req) => {
           .eq('id', m.id);
         if (uerr) throw uerr;
         updated++;
-      } catch (e: any) {
-        errors.push({ id: m.tmdb_id, error: String(e?.message || e) });
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        errors.push({ id: m.tmdb_id, error: errorMessage });
       }
     }
 
     await supabase.from('ingestion_log').insert({ source: 'tmdb-providers', status: errors.length ? 'PARTIAL' : 'OK', rows: updated, message: errors.length ? JSON.stringify({ errors: errors.slice(0, 10) }) : null });
 
     return new Response(JSON.stringify({ ok: true, updated, scanned: movies?.length || 0, errors }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
     console.error('update_movie_providers error', e);
-    await supabase.from('ingestion_log').insert({ source: 'tmdb-providers', status: 'ERROR', message: String(e?.message || e) });
-    return new Response(JSON.stringify({ ok: false, error: String(e?.message || e) }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    await supabase.from('ingestion_log').insert({ source: 'tmdb-providers', status: 'ERROR', message: errorMessage });
+    return new Response(JSON.stringify({ ok: false, error: errorMessage }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });

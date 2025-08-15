@@ -10,7 +10,7 @@ test.describe('Launch QA - Critical User Flows', () => {
       // Mock timezone to Europe/Bucharest
       Object.defineProperty(Intl, 'DateTimeFormat', {
         value: class extends Intl.DateTimeFormat {
-          constructor(locale?: string, options?: any) {
+          constructor(locale?: string, options?: Intl.DateTimeFormatOptions) {
             super(locale || 'ro-RO', { ...options, timeZone: 'Europe/Bucharest' });
           }
         }
