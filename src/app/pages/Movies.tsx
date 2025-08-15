@@ -35,7 +35,7 @@ export default function Movies() {
   }, [sections]);
 
   useEffect(() => {
-    let cancelled = false;
+    const cancelled = false;
     async function load() {
       setLoading(true);
       try {

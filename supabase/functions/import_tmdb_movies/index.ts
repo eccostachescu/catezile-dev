@@ -69,7 +69,7 @@ serve(async (req) => {
       }
     }
 
-    let upserted = 0; let errors: Array<{ id: number; error: string }> = [];
+    let upserted = 0; const errors: Array<{ id: number; error: string }> = [];
     for (const id of ids) {
       try {
         const full = await tmdb(`/movie/${id}`, { append_to_response: 'release_dates,videos' });

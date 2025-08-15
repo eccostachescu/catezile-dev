@@ -12,6 +12,79 @@ const OUT_DIR = path.resolve(process.cwd(), 'public', 'sitemaps');
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
+// Type definitions for cleaner code
+interface Category {
+  slug: string;
+  updated_at: string;
+}
+
+interface StaticPage {
+  url: string;
+}
+
+interface Event {
+  slug: string;
+  start_at: string;
+  updated_at: string;
+  verified_at: string;
+  editorial_status: string;
+}
+
+interface Match {
+  id: string;
+  kickoff_at: string;
+  updated_at: string;
+  status: string;
+}
+
+interface Movie {
+  id: string;
+  slug: string;
+  updated_at: string;
+  cinema_release_ro: string;
+  status: string;
+}
+
+interface Countdown {
+  id: string;
+  updated_at: string;
+  target_at: string;
+  status: string;
+  privacy: string;
+}
+
+interface TVEpisode {
+  slug: string;
+  season: number;
+  number: number;
+  starts_at: string;
+}
+
+interface TVShow {
+  slug: string;
+  verified: boolean;
+}
+
+interface Tag {
+  slug: string;
+}
+
+interface TVChannel {
+  slug: string;
+}
+
+interface SitemapItem {
+  loc: string;
+  lastmod?: string;
+  changefreq?: string;
+  priority?: number;
+}
+
+interface SitemapSection {
+  section: string;
+  items: SitemapItem[];
+}
+
 function isoRo(dt?: string | Date | null) {
   const d = dt ? new Date(dt) : new Date();
   return formatInTimeZone(d, 'Europe/Bucharest', "yyyy-MM-dd'T'HH:mmXXX");
@@ -40,30 +113,30 @@ function writeGzipFile(filePath: string, xml: string) {
   return fs.writeFile(filePath, gz);
 }
 
-async function buildHomeAndHubs(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
-  const hubs: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] = [
+async function buildHomeAndHubs(): Promise<SitemapSection> {
+  const hubs: SitemapItem[] = [
     { loc: `${SITE_URL}/`, changefreq: 'daily', priority: 0.9 },
     { loc: `${SITE_URL}/sport`, changefreq: 'daily', priority: 0.9 },
     { loc: `${SITE_URL}/filme`, changefreq: 'daily', priority: 0.9 },
   ];
   const { data: cats } = await supabase.from('category').select('slug, updated_at').order('sort', { ascending: true });
-  (cats || []).forEach((c: any) => hubs.push({ loc: `${SITE_URL}/categorii/${c.slug}`, lastmod: isoRo(c.updated_at), changefreq: 'weekly', priority: 0.8 }));
+  (cats || []).forEach((c: Category) => hubs.push({ loc: `${SITE_URL}/categorii/${c.slug}`, lastmod: isoRo(c.updated_at), changefreq: 'weekly', priority: 0.8 }));
   return { section: 'home', items: hubs };
 }
 
-async function buildStatic(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
+async function buildStatic(): Promise<SitemapSection> {
   const { data } = await supabase.from('static_pages').select('url');
-  const items = (data || []).map((r: any) => ({ loc: `${SITE_URL}${r.url}`, changefreq: 'weekly', priority: 0.5 }));
+  const items = (data || []).map((r: StaticPage) => ({ loc: `${SITE_URL}${r.url}`, changefreq: 'weekly', priority: 0.5 }));
   return { section: 'static', items };
 }
 
-async function buildEvents(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
+async function buildEvents(): Promise<SitemapSection> {
   const now = new Date();
   const { data } = await supabase
     .from('event')
     .select('slug, start_at, updated_at, verified_at, editorial_status')
     .eq('editorial_status', 'PUBLISHED');
-  const items = (data || []).map((e: any) => {
+  const items = (data || []).map((e: Event) => {
     const last = isoRo(e.verified_at || e.updated_at || e.start_at || now);
     const soonDays = Math.abs((new Date(e.start_at).getTime() - now.getTime()) / 86400000);
     const priority = soonDays < 30 ? 0.8 : 0.6;
@@ -73,13 +146,13 @@ async function buildEvents(): Promise<{ section: string; items: { loc: string; l
   return { section: 'evenimente', items };
 }
 
-async function buildSport(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
+async function buildSport(): Promise<SitemapSection> {
   const now = new Date();
   const { data } = await supabase
     .from('match')
     .select('id, kickoff_at, updated_at, status')
     .in('status', ['SCHEDULED', 'FINISHED']);
-  const items = (data || []).map((m: any) => {
+  const items = (data || []).map((m: Match) => {
     const last = isoRo(m.updated_at || m.kickoff_at || now);
     const sameDay = Math.abs((new Date(m.kickoff_at).getTime() - now.getTime()) / 86400000) < 1;
     const changefreq = sameDay ? 'hourly' : 'daily';
@@ -89,13 +162,13 @@ async function buildSport(): Promise<{ section: string; items: { loc: string; la
   return { section: 'sport', items };
 }
 
-async function buildMovies(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
+async function buildMovies(): Promise<SitemapSection> {
   const now = new Date();
   const { data } = await supabase
     .from('movie')
     .select('id, slug, updated_at, cinema_release_ro, status')
     .in('status', ['SCHEDULED', 'RELEASED']);
-  const items = (data || []).map((m: any) => {
+  const items = (data || []).map((m: Movie) => {
     const lm = m.updated_at || m.cinema_release_ro || now;
     const last = isoRo(lm);
     const days = m.cinema_release_ro ? Math.abs((new Date(m.cinema_release_ro).getTime() - now.getTime()) / 86400000) : 90;
@@ -107,23 +180,23 @@ async function buildMovies(): Promise<{ section: string; items: { loc: string; l
   return { section: 'filme', items };
 }
 
-async function buildCountdowns(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
+async function buildCountdowns(): Promise<SitemapSection> {
   const now = new Date();
   const { data } = await supabase
     .from('countdown')
     .select('id, updated_at, target_at, status, privacy')
     .eq('status', 'APPROVED')
     .eq('privacy', 'PUBLIC');
-  const items = (data || []).map((c: any) => {
+  const items = (data || []).map((c: Countdown) => {
     const last = isoRo(c.updated_at || c.target_at || now);
     return { loc: `${SITE_URL}/c/${c.id}`, lastmod: last, changefreq: 'weekly', priority: 0.6 };
   });
   return { section: 'countdowns', items };
 }
 
-async function buildTVShows(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
+async function buildTVShows(): Promise<SitemapSection> {
   const now = new Date();
-  const items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] = [
+  const items: SitemapItem[] = [
     { loc: `${SITE_URL}/tv/emisiuni`, changefreq: 'daily', priority: 0.8 }
   ];
   
@@ -133,12 +206,12 @@ async function buildTVShows(): Promise<{ section: string; items: { loc: string; 
     .select('*')
     .limit(1000);
   
-  (episodes || []).forEach((ep: any) => {
+  (episodes || []).forEach((ep: TVEpisode) => {
     if (ep.slug && ep.season && ep.number) {
       const url = `${SITE_URL}/tv/${ep.slug}/s${ep.season}e${ep.number}`;
       items.push({ 
         loc: url, 
-        lastmod: isoRo(ep.airstamp), 
+        lastmod: isoRo(ep.starts_at), 
         changefreq: 'weekly', 
         priority: 0.6 
       });
@@ -152,7 +225,7 @@ async function buildTVShows(): Promise<{ section: string; items: { loc: string; 
     .not('slug', 'is', null)
     .eq('verified', true);
     
-  (shows || []).forEach((show: any) => {
+  (shows || []).forEach((show: TVShow) => {
     items.push({ 
       loc: `${SITE_URL}/tv/${show.slug}`, 
       changefreq: 'weekly', 
@@ -163,12 +236,12 @@ async function buildTVShows(): Promise<{ section: string; items: { loc: string; 
   return { section: 'tv-shows', items };
 }
 
-async function buildDiscovery(): Promise<{ section: string; items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] }> {
-  const items: { loc: string; lastmod?: string; changefreq?: string; priority?: number }[] = [];
+async function buildDiscovery(): Promise<SitemapSection> {
+  const items: SitemapItem[] = [];
   const { data: tags } = await supabase.from('tag').select('slug');
-  (tags || []).forEach((t: any) => items.push({ loc: `${SITE_URL}/tag/${t.slug}`, changefreq: 'weekly', priority: 0.5 }));
+  (tags || []).forEach((t: Tag) => items.push({ loc: `${SITE_URL}/tag/${t.slug}`, changefreq: 'weekly', priority: 0.5 }));
   const { data: tvs } = await supabase.from('tv_channel').select('slug');
-  (tvs || []).forEach((t: any) => items.push({ loc: `${SITE_URL}/tv/${t.slug}`, changefreq: 'weekly', priority: 0.5 }));
+  (tvs || []).forEach((t: TVChannel) => items.push({ loc: `${SITE_URL}/tv/${t.slug}`, changefreq: 'weekly', priority: 0.5 }));
   return { section: 'discovery', items };
 }
 

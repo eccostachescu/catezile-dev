@@ -40,7 +40,7 @@ serve(async (req) => {
 
     for (const r of (reminders || [])) {
       if (!r.next_fire_at) continue;
-      let fireAt = ensureQuiet(new Date(r.next_fire_at));
+      const fireAt = ensureQuiet(new Date(r.next_fire_at));
 
       // Check idempotency: any pending in this minute?
       const minuteBucket = new Date(fireAt);

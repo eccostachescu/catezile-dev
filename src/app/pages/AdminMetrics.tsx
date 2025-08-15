@@ -38,14 +38,9 @@ export default function AdminMetrics() {
     load();
   }, [startISO, isAdmin]);
 
-  if (!isAdmin) return (
-    <main className="container mx-auto p-4">
-      <SEO title="Admin Analytics" path="/admin/metrics" noIndex />
-      Doar admin.
-    </main>
-  );
-
+  // Move all useMemo hooks to top level - always called unconditionally
   const seriesByDay = useMemo(() => {
+    if (!isAdmin || !metrics.length) return [];
     const map: Record<string, any> = {};
     for (const m of metrics) {
       const d = m.day;
@@ -58,15 +53,26 @@ export default function AdminMetrics() {
       if (m.source === 'affiliate' && m.metric === 'revenue_est') map[d].revenue_aff += Number(m.value);
     }
     return Object.values(map).sort((a:any,b:any)=>a.day.localeCompare(b.day));
-  }, [metrics]);
+  }, [metrics, isAdmin]);
 
   const totalAffiliateClicks = useMemo(() => {
+    if (!isAdmin || !metrics.length) return [];
     const byDay: Record<string, number> = {};
     for (const m of metrics) if (m.source==='affiliate' && m.metric==='affiliate_clicks') byDay[m.day] = (byDay[m.day]||0) + Number(m.value);
     return Object.entries(byDay).map(([day, clicks]) => ({ day, clicks }));
-  }, [metrics]);
+  }, [metrics, isAdmin]);
 
-  const revenueSeries = useMemo(() => seriesByDay.map((d:any)=>({ day:d.day, est: Number(d.revenue_ads) + Number(d.revenue_aff) })), [seriesByDay]);
+  const revenueSeries = useMemo(() => {
+    if (!isAdmin) return [];
+    return seriesByDay.map((d:any)=>({ day:d.day, est: Number(d.revenue_ads) + Number(d.revenue_aff) }));
+  }, [seriesByDay, isAdmin]);
+
+  if (!isAdmin) return (
+    <main className="container mx-auto p-4">
+      <SEO title="Admin Analytics" path="/admin/metrics" noIndex />
+      Doar admin.
+    </main>
+  );
 
   const exportCsv = async () => {
     const { data, error } = await supabase.functions.invoke('export_metrics_csv', { body: { start: startISO } });

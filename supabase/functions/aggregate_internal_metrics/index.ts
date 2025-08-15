@@ -53,7 +53,7 @@ serve(async (req: Request) => {
 
     // Fetch affiliate metadata for EPC and merchant
     const allLinkIds = Array.from(new Set((clicks || []).map((c: any) => c.entity_id))).filter(Boolean);
-    let linkMeta: Record<string, { merchant: string | null; epc: number } > = {};
+    const linkMeta: Record<string, { merchant: string | null; epc: number } > = {};
     if (allLinkIds.length) {
       const { data: links } = await supabase.from('affiliate_link').select('id, merchant, epc_estimate').in('id', allLinkIds);
       for (const l of links || []) linkMeta[l.id] = { merchant: l.merchant, epc: Number(l.epc_estimate || 0) };
