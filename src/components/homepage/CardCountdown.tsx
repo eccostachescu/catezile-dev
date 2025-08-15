@@ -136,6 +136,16 @@ export default function CardCountdown({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
+  // Debug logging for image URLs
+  useEffect(() => {
+    console.log(`🖼️ Card ${title}:`, {
+      imageUrl,
+      hasImageUrl: !!imageUrl,
+      category,
+      id
+    });
+  }, [imageUrl, title, category, id]);
+
   // Track impression when card becomes visible (throttled)
   useEffect(() => {
     if (!cardRef.current) return;
@@ -228,7 +238,7 @@ export default function CardCountdown({
     >
       {/* Image Container */}
       <div className="aspect-video relative overflow-hidden">
-        {(imageUrl && !imageError) ? (
+        {imageUrl && !imageError ? (
           <img
             src={imageUrl}
             alt={`${title} - ${category || 'Eveniment'}`}
@@ -236,25 +246,33 @@ export default function CardCountdown({
             loading="lazy"
             decoding="async"
             sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
+            onLoad={() => {
+              setImageLoaded(true);
+              console.log(`✅ Image loaded successfully: ${imageUrl}`);
+            }}
+            onError={(e) => {
+              console.log(`❌ Image failed to load: ${imageUrl}`);
+              setImageError(true);
+            }}
           />
         ) : (
-          <>
-            {/* Use fallback image directly */}
-            <img
-              src={getImageFallback()}
-              alt={`${title} - ${category || 'Eveniment'}`}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-              decoding="async"
-              sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
-              onError={() => {
-                // If even the fallback fails, show gradient
-                setImageError(true);
-              }}
-            />
-          </>
+          <div 
+            className="w-full h-full relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+            style={{ 
+              background: getGradientFallback(),
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            {/* Overlay pattern */}
+            <div className="absolute inset-0 bg-black/10" />
+            
+            {/* Content overlay */}
+            <div className="relative text-center text-white/90 p-4">
+              <div className="text-lg font-semibold mb-1 line-clamp-2">{title}</div>
+              <div className="text-sm opacity-80">{category || 'Eveniment'}</div>
+            </div>
+          </div>
         )}
         
         {/* Overlay */}

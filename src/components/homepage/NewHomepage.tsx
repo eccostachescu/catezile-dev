@@ -26,23 +26,34 @@ export default function NewHomepage() {
   useEffect(() => {
     const fetchPopularEvents = async () => {
       try {
-        // Use the updated endpoint with onlyWithImage=1 filter
+        // Remove image filter to debug what data we're getting, but ensure we have good fallbacks
         const { data, error } = await supabase.functions.invoke('popular_countdowns', {
           body: { 
             limit: 12, 
-            onlyWithImage: true // Only show events with images
+            onlyWithImage: false // We'll handle fallbacks in the component
           }
         });
 
+        console.log('🔍 Popular events API response:', data);
+        console.log('🔍 Popular events error:', error);
+
         if (error) {
-          console.error('Error fetching popular events:', error);
+          console.error('❌ Error fetching popular events:', error);
           return;
         }
 
         const eventData = data?.events || [];
+        console.log('🔍 Events with image URLs:', eventData.map(e => ({
+          id: e.id,
+          title: e.title,
+          image_url: e.image_url,
+          source: e.source,
+          has_image: !!e.image_url
+        })));
+        
         setEvents(eventData);
       } catch (error) {
-        console.error('Error in popular events fetch:', error);
+        console.error('❌ Error in popular events fetch:', error);
       } finally {
         setLoading(false);
       }
