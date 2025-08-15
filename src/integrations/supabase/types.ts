@@ -633,23 +633,28 @@ export type Database = {
           editorial_status: string | null
           end_at: string | null
           ends_at: string | null
+          episode: number | null
           featured: boolean | null
           id: string
+          image_credit: string | null
           image_url: string | null
           is_recurring: boolean | null
           location_city: string | null
           moderation_notes: string | null
           moderator_id: string | null
+          network: string | null
           official_site: string | null
           official_source_url: string | null
           official_url: string | null
           og_theme: string | null
           rrule: string | null
           search_tsv: unknown | null
+          season: number | null
           seo_description: string | null
           seo_faq: Json | null
           seo_h1: string | null
           seo_title: string | null
+          series_name: string | null
           slug: string
           start_at: string
           starts_at: string | null
@@ -659,6 +664,7 @@ export type Database = {
           tickets_affiliate_link_id: string | null
           timezone: string
           title: string
+          tvmaze_episode_id: number | null
           updated_at: string | null
           venue_id: string | null
           verified_at: string | null
@@ -674,23 +680,28 @@ export type Database = {
           editorial_status?: string | null
           end_at?: string | null
           ends_at?: string | null
+          episode?: number | null
           featured?: boolean | null
           id?: string
+          image_credit?: string | null
           image_url?: string | null
           is_recurring?: boolean | null
           location_city?: string | null
           moderation_notes?: string | null
           moderator_id?: string | null
+          network?: string | null
           official_site?: string | null
           official_source_url?: string | null
           official_url?: string | null
           og_theme?: string | null
           rrule?: string | null
           search_tsv?: unknown | null
+          season?: number | null
           seo_description?: string | null
           seo_faq?: Json | null
           seo_h1?: string | null
           seo_title?: string | null
+          series_name?: string | null
           slug: string
           start_at: string
           starts_at?: string | null
@@ -700,6 +711,7 @@ export type Database = {
           tickets_affiliate_link_id?: string | null
           timezone?: string
           title: string
+          tvmaze_episode_id?: number | null
           updated_at?: string | null
           venue_id?: string | null
           verified_at?: string | null
@@ -715,23 +727,28 @@ export type Database = {
           editorial_status?: string | null
           end_at?: string | null
           ends_at?: string | null
+          episode?: number | null
           featured?: boolean | null
           id?: string
+          image_credit?: string | null
           image_url?: string | null
           is_recurring?: boolean | null
           location_city?: string | null
           moderation_notes?: string | null
           moderator_id?: string | null
+          network?: string | null
           official_site?: string | null
           official_source_url?: string | null
           official_url?: string | null
           og_theme?: string | null
           rrule?: string | null
           search_tsv?: unknown | null
+          season?: number | null
           seo_description?: string | null
           seo_faq?: Json | null
           seo_h1?: string | null
           seo_title?: string | null
+          series_name?: string | null
           slug?: string
           start_at?: string
           starts_at?: string | null
@@ -741,6 +758,7 @@ export type Database = {
           tickets_affiliate_link_id?: string | null
           timezone?: string
           title?: string
+          tvmaze_episode_id?: number | null
           updated_at?: string | null
           venue_id?: string | null
           verified_at?: string | null
@@ -761,11 +779,64 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "event_tvmaze_episode_id_fkey"
+            columns: ["tvmaze_episode_id"]
+            isOneToOne: true
+            referencedRelation: "tvmaze_episode"
+            referencedColumns: ["tvmaze_episode_id"]
+          },
+          {
+            foreignKeyName: "event_tvmaze_episode_id_fkey"
+            columns: ["tvmaze_episode_id"]
+            isOneToOne: true
+            referencedRelation: "v_tv_episodes_upcoming"
+            referencedColumns: ["tvmaze_episode_id"]
+          },
+          {
             foreignKeyName: "event_venue_id_fkey"
             columns: ["venue_id"]
             isOneToOne: false
             referencedRelation: "venue"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_alt_airings: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          network: string | null
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          network?: string | null
+          starts_at: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          network?: string | null
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_alt_airings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_alt_airings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "popular_signals"
+            referencedColumns: ["event_id"]
           },
         ]
       }
@@ -2113,6 +2184,50 @@ export type Database = {
         }
         Relationships: []
       }
+      show_mapping: {
+        Row: {
+          created_at: string | null
+          image_source: string | null
+          image_url: string | null
+          manual_override: boolean | null
+          slug: string | null
+          tmdb_id: number | null
+          tvmaze_show_id: number
+          updated_at: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          image_source?: string | null
+          image_url?: string | null
+          manual_override?: boolean | null
+          slug?: string | null
+          tmdb_id?: number | null
+          tvmaze_show_id: number
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          image_source?: string | null
+          image_url?: string | null
+          manual_override?: boolean | null
+          slug?: string | null
+          tmdb_id?: number | null
+          tvmaze_show_id?: number
+          updated_at?: string | null
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "show_mapping_tvmaze_show_id_fkey"
+            columns: ["tvmaze_show_id"]
+            isOneToOne: true
+            referencedRelation: "tvmaze_show"
+            referencedColumns: ["tvmaze_id"]
+          },
+        ]
+      }
       sitemap_chunk: {
         Row: {
           chunk_no: number
@@ -2534,6 +2649,113 @@ export type Database = {
         }
         Relationships: []
       }
+      tvmaze_episode: {
+        Row: {
+          airdate: string | null
+          airstamp: string | null
+          airtime: string | null
+          created_at: string | null
+          id: number
+          image: Json | null
+          name: string | null
+          network_name: string | null
+          number: number | null
+          runtime: number | null
+          season: number | null
+          summary: string | null
+          tvmaze_episode_id: number
+          tvmaze_show_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          airdate?: string | null
+          airstamp?: string | null
+          airtime?: string | null
+          created_at?: string | null
+          id?: number
+          image?: Json | null
+          name?: string | null
+          network_name?: string | null
+          number?: number | null
+          runtime?: number | null
+          season?: number | null
+          summary?: string | null
+          tvmaze_episode_id: number
+          tvmaze_show_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          airdate?: string | null
+          airstamp?: string | null
+          airtime?: string | null
+          created_at?: string | null
+          id?: number
+          image?: Json | null
+          name?: string | null
+          network_name?: string | null
+          number?: number | null
+          runtime?: number | null
+          season?: number | null
+          summary?: string | null
+          tvmaze_episode_id?: number
+          tvmaze_show_id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tvmaze_episode_tvmaze_show_id_fkey"
+            columns: ["tvmaze_show_id"]
+            isOneToOne: false
+            referencedRelation: "tvmaze_show"
+            referencedColumns: ["tvmaze_id"]
+          },
+        ]
+      }
+      tvmaze_show: {
+        Row: {
+          created_at: string | null
+          ended: string | null
+          genres: string[] | null
+          id: number
+          language: string | null
+          name: string
+          network: Json | null
+          official_site: string | null
+          premiered: string | null
+          status: string | null
+          tvmaze_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          ended?: string | null
+          genres?: string[] | null
+          id?: number
+          language?: string | null
+          name: string
+          network?: Json | null
+          official_site?: string | null
+          premiered?: string | null
+          status?: string | null
+          tvmaze_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          ended?: string | null
+          genres?: string[] | null
+          id?: number
+          language?: string | null
+          name?: string
+          network?: Json | null
+          official_site?: string | null
+          premiered?: string | null
+          status?: string | null
+          tvmaze_id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ugc_quota: {
         Row: {
           created_at: string | null
@@ -2762,6 +2984,38 @@ export type Database = {
         }
         Relationships: []
       }
+      v_tv_episodes_upcoming: {
+        Row: {
+          airdate: string | null
+          airstamp: string | null
+          airtime: string | null
+          created_at: string | null
+          id: number | null
+          image: Json | null
+          name: string | null
+          network_name: string | null
+          number: number | null
+          runtime: number | null
+          season: number | null
+          show_genres: string[] | null
+          show_image_url: string | null
+          show_name: string | null
+          show_slug: string | null
+          summary: string | null
+          tvmaze_episode_id: number | null
+          tvmaze_show_id: number | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tvmaze_episode_tvmaze_show_id_fkey"
+            columns: ["tvmaze_show_id"]
+            isOneToOne: false
+            referencedRelation: "tvmaze_show"
+            referencedColumns: ["tvmaze_id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_get_profile_with_audit: {
@@ -2808,23 +3062,28 @@ export type Database = {
           editorial_status: string | null
           end_at: string | null
           ends_at: string | null
+          episode: number | null
           featured: boolean | null
           id: string
+          image_credit: string | null
           image_url: string | null
           is_recurring: boolean | null
           location_city: string | null
           moderation_notes: string | null
           moderator_id: string | null
+          network: string | null
           official_site: string | null
           official_source_url: string | null
           official_url: string | null
           og_theme: string | null
           rrule: string | null
           search_tsv: unknown | null
+          season: number | null
           seo_description: string | null
           seo_faq: Json | null
           seo_h1: string | null
           seo_title: string | null
+          series_name: string | null
           slug: string
           start_at: string
           starts_at: string | null
@@ -2834,6 +3093,7 @@ export type Database = {
           tickets_affiliate_link_id: string | null
           timezone: string
           title: string
+          tvmaze_episode_id: number | null
           updated_at: string | null
           venue_id: string | null
           verified_at: string | null

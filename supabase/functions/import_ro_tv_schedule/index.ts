@@ -92,6 +92,85 @@ Deno.serve(async (req) => {
             ? episode.summary.replace(/<[^>]*>/g, '').slice(0, 200) + '...'
             : `${episode.show.genres?.join(', ') || ''} • ${episode.show.network?.name || ''}`;
 
+// Upsert show data
+          const { error: showError } = await supabase
+            .from('tvmaze_show')
+            .upsert({
+              tvmaze_id: episode.show.id,
+              name: episode.show.name,
+              status: episode.show.status || 'Running',
+              language: episode.show.language || 'Romanian',
+              genres: episode.show.genres || [],
+              network: episode.show.network || {},
+              official_site: episode.show.officialSite,
+              premiered: episode.show.premiered ? new Date(episode.show.premiered) : null
+            }, { 
+              onConflict: 'tvmaze_id',
+              ignoreDuplicates: false 
+            });
+
+          if (showError) {
+            console.error(`Error inserting show ${episode.show.id}:`, showError);
+            continue;
+          }
+
+          // Upsert episode data
+          const { error: episodeError } = await supabase
+            .from('tvmaze_episode')
+            .upsert({
+              tvmaze_episode_id: episode.id,
+              tvmaze_show_id: episode.show.id,
+              season: episode.season,
+              number: episode.number,
+              name: episode.name,
+              airdate: episode.airdate ? new Date(episode.airdate) : null,
+              airtime: episode.airtime,
+              airstamp: startsAt.toISOString(),
+              runtime: episode.runtime,
+              summary: episode.summary?.replace(/<[^>]*>/g, ''),
+              image: episode.image || {},
+              network_name: episode.show.network?.name || 'Necunoscut'
+            }, { 
+              onConflict: 'tvmaze_episode_id',
+              ignoreDuplicates: false 
+            });
+
+          if (episodeError) {
+            console.error(`Error inserting episode ${episode.id}:`, episodeError);
+            continue;
+          }
+
+          // Check if event already exists for this episode
+          const { data: existingEvent } = await supabase
+            .from('event')
+            .select('id')
+            .eq('tvmaze_episode_id', episode.id)
+            .single();
+
+          if (!existingEvent) {
+            // Create event for countdown
+            const { error: eventError } = await supabase
+              .from('event')
+              .insert({
+                title: episodeTitle,
+                description: episode.summary?.replace(/<[^>]*>/g, '') || episode.show.summary?.replace(/<[^>]*>/g, ''),
+                start_at: startsAt.toISOString(),
+                status: 'PUBLISHED',
+                tvmaze_episode_id: episode.id,
+                network: episode.show.network?.name,
+                season: episode.season,
+                episode: episode.number,
+                series_name: episode.show.name,
+                image_url: episode.image?.original || episode.show.image?.original,
+                city: 'România',
+                country: 'RO'
+              });
+
+            if (eventError) {
+              console.error(`Error creating event for episode ${episode.id}:`, eventError);
+            }
+          }
+
           // Insert or update TV program
           const { error } = await supabase
             .from('tv_program')

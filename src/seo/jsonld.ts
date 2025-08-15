@@ -51,6 +51,31 @@ export const movieJsonLd = (opts: { name: string; releaseDate?: Date | string | 
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
 
+export const tvEpisodeJsonLd = (opts: { name: string; episodeNumber?: number; seasonNumber?: number; seriesName: string; airDate: Date | string | number; url?: string }) => ({
+  "@context": "https://schema.org",
+  "@type": "TVEpisode", 
+  name: opts.name,
+  episodeNumber: opts.episodeNumber,
+  seasonNumber: opts.seasonNumber,
+  partOfSeries: {
+    "@type": "TVSeries",
+    name: opts.seriesName
+  },
+  datePublished: new Date(opts.airDate).toISOString(),
+  inLanguage: "ro-RO",
+  url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
+});
+
+export const tvSeriesJsonLd = (opts: { name: string; startDate?: Date | string | number; genres?: string[]; url?: string }) => ({
+  "@context": "https://schema.org",
+  "@type": "TVSeries",
+  name: opts.name,
+  startDate: opts.startDate ? new Date(opts.startDate).toISOString() : undefined,
+  genre: opts.genres,
+  inLanguage: "ro-RO", 
+  url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
+});
+
 export const broadcastEventJsonLd = (opts: { channelName: string; startDate: Date | string | number; endDate?: Date | string | number; isLive?: boolean; sports?: { name: string; homeTeam: string; awayTeam: string; startDate: Date | string | number } }) => ({
   "@context": "https://schema.org",
   "@type": "BroadcastEvent",
