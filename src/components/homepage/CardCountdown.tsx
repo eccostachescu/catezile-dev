@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, Clock, Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/cz-badge';
 import { formatRoDate } from '@/lib/date';
@@ -18,6 +19,8 @@ interface CardCountdownProps {
   onReminderClick?: (id: string) => void;
   isMatch?: boolean;
   isDerby?: boolean;
+  source?: string; // Added to help with routing
+  category_slug?: string; // Added to help with routing
 }
 
 // Real Countdown Component with prominent display
@@ -136,7 +139,10 @@ export default function CardCountdown({
   onReminderClick,
   isMatch = false,
   isDerby = false,
+  source,
+  category_slug,
 }: CardCountdownProps) {
+  const navigate = useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -247,9 +253,35 @@ export default function CardCountdown({
     return gradients[categoryKey as keyof typeof gradients] || gradients.default;
   };
 
-  const handleReminderClick = () => {
+  const getCorrectRoute = () => {
+    console.log('🔧 Determining route for:', { title, source, category_slug, category, isMatch });
+    
+    // Route based on source first
+    if (source === 'match_api' || category_slug === 'sport' || category?.toLowerCase() === 'sport') {
+      return `/sport/${slug}`;
+    }
+    
+    if (source === 'movie_api' || category_slug === 'filme' || category?.toLowerCase() === 'filme') {
+      return `/filme/${slug}`;
+    }
+    
+    if (source === 'user_countdown' || category_slug === 'countdown') {
+      return `/c/${id}`;
+    }
+    
+    // Default to events
+    return `/evenimente/${slug}`;
+  };
+
+  const handleCardClick = () => {
+    const route = getCorrectRoute();
+    console.log('🔧 Navigating to:', route);
+    navigate(route);
+  };
+
+  const handleReminderClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
     onReminderClick?.(id);
-    // Remove analytics tracking to reduce rate limiting
   };
 
   return (
@@ -262,7 +294,7 @@ export default function CardCountdown({
       style={{ boxShadow: 'var(--cz-shadow-card)' }}
     >
       {/* Image Container */}
-      <div className="aspect-video relative overflow-hidden cursor-pointer" onClick={() => window.location.href = `/event/${slug}`}>
+      <div className="aspect-video relative overflow-hidden cursor-pointer" onClick={handleCardClick}>
         {(smartImage || imageUrl) && !imageError ? (
           <img
             src={smartImage || imageUrl}
@@ -320,7 +352,7 @@ export default function CardCountdown({
       <div className="px-4 pb-4 space-y-3 min-h-[100px]">
         {/* Title with Derby Badge */}
         <div className="space-y-2">
-          <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={() => window.location.href = `${isMatch ? '/match' : '/event'}/${slug}`}>
+          <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={handleCardClick}>
             {title}
           </h3>
           {isDerby && (

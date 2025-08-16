@@ -178,38 +178,6 @@ export default function NewHomepage() {
 
   return (
     <main>
-      {/* Debug Panel - Temporary for debugging */}
-      <div className="fixed top-20 right-4 z-50 bg-red-500 p-4 text-white rounded shadow-lg">
-        <div className="text-xs mb-2">Debug Panel</div>
-        <button 
-          onClick={() => {
-            console.log('🧪 Testing navigation...');
-            navigate('/evenimente/test-event');
-          }}
-          className="block bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-xs mb-2"
-        >
-          Test Navigation
-        </button>
-        
-        {events.length > 0 && (
-          <button 
-            onClick={() => {
-              const firstEvent = events[0];
-              const path = `/evenimente/${firstEvent.slug || firstEvent.id}`;
-              console.log('🧪 Navigating to:', path);
-              console.log('🧪 Event data:', firstEvent);
-              navigate(path);
-            }}
-            className="block bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded text-xs"
-          >
-            Test First Event
-          </button>
-        )}
-        
-        <div className="text-xs mt-2">
-          Events: {events.length}
-        </div>
-      </div>
 
       {/* Hero Section with Search */}
       <HeroSearchNew 
@@ -263,6 +231,8 @@ export default function NewHomepage() {
                   category={event.category_name || 'Evenimente'}
                   rank={index + 1}
                   onReminderClick={() => handleReminderClick(event.id)}
+                  source={event.source}
+                  category_slug={event.category_slug}
                 />
               ))}
             </div>
