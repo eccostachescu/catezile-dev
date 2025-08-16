@@ -249,25 +249,29 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                 )}
 
                 {/* Actions */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-4 mb-6">
                   {releaseDate && (
-                    <div className="w-full">
-                      <ReminderButton 
-                        when={releaseDate} 
-                        kind="movie" 
-                        entityId={movie.id}
-                      />
+                    <div className="flex justify-center">
+                      <div className="w-full [&>div>button]:w-full [&>div>button]:bg-blue-600 [&>div>button]:hover:bg-blue-700 [&>div>button]:text-white [&>div>button]:shadow-lg [&>div>button]:font-semibold [&>div>button]:border-0">
+                        <ReminderButton 
+                          when={releaseDate} 
+                          kind="movie" 
+                          entityId={movie.id}
+                        />
+                      </div>
                     </div>
                   )}
                   
-                  <Button
-                    variant="outline"
-                    onClick={handleShare}
-                    className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 shadow-lg font-medium"
-                  >
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Distribuie
-                  </Button>
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      onClick={handleShare}
+                      className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 shadow-lg font-medium"
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Distribuie
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Release info */}
