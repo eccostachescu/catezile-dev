@@ -134,7 +134,8 @@ const AppShell = () => {
                 <Route path="/cauta" element={<SearchPage />} />
                 <Route path="/tag/:slug" element={<TagPage />} />
                 <Route path="/echipa/:teamSlug" element={<TeamPage />} />
-                <Route path="/tv" element={<TVGuide />} />
+                <Route path="/tv" element={<TVShows />} />
+                <Route path="/tv/program" element={<TVGuide />} />
                 <Route path="/tv/emisiuni" element={<TVShows />} />
                 <Route path="/tv/emisiuni/:slug" element={<TVShow />} />
                 <Route path="/countdown/tv/:slug" element={<TVShow />} />

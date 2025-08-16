@@ -67,6 +67,7 @@ export function TVShows() {
   const loadShows = async () => {
     try {
       setLoading(true);
+      console.log('🔧 Loading shows for tab:', activeTab, 'genre:', selectedGenre);
 
       if (activeTab === 'romanian') {
         const { data, error } = await supabase.functions.invoke('tv_popular_shows', {
@@ -76,6 +77,7 @@ export function TVShows() {
           }
         });
 
+        console.log('🔧 Romanian shows response:', { data, error });
         if (error) throw error;
         setRomanianShows(data?.shows || []);
       } else {
@@ -86,6 +88,7 @@ export function TVShows() {
           }
         });
 
+        console.log('🔧 International shows response:', { data, error });
         if (error) throw error;
         setInternationalShows(data?.shows || []);
       }
@@ -101,7 +104,7 @@ export function TVShows() {
       <SEO 
         title="Seriale TV Populare — Românești și Internaționale"
         description="Descoperă cele mai populare seriale TV românești și internaționale. Dexter, Wednesday, Breaking Bad, Survivor România, Chefi la Cuțite și multe altele."
-        path="/tv-shows"
+        path="/tv"
       />
       
       <Container className="py-8">
