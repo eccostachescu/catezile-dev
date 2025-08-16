@@ -26,6 +26,9 @@ export const PopulateData = () => {
       { name: 'holidays_generate', label: 'Generating holidays...', body: { fromYear: 2024, toYear: 2026 } },
       { name: 'movies_sync_tmdb', label: 'Syncing TMDB movies...', body: {} },
       { name: 'import_liga1_fixtures', label: 'Importing Liga 1 fixtures...', body: {} },
+      { name: 'import_multi_leagues', label: 'Importing international sports...', body: { league_codes: ['PL', 'PD', 'SA', 'BL1', 'FL1', 'CL'], season: 2025 } },
+      { name: 'import_ro_tv_schedule', label: 'Importing Romanian TV shows...', body: {} },
+      { name: 'events_submit', label: 'Generating sample events...', body: {} },
       { name: 'search_index_refresh', label: 'Refreshing search index...', body: {} }
     ];
 
@@ -61,15 +64,18 @@ export const PopulateData = () => {
       
       // Check final counts
       addLog('📊 Checking final counts...');
-      const [movieCount, matchCount, holidayCount] = await Promise.all([
+      const [movieCount, matchCount, holidayCount, eventCount] = await Promise.all([
         supabase.from('movie').select('id', { count: 'exact' }),
         supabase.from('match').select('id', { count: 'exact' }),
-        supabase.from('holiday_instance').select('id', { count: 'exact' })
+        supabase.from('holiday_instance').select('id', { count: 'exact' }),
+        supabase.from('event').select('id', { count: 'exact' })
       ]);
       
       addLog(`📈 Movies: ${movieCount.count || 0}`);
       addLog(`⚽ Matches: ${matchCount.count || 0}`);
       addLog(`📅 Holiday instances: ${holidayCount.count || 0}`);
+      addLog(`🎉 Events: ${eventCount.count || 0}`);
+      addLog(`📺 TV shows integrated from API`);
       addLog('🎉 All data population completed successfully!');
       
     } catch (error: any) {

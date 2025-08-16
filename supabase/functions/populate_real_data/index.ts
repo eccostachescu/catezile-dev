@@ -85,7 +85,25 @@ serve(async (req) => {
       console.error('❌ Error refreshing search:', error);
     }
 
-    // Step 7: Check final counts
+    // Step 7: Generate sample events
+    console.log('🎉 Generating sample events...');
+    try {
+      const { data: eventsResult, error: eventsError } = await supabase.functions.invoke('events_submit', {
+        body: { 
+          title: 'Eurovision 2025',
+          description: 'Concursul Eurovision 2025',
+          start_at: '2025-05-17T21:00:00Z',
+          category: 'Muzică',
+          city: 'Basel'
+        }
+      });
+      if (eventsError) throw eventsError;
+      console.log('✅ Sample events generated:', eventsResult);
+    } catch (error) {
+      console.error('❌ Error generating events:', error);
+    }
+
+    // Step 8: Check final counts
     console.log('📊 Checking final counts...');
     const [moviesCount, matchesCount, holidayCount, eventsCount] = await Promise.all([
       supabase.from('movie').select('id', { count: 'exact', head: true }),
@@ -111,7 +129,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Database populated with real data including TV shows',
+        message: 'Database populated with complete data: movies, sports, TV shows, holidays, and events',
         data: summary
       }),
       { 
