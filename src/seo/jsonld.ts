@@ -20,13 +20,29 @@ export const websiteJsonLd = () => ({
   },
 });
 
-export const eventJsonLd = (opts: { name: string; startDate: Date | string | number; url?: string }) => ({
+export const eventJsonLd = (opts: { 
+  name: string; 
+  startDate: Date | string | number; 
+  url?: string;
+  location?: string;
+  description?: string;
+  organizer?: string;
+}) => ({
   "@context": "https://schema.org",
   "@type": "Event",
   name: opts.name,
   startDate: new Date(opts.startDate).toISOString(),
   eventStatus: "https://schema.org/EventScheduled",
   eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  location: opts.location ? {
+    "@type": "Place",
+    name: opts.location
+  } : undefined,
+  description: opts.description,
+  organizer: opts.organizer ? {
+    "@type": "Organization", 
+    name: opts.organizer
+  } : undefined,
   inLanguage: "ro-RO",
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
@@ -42,11 +58,25 @@ export const sportsEventJsonLd = (opts: { name: string; homeTeam: string; awayTe
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
 
-export const movieJsonLd = (opts: { name: string; releaseDate?: Date | string | number; url?: string }) => ({
+export const movieJsonLd = (opts: { 
+  name: string; 
+  releaseDate?: Date | string | number; 
+  url?: string;
+  genre?: string[];
+  director?: string;
+  description?: string;
+  duration?: string;
+  contentRating?: string;
+}) => ({
   "@context": "https://schema.org",
   "@type": "Movie",
   name: opts.name,
   datePublished: opts.releaseDate ? new Date(opts.releaseDate).toISOString() : undefined,
+  genre: opts.genre,
+  director: opts.director ? { "@type": "Person", name: opts.director } : undefined,
+  description: opts.description,
+  duration: opts.duration,
+  contentRating: opts.contentRating,
   inLanguage: "ro-RO",
   url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
 });
@@ -92,3 +122,50 @@ export const broadcastEventJsonLd = (opts: { channelName: string; startDate: Dat
   },
 });
 
+export const faqPageJsonLd = (opts: { 
+  faqs: Array<{ question: string; answer: string }>;
+  url?: string;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: opts.faqs.map(faq => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer
+    }
+  })),
+  inLanguage: "ro-RO",
+  url: opts.url || (typeof window !== "undefined" ? window.location.href : undefined),
+});
+
+export const breadcrumbListJsonLd = (opts: {
+  items: Array<{ name: string; url: string }>;
+}) => ({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: opts.items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: item.url
+  }))
+});
+
+export const publisherJsonLd = () => ({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "CateZile.ro",
+  url: "https://catezile.ro",
+  logo: {
+    "@type": "ImageObject",
+    url: "https://catezile.ro/favicon.ico",
+    width: 32,
+    height: 32
+  },
+  sameAs: [
+    "https://www.facebook.com/catezile.ro",
+    "https://twitter.com/catezile_ro"
+  ]
+});

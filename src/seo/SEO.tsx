@@ -47,6 +47,7 @@ export const SEO = ({ kind = 'generic', slug, id, merchant, title, description, 
       ))}
 
       <meta property="og:site_name" content="CateZile.ro" />
+      <meta property="og:locale" content="ro_RO" />
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={desc} />
       <meta property="og:url" content={canonical} />
@@ -54,6 +55,7 @@ export const SEO = ({ kind = 'generic', slug, id, merchant, title, description, 
       <meta property="og:image" content={ogImage} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={pageTitle} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={pageTitle} />

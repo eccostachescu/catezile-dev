@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "lighthouse": "lighthouse-ci autorun",
+    "lighthouse:desktop": "lighthouse --preset=desktop --view --output=html --output-path=./lighthouse-desktop.html http://localhost:3000/",
+    "lighthouse:mobile": "lighthouse --preset=mobile --view --output=html --output-path=./lighthouse-mobile.html http://localhost:3000/",
+    "test:seo": "playwright test tests/seo/",
+    "test:performance": "npm run lighthouse && npm run test:seo"
+  }
+}

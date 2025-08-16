@@ -1,7 +1,18 @@
 User-agent: *
-Disallow: /admin
-Disallow: /embed
+Disallow: /admin/
+Disallow: /embed/
+Disallow: /api/
 Disallow: /cauta
+Allow: /og/
+Allow: /sitemap.xml
+Allow: /sitemaps/
+
+# Specific crawl delays for heavy bots
+User-agent: Bingbot
+Crawl-delay: 10
+
+User-agent: Googlebot
+Crawl-delay: 5
 
 Sitemap: https://catezile.ro/sitemap.xml
 

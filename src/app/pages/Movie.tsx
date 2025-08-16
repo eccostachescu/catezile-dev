@@ -1,7 +1,7 @@
 import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
 import { Helmet } from "react-helmet-async";
-import { movieJsonLd } from "@/seo/jsonld";
+import { movieJsonLd, breadcrumbListJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { routes } from "@/lib/routes";
 import { useLocation, useParams } from "react-router-dom";
@@ -38,7 +38,26 @@ export default function Movie() {
     <>
       <SEO kind="movie" id={id} title={m?.seo_title || title} description={m?.seo_description} h1={m?.seo_h1} path={pathname} noindex={noindex} />
       <Helmet>
-        <script type="application/ld+json">{JSON.stringify(movieJsonLd({ name: title, releaseDate: release }))}</script>
+        <script type="application/ld+json">
+          {JSON.stringify(movieJsonLd({ 
+            name: title, 
+            releaseDate: release,
+            genre: m?.genres,
+            director: m?.streaming_ro?.director || m?.director || m?.credits?.crew?.find((person: any) => person.job === 'Director')?.name,
+            description: m?.overview,
+            duration: m?.runtime ? `PT${m.runtime}M` : undefined,
+            contentRating: m?.certification
+          }))}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbListJsonLd({
+            items: [
+              { name: "Acasă", url: routes.home() },
+              { name: "Filme", url: routes.movies() },
+              { name: title, url: typeof window !== 'undefined' ? window.location.href : '' }
+            ]
+          }))}
+        </script>
       </Helmet>
       
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
