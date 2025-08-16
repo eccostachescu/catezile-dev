@@ -197,17 +197,17 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
 
           {/* Action panel */}
           <div className="lg:col-span-3">
-            <Card className="bg-black/20 backdrop-blur-sm border-white/10">
-              <CardContent className="p-6 space-y-4">
+            <Card className="bg-black/30 backdrop-blur-md border-white/20 shadow-2xl">
+              <CardContent className="p-6">
                 {/* Countdown */}
                 {isUpcoming && releaseDate && (
-                  <div className="text-center space-y-3">
-                    <h4 className="text-sm font-medium text-foreground/70">Premiere în</h4>
+                  <div className="text-center space-y-4 mb-6">
+                    <h4 className="text-sm font-medium text-foreground/80 uppercase tracking-wider">Premiere în</h4>
                     <div className="flex justify-center">
                       <PillCountdown 
                         date={releaseDate} 
                         status="upcoming" 
-                        className="text-lg px-6 py-3 font-bold bg-primary text-primary-foreground rounded-full shadow-lg"
+                        className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-2xl shadow-lg border border-primary/20"
                         showLabels={true}
                       />
                     </div>
@@ -216,67 +216,66 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
 
                 {/* Trailer */}
                 {(movie.trailer_youtube_key || movie.trailer_key) && (
-                  <Dialog open={isTrailerOpen} onOpenChange={setIsTrailerOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="lg" className="w-full bg-red-600 hover:bg-red-700 text-white">
-                        <Play className="mr-2 h-5 w-5" />
-                        Vezi trailer
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl w-full p-0 bg-black border-white/10">
-                      <div className="relative aspect-video">
-                        <iframe
-                          ref={iframeRef}
-                          src={`https://www.youtube.com/embed/${movie.trailer_youtube_key || movie.trailer_key}?autoplay=1&mute=${isMuted ? 1 : 0}&rel=0&modestbranding=1`}
-                          title="Movie Trailer"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="w-full h-full"
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsMuted(!isMuted)}
-                          className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white"
-                        >
-                          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  <div className="mb-6">
+                    <Dialog open={isTrailerOpen} onOpenChange={setIsTrailerOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="lg" className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg font-semibold">
+                          <Play className="mr-2 h-5 w-5" />
+                          Vezi trailer
                         </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl w-full p-0 bg-black border-white/10">
+                        <div className="relative aspect-video">
+                          <iframe
+                            ref={iframeRef}
+                            src={`https://www.youtube.com/embed/${movie.trailer_youtube_key || movie.trailer_key}?autoplay=1&mute=${isMuted ? 1 : 0}&rel=0&modestbranding=1`}
+                            title="Movie Trailer"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsMuted(!isMuted)}
+                            className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white"
+                          >
+                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 )}
 
                 {/* Actions */}
-                <div className="space-y-3">
-                {releaseDate && (
-                  <div className="w-full">
-                    <ReminderButton 
-                      when={releaseDate} 
-                      kind="movie" 
-                      entityId={movie.id}
-                    />
-                  </div>
-                )}
-                
-                <div className="flex justify-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleShare}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    >
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Distribuie
-                    </Button>
-                  </div>
+                <div className="space-y-3 mb-6">
+                  {releaseDate && (
+                    <div className="w-full">
+                      <ReminderButton 
+                        when={releaseDate} 
+                        kind="movie" 
+                        entityId={movie.id}
+                      />
+                    </div>
+                  )}
+                  
+                  <Button
+                    variant="outline"
+                    onClick={handleShare}
+                    className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 shadow-lg font-medium"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Distribuie
+                  </Button>
                 </div>
 
                 {/* Release info */}
-                <div className="space-y-2 pt-4 border-t border-white/10">
+                <div className="space-y-3 pt-4 border-t border-white/20">
                   {movie.cinema_release_ro && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-foreground/70">Cinema:</span>
-                      <span className="text-foreground font-medium">
+                    <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-3">
+                      <span className="text-foreground/70 font-medium">Cinema</span>
+                      <span className="text-foreground font-semibold">
                         {new Date(movie.cinema_release_ro).toLocaleDateString('ro-RO', { 
                           day: 'numeric', 
                           month: 'long',
@@ -286,9 +285,9 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                     </div>
                   )}
                   {movie.netflix_date && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-foreground/70">Netflix:</span>
-                      <span className="text-foreground font-medium">
+                    <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-3">
+                      <span className="text-foreground/70 font-medium">Netflix</span>
+                      <span className="text-foreground font-semibold">
                         {new Date(movie.netflix_date).toLocaleDateString('ro-RO', { 
                           day: 'numeric', 
                           month: 'long',
@@ -298,9 +297,9 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                     </div>
                   )}
                   {movie.prime_date && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-foreground/70">Prime Video:</span>
-                      <span className="text-foreground font-medium">
+                    <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-3">
+                      <span className="text-foreground/70 font-medium">Prime Video</span>
+                      <span className="text-foreground font-semibold">
                         {new Date(movie.prime_date).toLocaleDateString('ro-RO', { 
                           day: 'numeric', 
                           month: 'long',
