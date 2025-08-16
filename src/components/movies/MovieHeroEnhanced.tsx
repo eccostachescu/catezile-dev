@@ -147,13 +147,13 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   <Badge 
                     key={genre} 
                     variant="outline" 
-                    className="bg-black/40 text-white border-white/50 backdrop-blur font-medium shadow-lg"
+                    className="bg-black/60 text-white border-white/60 backdrop-blur font-medium shadow-lg px-3 py-1"
                   >
                     {genre}
                   </Badge>
                 ))}
                 {movie.genres.length > 4 && (
-                  <Badge variant="outline" className="bg-black/40 text-white border-white/50 backdrop-blur font-medium shadow-lg">
+                  <Badge variant="outline" className="bg-black/60 text-white border-white/60 backdrop-blur font-medium shadow-lg px-3 py-1">
                     +{movie.genres.length - 4}
                   </Badge>
                 )}

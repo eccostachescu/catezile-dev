@@ -97,22 +97,19 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                   onClick={() => person.id && window.open(`https://www.themoviedb.org/person/${person.id}`, '_blank')}
                 >
                   <div className="space-y-2">
-                    <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all">
+                    <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all relative">
                       {person.profile_path ? (
                         <img
                           src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
                           alt={person.name}
                           className="w-full h-full object-cover"
                           loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                          }}
                         />
-                      ) : null}
-                      <div className={`w-full h-full bg-muted flex items-center justify-center ${person.profile_path ? 'hidden' : ''}`}>
-                        <Users className="h-8 w-8 text-muted-foreground" />
-                      </div>
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Users className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-1">
                       <div className="font-medium text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2">{person.name}</div>
