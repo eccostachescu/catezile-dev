@@ -106,6 +106,13 @@ async function getUnsplashImage(title: string, category?: string): Promise<strin
       return null;
     }
     
+    // Check if response is actually JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      console.warn('Unsplash API returned non-JSON response:', contentType);
+      return null;
+    }
+    
     const data = await response.json();
     const imageUrl = data.imageUrl;
     
