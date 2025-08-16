@@ -15,6 +15,47 @@ interface MovieHeroEnhancedProps {
   movie: any;
 }
 
+// Translation helper
+const translateMovieText = (text: string): string => {
+  const translations: Record<string, string> = {
+    // Genres
+    'Action': 'Acțiune',
+    'Adventure': 'Aventură', 
+    'Animation': 'Animație',
+    'Comedy': 'Comedie',
+    'Crime': 'Crimă',
+    'Documentary': 'Documentar',
+    'Drama': 'Dramă',
+    'Family': 'Familie',
+    'Fantasy': 'Fantezie',
+    'History': 'Istoric',
+    'Horror': 'Horror',
+    'Music': 'Muzică',
+    'Mystery': 'Mister',
+    'Romance': 'Romantic',
+    'Science Fiction': 'Științifico-Fantastic',
+    'TV Movie': 'Film TV',
+    'Thriller': 'Thriller',
+    'War': 'Război',
+    'Western': 'Western',
+    
+    // Common movie terms
+    'Director': 'Regizor',
+    'Writer': 'Scenarist',
+    'Producer': 'Producător',
+    'Cast': 'Distribuție',
+    'Runtime': 'Durata',
+    'Release Date': 'Data lansării',
+    'Overview': 'Despre film',
+    'Genres': 'Genuri',
+    'Rating': 'Rating',
+    'Vote Average': 'Nota medie',
+    'Original Title': 'Titlu original'
+  };
+  
+  return translations[text] || text;
+};
+
 export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -156,7 +197,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                     variant="outline" 
                     className="bg-black/60 text-white border-white/60 backdrop-blur font-medium shadow-lg px-3 py-1"
                   >
-                    {genre}
+                    {translateMovieText(genre)}
                   </Badge>
                 ))}
                 {movie.genres.length > 4 && (
@@ -201,13 +242,13 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
               <CardContent className="p-6">
                 {/* Countdown */}
                 {isUpcoming && releaseDate && (
-                  <div className="text-center space-y-4 mb-6">
-                    <h4 className="text-sm font-medium text-foreground/80 uppercase tracking-wider">Premiera</h4>
+                  <div className="text-center space-y-3">
+                    <h4 className="text-sm font-medium text-foreground/70">Premieră în</h4>
                     <div className="flex justify-center">
                       <PillCountdown 
                         date={releaseDate} 
                         status="upcoming" 
-                        className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-2xl shadow-lg border border-primary/20"
+                        className="text-lg px-6 py-3 font-bold bg-primary text-primary-foreground rounded-full shadow-lg"
                         showLabels={true}
                       />
                     </div>
@@ -216,57 +257,54 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
 
                 {/* Trailer */}
                 {(movie.trailer_youtube_key || movie.trailer_key) && (
-                  <div className="mb-6">
-                    <Dialog open={isTrailerOpen} onOpenChange={setIsTrailerOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="lg" className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg font-semibold">
-                          <Play className="mr-2 h-5 w-5" />
-                          Vezi trailer
+                  <Dialog open={isTrailerOpen} onOpenChange={setIsTrailerOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="lg" className="w-full bg-red-600 hover:bg-red-700 text-white">
+                        <Play className="mr-2 h-5 w-5" />
+                        Vezi trailer
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl w-full p-0 bg-black border-white/10">
+                      <div className="relative aspect-video">
+                        <iframe
+                          ref={iframeRef}
+                          src={`https://www.youtube.com/embed/${movie.trailer_youtube_key || movie.trailer_key}?autoplay=1&mute=${isMuted ? 1 : 0}&rel=0&modestbranding=1`}
+                          title="Movie Trailer"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-full"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsMuted(!isMuted)}
+                          className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white"
+                        >
+                          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl w-full p-0 bg-black border-white/10">
-                        <div className="relative aspect-video">
-                          <iframe
-                            ref={iframeRef}
-                            src={`https://www.youtube.com/embed/${movie.trailer_youtube_key || movie.trailer_key}?autoplay=1&mute=${isMuted ? 1 : 0}&rel=0&modestbranding=1`}
-                            title="Movie Trailer"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="w-full h-full"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsMuted(!isMuted)}
-                            className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white"
-                          >
-                            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 )}
 
-                {/* Actions */}
-                <div className="space-y-4 mb-6">
+                {/* Actions - CENTRAT */}
+                <div className="space-y-3">
                   {releaseDate && (
-                    <div className="flex justify-center">
-                      <div className="w-full [&>div>button]:w-full [&>div>button]:bg-blue-600 [&>div>button]:hover:bg-blue-700 [&>div>button]:text-white [&>div>button]:shadow-lg [&>div>button]:font-semibold [&>div>button]:border-0">
-                        <ReminderButton 
-                          when={releaseDate} 
-                          kind="movie" 
-                          entityId={movie.id}
-                        />
-                      </div>
+                    <div className="flex justify-center w-full">
+                      <ReminderButton 
+                        when={releaseDate} 
+                        kind="movie" 
+                        entityId={movie.id}
+                      />
                     </div>
                   )}
                   
                   <div className="flex justify-center">
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={handleShare}
-                      className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 shadow-lg font-medium"
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                     >
                       <Share2 className="h-4 w-4 mr-2" />
                       Distribuie
