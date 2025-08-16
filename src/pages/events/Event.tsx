@@ -40,8 +40,18 @@ export default function EventDetail() {
   }, [slug]);
 
   const loadEvent = async (eventSlug: string) => {
+    console.log('🔍 Event component mounted with slug:', eventSlug);
+    
+    if (!eventSlug) {
+      console.error('❌ No slug provided');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
+      console.log('🔍 Searching for event with slug/id:', eventSlug);
+      
       // First try to find by slug
       let { data: eventData, error } = await supabase
         .from('event')
@@ -56,9 +66,11 @@ export default function EventDetail() {
         .eq('status', 'PUBLISHED')
         .maybeSingle();
 
+      console.log('🔍 Slug search result:', { data: eventData, error });
+
       // If not found by slug, try by ID (for events without slugs)
       if (!eventData && !error) {
-        console.log('Event not found by slug, trying by ID:', eventSlug);
+        console.log('🔍 Trying by ID...');
         const { data: eventById, error: errorById } = await supabase
           .from('event')
           .select(`
@@ -72,13 +84,16 @@ export default function EventDetail() {
           .eq('status', 'PUBLISHED')
           .maybeSingle();
         
+        console.log('🔍 ID search result:', { data: eventById, error: errorById });
         eventData = eventById;
         error = errorById;
       }
 
       if (error || !eventData) {
-        console.error('Event not found:', error);
+        console.error('❌ Event not found:', error);
         return;
+      } else {
+        console.log('✅ Event found:', eventData);
       }
 
       setEvent(eventData);
@@ -135,9 +150,16 @@ export default function EventDetail() {
       <Container className="py-6">
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold mb-4">Eveniment negăsit</h1>
-          <p className="text-muted-foreground mb-6">Evenimentul căutat nu există sau nu este încă publicat.</p>
-          <Link to="/evenimente">
-            <Button>Înapoi la evenimente</Button>
+          <p className="text-muted-foreground mb-6">
+            Evenimentul căutat nu există sau nu este încă publicat.
+          </p>
+          <div className="bg-gray-100 p-4 rounded text-sm text-left mb-4">
+            <div><strong>Debug Info:</strong></div>
+            <div>Slug/ID searched: {slug}</div>
+            <div>Loading state: {loading ? 'true' : 'false'}</div>
+          </div>
+          <Link to="/">
+            <Button>Înapoi la pagina principală</Button>
           </Link>
         </div>
       </Container>
