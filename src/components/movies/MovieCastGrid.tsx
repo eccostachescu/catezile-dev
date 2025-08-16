@@ -1,29 +1,49 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface MovieCastGridProps {
   movie: any;
 }
 
 export function MovieCastGrid({ movie }: MovieCastGridProps) {
-  // Extract cast data from various sources
-  const credits = movie.credits;
+  const [tmdbCredits, setTmdbCredits] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Extract existing cast data
+  const credits = movie.credits || tmdbCredits;
   const castFromStreaming = movie.streaming_ro?.main_cast;
   const directorFromStreaming = movie.streaming_ro?.director;
-  
-  // DEBUG: Log all movie data to see what we have
-  console.log('Full movie data:', movie);
-  console.log('Credits data:', credits);
-  console.log('Cast from credits:', credits?.cast);
-  console.log('Streaming cast:', castFromStreaming);
+
+  // Fetch TMDB credits if we have tmdb_id but no credits
+  useEffect(() => {
+    if (movie.tmdb_id && !movie.credits && !loading && !tmdbCredits) {
+      setLoading(true);
+      
+      // Replace 'YOUR_TMDB_API_KEY' with your actual API key
+      const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || 'YOUR_TMDB_API_KEY';
+      
+      fetch(`https://api.themoviedb.org/3/movie/${movie.tmdb_id}/credits?api_key=${TMDB_API_KEY}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log('TMDB credits fetched:', data);
+          setTmdbCredits(data);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching TMDB credits:', error);
+          setLoading(false);
+        });
+    }
+  }, [movie.tmdb_id, movie.credits, loading, tmdbCredits]);
   
   // Combine cast data
   let castMembers: any[] = [];
   
   if (credits?.cast && credits.cast.length > 0) {
     castMembers = credits.cast.slice(0, 10);
-    console.log('Using TMDB cast data:', castMembers);
+    console.log('Using TMDB cast data with images:', castMembers);
   } else if (castFromStreaming) {
     castMembers = castFromStreaming.split(',').map((name: string, index: number) => ({
       id: index,
@@ -31,7 +51,7 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
       character: '',
       profile_path: null
     }));
-    console.log('Using streaming cast data:', castMembers);
+    console.log('Using streaming cast data (no images):', castMembers);
   } else if (movie.main_cast && Array.isArray(movie.main_cast)) {
     castMembers = movie.main_cast.map((name: string, index: number) => ({
       id: index,
@@ -39,7 +59,6 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
       character: '',
       profile_path: null
     }));
-    console.log('Using main_cast data:', castMembers);
   }
 
   // Get crew data
@@ -59,18 +78,10 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5" />
           Distribuție și echipă
+          {loading && <span className="text-xs text-muted-foreground">(se încarcă imagini...)</span>}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* DEBUG INFO - Remove this in production */}
-        <div className="p-4 bg-yellow-100 border border-yellow-300 rounded text-sm">
-          <p><strong>Debug Info:</strong></p>
-          <p>Cast members count: {castMembers.length}</p>
-          <p>First member: {JSON.stringify(castMembers[0], null, 2)}</p>
-          <p>Has TMDB credits: {!!credits?.cast}</p>
-          <p>TMDB credits count: {credits?.cast?.length || 0}</p>
-        </div>
-
         {/* Key Crew */}
         {(director || writer || producer) && (
           <div>
@@ -109,15 +120,6 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                 const hasProfilePath = person.profile_path && person.profile_path !== null && person.profile_path !== '';
                 const tmdbUrl = person.id && typeof person.id === 'number' && person.id > 100 ? `https://www.themoviedb.org/person/${person.id}` : null;
                 const imageUrl = hasProfilePath ? `https://image.tmdb.org/t/p/w185${person.profile_path}` : null;
-                
-                // DEBUG: Log each person's data
-                console.log(`Person ${index}:`, {
-                  name: person.name,
-                  profile_path: person.profile_path,
-                  hasProfilePath,
-                  imageUrl,
-                  id: person.id
-                });
                 
                 const CastCard = ({ children }: { children: React.ReactNode }) => {
                   if (tmdbUrl) {
@@ -167,9 +169,6 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                         ) : (
                           <div className="actor-fallback w-full h-full bg-muted flex items-center justify-center">
                             <Users className="h-8 w-8 text-muted-foreground" />
-                            <div className="absolute bottom-1 right-1 text-xs bg-red-500 text-white px-1 rounded">
-                              No IMG
-                            </div>
                           </div>
                         )}
                       </div>
