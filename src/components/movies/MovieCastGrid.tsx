@@ -86,36 +86,42 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
             <h4 className="font-medium mb-3 text-sm text-muted-foreground">
               Actori principali ({castMembers.length})
             </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {castMembers.map((person) => (
                 <a
                   key={person.id || person.name}
                   href={person.id ? `https://www.themoviedb.org/person/${person.id}` : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="space-y-2 group cursor-pointer"
+                  className="group cursor-pointer"
+                  onClick={() => person.id && window.open(`https://www.themoviedb.org/person/${person.id}`, '_blank')}
                 >
-                  <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all">
-                    {person.profile_path ? (
-                      <img
-                        src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
-                        alt={person.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <div className="space-y-2">
+                    <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all">
+                      {person.profile_path ? (
+                        <img
+                          src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
+                          alt={person.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-full h-full bg-muted flex items-center justify-center ${person.profile_path ? 'hidden' : ''}`}>
                         <Users className="h-8 w-8 text-muted-foreground" />
                       </div>
-                    )}
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-medium text-sm leading-tight group-hover:text-primary transition-colors">{person.name}</div>
-                    {person.character && (
-                      <div className="text-xs text-muted-foreground leading-tight">
-                        {person.character}
-                      </div>
-                    )}
+                    </div>
+                    <div className="space-y-1">
+                      <div className="font-medium text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2">{person.name}</div>
+                      {person.character && (
+                        <div className="text-xs text-muted-foreground leading-tight line-clamp-2">
+                          {person.character}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </a>
               ))}

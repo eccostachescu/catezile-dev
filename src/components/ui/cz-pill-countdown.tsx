@@ -71,17 +71,17 @@ function PillCountdown({ date, status = "upcoming", className, showLabels = fals
     if (status === "live") return "LIVE";
     if (typeof timeLeft === 'object' && timeLeft.showAsComponents) {
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="text-center">
-            <div className="text-lg font-bold">{timeLeft.days}</div>
+            <div className="text-xl font-bold">{timeLeft.days}</div>
             <div className="text-xs opacity-80">zile</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold">{timeLeft.hours}</div>
+            <div className="text-xl font-bold">{timeLeft.hours}</div>
             <div className="text-xs opacity-80">ore</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold">{timeLeft.minutes}</div>
+            <div className="text-xl font-bold">{timeLeft.minutes}</div>
             <div className="text-xs opacity-80">min</div>
           </div>
         </div>
@@ -92,7 +92,7 @@ function PillCountdown({ date, status = "upcoming", className, showLabels = fals
 
   if (typeof timeLeft === 'object' && timeLeft.showAsComponents) {
     return (
-      <div className={cn("bg-primary text-primary-foreground rounded-full px-4 py-2", className)}>
+      <div className={cn("bg-primary text-primary-foreground rounded-full px-6 py-3", className)}>
         {getDisplayText()}
       </div>
     );

@@ -147,13 +147,13 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   <Badge 
                     key={genre} 
                     variant="outline" 
-                    className="bg-white/20 text-white border-white/30 backdrop-blur font-medium"
+                    className="bg-black/40 text-white border-white/50 backdrop-blur font-medium shadow-lg"
                   >
                     {genre}
                   </Badge>
                 ))}
                 {movie.genres.length > 4 && (
-                  <Badge variant="outline" className="bg-white/20 text-white border-white/30 backdrop-blur font-medium">
+                  <Badge variant="outline" className="bg-black/40 text-white border-white/50 backdrop-blur font-medium shadow-lg">
                     +{movie.genres.length - 4}
                   </Badge>
                 )}
@@ -194,13 +194,13 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
               <CardContent className="p-6 space-y-4">
                 {/* Countdown */}
                 {isUpcoming && releaseDate && (
-                  <div className="text-center space-y-2">
+                  <div className="text-center space-y-3">
                     <h4 className="text-sm font-medium text-foreground/70">Premiere în</h4>
                     <div className="flex justify-center">
                       <PillCountdown 
                         date={releaseDate} 
                         status="upcoming" 
-                        className="text-base px-4 py-2 font-bold bg-primary text-primary-foreground rounded-full"
+                        className="text-lg px-6 py-3 font-bold bg-primary text-primary-foreground rounded-full shadow-lg"
                         showLabels={true}
                       />
                     </div>
