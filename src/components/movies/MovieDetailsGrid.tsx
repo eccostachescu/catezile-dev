@@ -182,51 +182,22 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* User Score & Rating */}
-          {(voteAverage || movie.popularity) && (
+          {voteAverage && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Star className="h-5 w-5" />
-                  Evaluare utilizatori
+                  Scor utilizatori
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {voteAverage && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Scor TMDB</span>
-                        <Badge variant={voteAverage > 70 ? 'default' : voteAverage > 50 ? 'secondary' : 'outline'}>
-                          {voteAverage}%
-                        </Badge>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className="bg-primary h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${voteAverage}%` }}
-                        />
-                      </div>
-                      {voteCount && (
-                        <p className="text-xs text-muted-foreground">
-                          Bazat pe {voteCount.toLocaleString()} voturi
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  
-                  {movie.popularity && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Popularitate</span>
-                        <Badge variant="outline">
-                          {Math.round(movie.popularity)}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Bazat pe vizualizări și interacțiuni TMDB
-                      </p>
-                    </div>
-                  )}
+                <div className="text-center">
+                  <div className="text-3xl font-bold mb-2">
+                    {voteAverage}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Din {voteCount?.toLocaleString() || '-'} voturi
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -238,17 +209,14 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
               <CardTitle>Statistici rapide</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <span className="font-medium">În curând</span>
+              </div>
               {movie.runtime && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Durată</span>
                   <span className="font-medium">{movie.runtime} min</span>
-                </div>
-              )}
-              
-              {movie.genres && movie.genres.length > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Genuri</span>
-                  <span className="font-medium">{movie.genres.join(', ')}</span>
                 </div>
               )}
               

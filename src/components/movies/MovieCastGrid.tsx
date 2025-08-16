@@ -88,8 +88,14 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {castMembers.map((person) => (
-                <div key={person.id || person.name} className="space-y-2">
-                  <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden">
+                <a
+                  key={person.id || person.name}
+                  href={person.id ? `https://www.themoviedb.org/person/${person.id}` : '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="space-y-2 group cursor-pointer"
+                >
+                  <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all">
                     {person.profile_path ? (
                       <img
                         src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
@@ -104,14 +110,14 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                     )}
                   </div>
                   <div className="space-y-1">
-                    <div className="font-medium text-sm leading-tight">{person.name}</div>
+                    <div className="font-medium text-sm leading-tight group-hover:text-primary transition-colors">{person.name}</div>
                     {person.character && (
                       <div className="text-xs text-muted-foreground leading-tight">
                         {person.character}
                       </div>
                     )}
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>

@@ -124,11 +124,11 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                     <span className="text-sm text-foreground/90 drop-shadow">{movie.runtime} min</span>
                   </div>
                 )}
-                {(movie.vote_average || movie.popularity) && movie.popularity > 20 && (
+                {movie.vote_average && (
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span className="text-sm text-foreground/90 drop-shadow">
-                      {movie.vote_average ? `${Math.round(movie.vote_average * 10)}%` : getRating()}
+                    <span className="text-sm text-foreground/90 drop-shadow font-medium">
+                      {Math.round(movie.vote_average * 10)}%
                     </span>
                   </div>
                 )}
@@ -147,13 +147,13 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   <Badge 
                     key={genre} 
                     variant="outline" 
-                    className={`${getGenreColors(genre)} border`}
+                    className="bg-white/20 text-white border-white/30 backdrop-blur font-medium"
                   >
                     {genre}
                   </Badge>
                 ))}
                 {movie.genres.length > 4 && (
-                  <Badge variant="outline" className="bg-accent/20 text-accent-foreground border-accent/30">
+                  <Badge variant="outline" className="bg-white/20 text-white border-white/30 backdrop-blur font-medium">
                     +{movie.genres.length - 4}
                   </Badge>
                 )}
@@ -170,30 +170,19 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
               </div>
             )}
 
-            {/* Cast preview */}
-            {(movie.streaming_ro?.main_cast || movie.main_cast) && (
+            {/* Director preview */}
+            {(movie.streaming_ro?.director || movie.director || 
+              (movie.credits?.crew?.find((person: any) => person.job === 'Director')?.name)) && (
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-foreground drop-shadow flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Actori principali
+                  Regizor
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {(movie.streaming_ro?.main_cast 
-                    ? movie.streaming_ro.main_cast.split(',').map((actor: string) => actor.trim())
-                    : movie.main_cast || []).slice(0, 4).map((actor: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="bg-white/10 text-foreground/90 backdrop-blur border-white/10">
-                      {actor}
-                    </Badge>
-                  ))}
-                  {(movie.streaming_ro?.main_cast 
-                    ? movie.streaming_ro.main_cast.split(',').length 
-                    : movie.main_cast ? movie.main_cast.length : 0) > 4 && (
-                    <Badge variant="secondary" className="bg-white/10 text-foreground/90 backdrop-blur border-white/10">
-                      +{(movie.streaming_ro?.main_cast 
-                        ? movie.streaming_ro.main_cast.split(',').length 
-                        : movie.main_cast ? movie.main_cast.length : 0) - 4}
-                    </Badge>
-                  )}
+                  <Badge variant="secondary" className="bg-white/10 text-foreground/90 backdrop-blur border-white/10">
+                    {movie.streaming_ro?.director || movie.director || 
+                     movie.credits?.crew?.find((person: any) => person.job === 'Director')?.name}
+                  </Badge>
                 </div>
               </div>
             )}
@@ -208,7 +197,12 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   <div className="text-center space-y-2">
                     <h4 className="text-sm font-medium text-foreground/70">Premiere în</h4>
                     <div className="flex justify-center">
-                      <PillCountdown date={releaseDate} status="upcoming" className="text-base px-3 py-1 font-semibold" />
+                      <PillCountdown 
+                        date={releaseDate} 
+                        status="upcoming" 
+                        className="text-base px-4 py-2 font-bold bg-primary text-primary-foreground rounded-full"
+                        showLabels={true}
+                      />
                     </div>
                   </div>
                 )}
@@ -257,10 +251,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   </div>
                 )}
                 
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <FollowButton />
-                  </div>
+                <div className="flex justify-center">
                     <Button
                       variant="outline"
                       size="sm"

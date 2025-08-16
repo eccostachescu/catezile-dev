@@ -6,10 +6,11 @@ interface PillCountdownProps {
   date: string;
   status?: "live" | "upcoming" | "past";
   className?: string;
+  showLabels?: boolean;
 }
 
-function PillCountdown({ date, status = "upcoming", className }: PillCountdownProps) {
-  const [timeLeft, setTimeLeft] = React.useState<string>("");
+function PillCountdown({ date, status = "upcoming", className, showLabels = false }: PillCountdownProps) {
+  const [timeLeft, setTimeLeft] = React.useState<any>("");
 
   React.useEffect(() => {
     const calculateTimeLeft = () => {
@@ -27,6 +28,10 @@ function PillCountdown({ date, status = "upcoming", className }: PillCountdownPr
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (showLabels && days > 0) {
+        return { days, hours, minutes, showAsComponents: true };
+      }
 
       if (days > 0) {
         if (days === 1) {
@@ -64,8 +69,34 @@ function PillCountdown({ date, status = "upcoming", className }: PillCountdownPr
 
   const getDisplayText = () => {
     if (status === "live") return "LIVE";
+    if (typeof timeLeft === 'object' && timeLeft.showAsComponents) {
+      return (
+        <div className="flex items-center gap-2">
+          <div className="text-center">
+            <div className="text-lg font-bold">{timeLeft.days}</div>
+            <div className="text-xs opacity-80">zile</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold">{timeLeft.hours}</div>
+            <div className="text-xs opacity-80">ore</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold">{timeLeft.minutes}</div>
+            <div className="text-xs opacity-80">min</div>
+          </div>
+        </div>
+      );
+    }
     return timeLeft;
   };
+
+  if (typeof timeLeft === 'object' && timeLeft.showAsComponents) {
+    return (
+      <div className={cn("bg-primary text-primary-foreground rounded-full px-4 py-2", className)}>
+        {getDisplayText()}
+      </div>
+    );
+  }
 
   return (
     <Badge
