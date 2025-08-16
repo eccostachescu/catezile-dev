@@ -37,7 +37,7 @@ export function TVShows() {
   const [romanianShows, setRomanianShows] = useState<PopularShow[]>([]);
   const [internationalShows, setInternationalShows] = useState<InternationalShow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'romanian' | 'international'>('romanian');
+  const [activeTab, setActiveTab] = useState<'romanian' | 'international'>('international');
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   const genres = [
@@ -61,6 +61,7 @@ export function TVShows() {
   ];
 
   useEffect(() => {
+    console.log('🔧 Tab changed to:', activeTab, 'Loading shows...');
     loadShows();
   }, [activeTab, selectedGenre]);
 
