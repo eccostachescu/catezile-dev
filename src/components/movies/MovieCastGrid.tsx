@@ -87,41 +87,66 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
               Actori principali ({castMembers.length})
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {castMembers.map((person) => (
-                <a
-                  key={person.id || person.name}
-                  href={person.id ? `https://www.themoviedb.org/person/${person.id}` : '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group cursor-pointer"
-                  onClick={() => person.id && window.open(`https://www.themoviedb.org/person/${person.id}`, '_blank')}
-                >
-                  <div className="space-y-2">
-                    <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all relative">
-                      {person.profile_path ? (
-                        <img
-                          src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
-                          alt={person.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
+              {castMembers.map((person) => {
+                const hasProfilePath = person.profile_path && person.profile_path !== null;
+                const tmdbUrl = person.id && typeof person.id === 'number' ? `https://www.themoviedb.org/person/${person.id}` : null;
+                
+                const CastCard = ({ children }: { children: React.ReactNode }) => {
+                  if (tmdbUrl) {
+                    return (
+                      <a
+                        href={tmdbUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group cursor-pointer block"
+                      >
+                        {children}
+                      </a>
+                    );
+                  }
+                  return <div className="group">{children}</div>;
+                };
+
+                return (
+                  <CastCard key={person.id || person.name}>
+                    <div className="space-y-2">
+                      <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all relative">
+                        {hasProfilePath ? (
+                          <img
+                            src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
+                            alt={person.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            onError={(e) => {
+                              const img = e.currentTarget;
+                              img.style.display = 'none';
+                              const fallback = img.parentElement?.querySelector('.actor-fallback');
+                              if (fallback) {
+                                (fallback as HTMLElement).style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className={`actor-fallback w-full h-full bg-muted flex items-center justify-center absolute inset-0 ${hasProfilePath ? 'hidden' : 'flex'}`}
+                        >
                           <Users className="h-8 w-8 text-muted-foreground" />
                         </div>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="font-medium text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2">{person.name}</div>
-                      {person.character && (
-                        <div className="text-xs text-muted-foreground leading-tight line-clamp-2">
-                          {person.character}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="font-medium text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                          {person.name}
                         </div>
-                      )}
+                        {person.character && (
+                          <div className="text-xs text-muted-foreground leading-tight line-clamp-2">
+                            {person.character}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </a>
-              ))}
+                  </CastCard>
+                );
+              })}
             </div>
           </div>
         )}

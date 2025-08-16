@@ -27,12 +27,19 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
     try {
       const url = typeof window !== 'undefined' ? window.location.href : '';
       if (navigator.share) {
-        await navigator.share({ url });
+        await navigator.share({ 
+          title: movie.title,
+          text: `Urmărește ${movie.title} pe CateZile.ro`,
+          url 
+        });
       } else {
         await navigator.clipboard.writeText(url);
+        // You might want to show a toast here
       }
-      track('share_click', { url });
-    } catch {}
+      track('share_click', { url, title: movie.title });
+    } catch (error) {
+      // Silently fail
+    }
   };
 
   const getRating = () => {
@@ -258,7 +265,8 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                       onClick={handleShare}
                       className="bg-white/10 border-white/20 text-white hover:bg-white/20"
                     >
-                      <Share2 className="h-4 w-4" />
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Distribuie
                     </Button>
                   </div>
                 </div>
