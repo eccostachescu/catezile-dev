@@ -861,6 +861,48 @@ export type Database = {
         }
         Relationships: []
       }
+      event_image_suggestion: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          event_id: string
+          id: string
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          suggested_by: string | null
+          suggested_image_url: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suggested_by?: string | null
+          suggested_image_url: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suggested_by?: string | null
+          suggested_image_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_moderation_log: {
         Row: {
           action: string

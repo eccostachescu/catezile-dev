@@ -1,5 +1,6 @@
 import { Badge } from "@/components/Badge";
 import { cn } from "@/lib/utils";
+import { SuggestImageModal } from "@/components/SuggestImageModal";
 
 export default function EventHero({
   title,
@@ -8,6 +9,7 @@ export default function EventHero({
   imageUrl,
   updatedAt,
   className,
+  eventId,
 }: {
   title: string;
   category?: string;
@@ -15,6 +17,7 @@ export default function EventHero({
   imageUrl?: string | null;
   updatedAt?: string | Date | null;
   className?: string;
+  eventId?: string;
 }) {
   const updated = updatedAt ? new Date(updatedAt) : null;
   return (
@@ -34,6 +37,11 @@ export default function EventHero({
             loading="lazy"
             className="w-full max-h-72 object-cover rounded-md"
           />
+          {eventId && (
+            <div className="mt-2 flex justify-end">
+              <SuggestImageModal eventId={eventId} eventTitle={title} />
+            </div>
+          )}
         </div>
       )}
       {city && (

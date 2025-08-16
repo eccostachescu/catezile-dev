@@ -29,6 +29,7 @@ import AdminMetrics from "./pages/AdminMetrics";
 import AdminDeploy from "./pages/AdminDeploy";
 import AdminEmails from "./pages/AdminEmails";
 import AdminEvents from "./pages/AdminEvents";
+import AdminImageSuggestions from "./pages/AdminImageSuggestions";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import SearchPage from "./pages/Search";
@@ -216,6 +217,14 @@ const AppShell = () => {
                   element={
                     <ProtectedRoute>
                       <AdminEvents />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/image-suggestions"
+                  element={
+                    <ProtectedRoute>
+                      <AdminImageSuggestions />
                     </ProtectedRoute>
                   }
                 />
