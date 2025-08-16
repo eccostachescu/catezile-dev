@@ -42,7 +42,8 @@ export default function EventDetail() {
   const loadEvent = async (eventSlug: string) => {
     setLoading(true);
     try {
-      const { data: eventData, error } = await supabase
+      // First try to find by slug
+      let { data: eventData, error } = await supabase
         .from('event')
         .select(`
           id, slug, title, subtitle, description, starts_at, ends_at, 
@@ -54,6 +55,26 @@ export default function EventDetail() {
         .eq('slug', eventSlug)
         .eq('status', 'PUBLISHED')
         .maybeSingle();
+
+      // If not found by slug, try by ID (for events without slugs)
+      if (!eventData && !error) {
+        console.log('Event not found by slug, trying by ID:', eventSlug);
+        const { data: eventById, error: errorById } = await supabase
+          .from('event')
+          .select(`
+            id, slug, title, subtitle, description, starts_at, ends_at, 
+            image_url, official_url, tickets_affiliate_link_id,
+            city:city_id(name, slug),
+            venue:venue_id(name, address),
+            category:category_id(name, slug)
+          `)
+          .eq('id', eventSlug)
+          .eq('status', 'PUBLISHED')
+          .maybeSingle();
+        
+        eventData = eventById;
+        error = errorById;
+      }
 
       if (error || !eventData) {
         console.error('Event not found:', error);

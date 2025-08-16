@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import HeroSearchNew from "./HeroSearchNew";
 import LiveNowSection from "./LiveNowSection";
@@ -18,6 +19,7 @@ interface PopularEvent {
 }
 
 export default function NewHomepage() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState<PopularEvent[]>([]);
   const [weekendEvents, setWeekendEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,8 +137,18 @@ export default function NewHomepage() {
 
   const handleCardClick = (eventId: string) => {
     const event = events.find(e => e.id === eventId);
-    if (event?.slug) {
-      window.location.href = `/evenimente/${event.slug}`;
+    if (event) {
+      // Debug logging to see what we have
+      console.log('Clicking event:', event);
+      console.log('Event slug:', event.slug);
+      console.log('Event title:', event.title);
+      
+      // Try slug first, fallback to ID if no slug
+      const identifier = event.slug || eventId;
+      console.log('Navigating to:', `/evenimente/${identifier}`);
+      navigate(`/evenimente/${identifier}`);
+    } else {
+      console.error('Event not found for ID:', eventId);
     }
   };
 
