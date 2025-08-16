@@ -2,14 +2,25 @@ import Container from "@/components/Container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Users, Calendar, Award, Globe, Camera } from "lucide-react";
+import { ExternalLink, Users, Calendar, Award, Globe, Camera, Star, DollarSign, Languages } from "lucide-react";
 import { MovieWhereToWatch } from "./MovieWhereToWatch";
+import { MovieCastGrid } from "./MovieCastGrid";
 
 interface MovieDetailsGridProps {
   movie: any;
 }
 
 export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
+  // Extract real data from TMDB
+  const budget = movie.budget ? `$${movie.budget.toLocaleString()}` : null;
+  const revenue = movie.revenue ? `$${movie.revenue.toLocaleString()}` : null;
+  const voteAverage = movie.vote_average ? Math.round(movie.vote_average * 10) : null;
+  const voteCount = movie.vote_count || null;
+  const originalLanguage = movie.original_language || null;
+  const productionCompanies = movie.production_companies || [];
+  const productionCountries = movie.production_countries || [];
+  const keywords = movie.keywords || (movie.streaming_ro?.keywords ? movie.streaming_ro.keywords : []);
+
   return (
     <Container className="py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -24,36 +35,8 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
           )}
 
           {/* Cast & Crew */}
-          {(movie.main_cast || movie.director) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Distribuție și echipă
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {(movie.streaming_ro?.director || movie.director) && (
-                  <div>
-                    <h4 className="font-medium mb-2 text-sm text-muted-foreground">Regizor</h4>
-                    <Badge variant="secondary">{movie.streaming_ro?.director || movie.director}</Badge>
-                  </div>
-                )}
-                
-                {(movie.streaming_ro?.main_cast || movie.main_cast) && (
-                  <div>
-                    <h4 className="font-medium mb-2 text-sm text-muted-foreground">Actori principali</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {(movie.streaming_ro?.main_cast 
-                        ? movie.streaming_ro.main_cast.split(',').map((actor: string) => actor.trim())
-                        : movie.main_cast || []).slice(0, 6).map((actor: string, index: number) => (
-                        <Badge key={index} variant="outline">{actor}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          {(movie.streaming_ro?.main_cast || movie.main_cast || movie.credits) && (
+            <MovieCastGrid movie={movie} />
           )}
 
           {/* Production Info */}
@@ -92,10 +75,13 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
                   </div>
                 )}
                 
-                {movie.tmdb_id && (
+                {originalLanguage && (
                   <div className="space-y-1">
-                    <div className="text-sm text-muted-foreground">ID TMDB</div>
-                    <div className="font-medium">#{movie.tmdb_id}</div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Languages className="h-4 w-4" />
+                      Limba originală
+                    </div>
+                    <div className="font-medium">{originalLanguage.toUpperCase()}</div>
                   </div>
                 )}
                 
@@ -107,9 +93,69 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
                     </Badge>
                   </div>
                 )}
+
+                {budget && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <DollarSign className="h-4 w-4" />
+                      Buget
+                    </div>
+                    <div className="font-medium">{budget}</div>
+                  </div>
+                )}
+
+                {revenue && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <DollarSign className="h-4 w-4" />
+                      Încasări
+                    </div>
+                    <div className="font-medium">{revenue}</div>
+                  </div>
+                )}
+
+                {productionCompanies.length > 0 && (
+                  <div className="space-y-1 sm:col-span-2">
+                    <div className="text-sm text-muted-foreground">Companii de producție</div>
+                    <div className="flex flex-wrap gap-2">
+                      {productionCompanies.slice(0, 3).map((company: any, index: number) => (
+                        <Badge key={index} variant="outline">{company.name}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {productionCountries.length > 0 && (
+                  <div className="space-y-1 sm:col-span-2">
+                    <div className="text-sm text-muted-foreground">Țări de producție</div>
+                    <div className="flex flex-wrap gap-2">
+                      {productionCountries.map((country: any, index: number) => (
+                        <Badge key={index} variant="outline">{country.name}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
+
+          {/* Keywords */}
+          {keywords && keywords.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Cuvinte cheie</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {keywords.slice(0, 12).map((keyword: string, index: number) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {keyword}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* TMDB Disclaimer */}
           <Card className="bg-muted/50">
@@ -135,32 +181,52 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Popularity & Rating */}
-          {movie.popularity && (
+          {/* User Score & Rating */}
+          {(voteAverage || movie.popularity) && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Popularitate
+                  <Star className="h-5 w-5" />
+                  Evaluare utilizatori
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Scor TMDB</span>
-                    <Badge variant={movie.popularity > 50 ? 'default' : 'secondary'}>
-                      {Math.round(movie.popularity)}/100
-                    </Badge>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div 
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${Math.min(movie.popularity, 100)}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Bazat pe vizualizări și interacțiuni TMDB
-                  </p>
+                <div className="space-y-4">
+                  {voteAverage && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Scor TMDB</span>
+                        <Badge variant={voteAverage > 70 ? 'default' : voteAverage > 50 ? 'secondary' : 'outline'}>
+                          {voteAverage}%
+                        </Badge>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${voteAverage}%` }}
+                        />
+                      </div>
+                      {voteCount && (
+                        <p className="text-xs text-muted-foreground">
+                          Bazat pe {voteCount.toLocaleString()} voturi
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  
+                  {movie.popularity && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Popularitate</span>
+                        <Badge variant="outline">
+                          {Math.round(movie.popularity)}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Bazat pe vizualizări și interacțiuni TMDB
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -182,25 +248,23 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
               {movie.genres && movie.genres.length > 0 && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Genuri</span>
-                  <span className="font-medium">{movie.genres.length}</span>
+                  <span className="font-medium">{movie.genres.join(', ')}</span>
                 </div>
               )}
               
-              {(movie.streaming_ro?.main_cast || movie.main_cast) && (
+              {movie.cinema_release_ro && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Actori principali</span>
-                  <span className="font-medium">
-                    {movie.streaming_ro?.main_cast 
-                      ? movie.streaming_ro.main_cast.split(',').length 
-                      : movie.main_cast ? movie.main_cast.length : 0}
-                  </span>
+                  <span className="text-sm text-muted-foreground">An lansare</span>
+                  <span className="font-medium">{new Date(movie.cinema_release_ro).getFullYear()}</span>
                 </div>
               )}
-              
-              {movie.platforms && movie.platforms.length > 0 && (
+
+              {movie.certification && (
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Platforme</span>
-                  <span className="font-medium">{movie.platforms.length}</span>
+                  <span className="text-sm text-muted-foreground">Clasificare</span>
+                  <Badge variant="outline" className="text-xs">
+                    {movie.certification}
+                  </Badge>
                 </div>
               )}
             </CardContent>

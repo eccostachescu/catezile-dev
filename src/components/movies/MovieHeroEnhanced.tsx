@@ -101,37 +101,39 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
           <div className="lg:col-span-6 space-y-6">
             {/* Title and year */}
             <div className="space-y-2">
-              <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
+              <h1 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight drop-shadow-lg">
                 {movie.seo_h1 || movie.title}
               </h1>
               {movie.original_title && movie.original_title !== movie.title && (
-                <p className="text-xl text-white/70 font-medium">{movie.original_title}</p>
+                <p className="text-xl text-foreground/80 font-medium drop-shadow">{movie.original_title}</p>
               )}
               
               {/* Quick info badges */}
               <div className="flex flex-wrap items-center gap-3 mt-4">
                 {movie.cinema_release_ro && (
                   <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4 text-white/70" />
-                    <span className="text-sm text-white/90">
+                    <Calendar className="h-4 w-4 text-foreground/70" />
+                    <span className="text-sm text-foreground/90 drop-shadow">
                       {new Date(movie.cinema_release_ro).getFullYear()}
                     </span>
                   </div>
                 )}
                 {movie.runtime && (
                   <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4 text-white/70" />
-                    <span className="text-sm text-white/90">{movie.runtime} min</span>
+                    <Clock className="h-4 w-4 text-foreground/70" />
+                    <span className="text-sm text-foreground/90 drop-shadow">{movie.runtime} min</span>
                   </div>
                 )}
-                {movie.popularity && movie.popularity > 20 && (
+                {(movie.vote_average || movie.popularity) && movie.popularity > 20 && (
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span className="text-sm text-white/90">{getRating()}</span>
+                    <span className="text-sm text-foreground/90 drop-shadow">
+                      {movie.vote_average ? `${Math.round(movie.vote_average * 10)}%` : getRating()}
+                    </span>
                   </div>
                 )}
                 {movie.certification && (
-                  <Badge variant="outline" className="bg-white/10 border-white/20 text-white">
+                  <Badge variant="outline" className="bg-white/10 border-white/20 text-foreground backdrop-blur">
                     {movie.certification}
                   </Badge>
                 )}
@@ -161,8 +163,8 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
             {/* Description */}
             {movie.overview && (
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-white">Despre film</h3>
-                <p className="text-white/80 leading-relaxed text-base max-w-2xl">
+                <h3 className="text-lg font-semibold text-foreground drop-shadow">Despre film</h3>
+                <p className="text-foreground/90 leading-relaxed text-base max-w-2xl drop-shadow">
                   {movie.overview}
                 </p>
               </div>
@@ -171,7 +173,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
             {/* Cast preview */}
             {(movie.streaming_ro?.main_cast || movie.main_cast) && (
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-foreground drop-shadow flex items-center gap-2">
                   <Users className="h-5 w-5" />
                   Actori principali
                 </h3>
@@ -179,14 +181,14 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   {(movie.streaming_ro?.main_cast 
                     ? movie.streaming_ro.main_cast.split(',').map((actor: string) => actor.trim())
                     : movie.main_cast || []).slice(0, 4).map((actor: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="bg-white/10 text-white/90">
+                    <Badge key={index} variant="secondary" className="bg-white/10 text-foreground/90 backdrop-blur border-white/10">
                       {actor}
                     </Badge>
                   ))}
                   {(movie.streaming_ro?.main_cast 
                     ? movie.streaming_ro.main_cast.split(',').length 
                     : movie.main_cast ? movie.main_cast.length : 0) > 4 && (
-                    <Badge variant="secondary" className="bg-white/10 text-white/90">
+                    <Badge variant="secondary" className="bg-white/10 text-foreground/90 backdrop-blur border-white/10">
                       +{(movie.streaming_ro?.main_cast 
                         ? movie.streaming_ro.main_cast.split(',').length 
                         : movie.main_cast ? movie.main_cast.length : 0) - 4}
@@ -204,8 +206,10 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                 {/* Countdown */}
                 {isUpcoming && releaseDate && (
                   <div className="text-center space-y-2">
-                    <h4 className="text-sm font-medium text-white/70">Premiere în</h4>
-                    <PillCountdown date={releaseDate} className="text-lg px-4 py-2" />
+                    <h4 className="text-sm font-medium text-foreground/70">Premiere în</h4>
+                    <div className="flex justify-center">
+                      <PillCountdown date={releaseDate} status="upcoming" className="text-base px-3 py-1 font-semibold" />
+                    </div>
                   </div>
                 )}
 
@@ -272,8 +276,8 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                 <div className="space-y-2 pt-4 border-t border-white/10">
                   {movie.cinema_release_ro && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/70">Cinema:</span>
-                      <span className="text-white font-medium">
+                      <span className="text-foreground/70">Cinema:</span>
+                      <span className="text-foreground font-medium">
                         {new Date(movie.cinema_release_ro).toLocaleDateString('ro-RO', { 
                           day: 'numeric', 
                           month: 'long',
@@ -284,8 +288,8 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   )}
                   {movie.netflix_date && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/70">Netflix:</span>
-                      <span className="text-white font-medium">
+                      <span className="text-foreground/70">Netflix:</span>
+                      <span className="text-foreground font-medium">
                         {new Date(movie.netflix_date).toLocaleDateString('ro-RO', { 
                           day: 'numeric', 
                           month: 'long',
@@ -296,8 +300,8 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   )}
                   {movie.prime_date && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/70">Prime Video:</span>
-                      <span className="text-white font-medium">
+                      <span className="text-foreground/70">Prime Video:</span>
+                      <span className="text-foreground font-medium">
                         {new Date(movie.prime_date).toLocaleDateString('ro-RO', { 
                           day: 'numeric', 
                           month: 'long',
