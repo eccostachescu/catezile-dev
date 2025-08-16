@@ -16,6 +16,8 @@ interface CardCountdownProps {
   rank?: number;
   status?: "live" | "upcoming" | "past";
   onReminderClick?: (id: string) => void;
+  isMatch?: boolean;
+  isDerby?: boolean;
 }
 
 // Real Countdown Component with prominent display
@@ -132,6 +134,8 @@ export default function CardCountdown({
   rank,
   status = "upcoming",
   onReminderClick,
+  isMatch = false,
+  isDerby = false,
 }: CardCountdownProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -200,16 +204,33 @@ export default function CardCountdown({
   };
 
   const getImageFallback = () => {
-    // Use appropriate Unsplash images as fallbacks for each category
+    // Improved category-specific images with better matching
     const fallbackImages = {
-      sport: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop', // Football/soccer field
+      sport: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop', // Football stadium
+      fotbal: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop',
       film: 'https://images.unsplash.com/photo-1489599510072-12d66b9ac1ae?w=800&h=600&fit=crop',
-      holiday: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop',
-      event: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+      movie: 'https://images.unsplash.com/photo-1489599510072-12d66b9ac1ae?w=800&h=600&fit=crop',
+      holiday: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=800&h=600&fit=crop', // Christmas tree
+      craciun: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=800&h=600&fit=crop',
+      sarbatoare: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&h=600&fit=crop',
+      tv: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?w=800&h=600&fit=crop',
+      muzica: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop',
+      event: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&h=600&fit=crop',
       default: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&h=600&fit=crop'
     };
     
-    const categoryKey = category?.toLowerCase() || 'default';
+    // Check for specific keywords in title or category for better matching
+    const lowerTitle = title?.toLowerCase() || '';
+    const lowerCategory = category?.toLowerCase() || '';
+    
+    if (lowerTitle.includes('craciun') || lowerCategory.includes('craciun')) {
+      return fallbackImages.craciun;
+    }
+    if (lowerTitle.includes('fotbal') || lowerCategory.includes('fotbal') || lowerCategory.includes('sport')) {
+      return fallbackImages.fotbal;
+    }
+    
+    const categoryKey = lowerCategory || 'default';
     return fallbackImages[categoryKey as keyof typeof fallbackImages] || fallbackImages.default;
   };
 
@@ -241,7 +262,7 @@ export default function CardCountdown({
       style={{ boxShadow: 'var(--cz-shadow-card)' }}
     >
       {/* Image Container */}
-      <div className="aspect-video relative overflow-hidden">
+      <div className="aspect-video relative overflow-hidden cursor-pointer" onClick={() => window.location.href = `/event/${slug}`}>
         {(smartImage || imageUrl) && !imageError ? (
           <img
             src={smartImage || imageUrl}
@@ -297,10 +318,19 @@ export default function CardCountdown({
 
       {/* Content */}
       <div className="px-4 pb-4 space-y-3 min-h-[100px]">
-        {/* Title */}
-        <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={() => window.location.href = `/countdown/${slug}`}>
-          {title}
-        </h3>
+        {/* Title with Derby Badge */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-[--cz-ink] line-clamp-2 group-hover:text-[--cz-primary] transition-colors cursor-pointer" onClick={() => window.location.href = `${isMatch ? '/match' : '/event'}/${slug}`}>
+            {title}
+          </h3>
+          {isDerby && (
+            <div className="flex items-center gap-2">
+              <Badge variant="sport" className="text-xs bg-red-600 text-white">
+                Derby
+              </Badge>
+            </div>
+          )}
+        </div>
         
         {/* Meta Info */}
         <div className="flex items-center justify-between text-sm text-[--cz-ink-muted]">
@@ -325,7 +355,7 @@ export default function CardCountdown({
             </Badge>
           )}
           
-          {onReminderClick && status !== "past" && new Date(startDate) > new Date() && (
+          {status !== "past" && new Date(startDate) > new Date() && (
             <button
               onClick={handleReminderClick}
               className="flex items-center gap-1 text-[--cz-primary] hover:text-[--cz-primary-600] transition-colors text-sm font-medium"

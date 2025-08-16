@@ -14,6 +14,8 @@ interface WeekendEvent {
   location?: string;
   category?: string;
   categorySlug?: string;
+  is_derby?: boolean;
+  derby?: boolean;
 }
 
 interface RailWeekendProps {
@@ -103,6 +105,8 @@ export function RailWeekend({ events, onReminderClick, onCardClick, className }:
                   location={event.location}
                   category={event.category}
                   onReminderClick={onReminderClick}
+                  isMatch={event.category?.toLowerCase() === 'sport'}
+                  isDerby={event.is_derby || event.derby || false}
             />
           </motion.div>
         ))}
