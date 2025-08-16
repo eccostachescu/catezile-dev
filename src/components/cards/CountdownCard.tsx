@@ -133,7 +133,16 @@ export default function CountdownCard({
       case 'user_countdown':
         return `/c/${id}`;
       case 'published_event':
+        return `/evenimente/${slug}`;
       case 'popular_events':
+        // For popular_events, check category to determine correct route
+        if (category?.toLowerCase() === 'sport') {
+          return `/sport/${slug}`;
+        } else if (category?.toLowerCase() === 'filme') {
+          return `/filme/${slug}`;
+        } else {
+          return `/evenimente/${slug}`;
+        }
       default:
         return `/evenimente/${slug}`;
     }
