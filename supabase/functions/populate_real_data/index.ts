@@ -55,7 +55,7 @@ serve(async (req) => {
     try {
       const { data: multiLeagueResult, error: multiLeagueError } = await supabase.functions.invoke('import_multi_leagues', {
         body: { 
-          league_codes: ['PL', 'PD', 'SA', 'BL1', 'FL1', 'CL'], // Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League
+          league_codes: ['GB-PL', 'ES-LL', 'IT-SA', 'DE-BL', 'FR-L1', 'EU-CL'], // Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League
           season: 2025 
         }
       });

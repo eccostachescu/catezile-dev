@@ -70,9 +70,9 @@ export default function Sport() {
 
   return (
     <>
-      <SEO kind="category" title="Meciuri Liga 1 — Program TV" description="Programul meciurilor din SuperLiga: orele, canalele TV și scorurile LIVE." path="/sport" />
+      <SEO kind="category" title="Meciuri Live — Program TV Sport" description="Programul meciurilor din Liga 1, Premier League, La Liga, Serie A și Champions League: orele, canalele TV și scorurile LIVE." path="/sport" />
       <Container className="py-6">
-        <h1 className="text-2xl font-semibold mb-3">Sport</h1>
+        <h1 className="text-2xl font-semibold mb-3">Sport & Meciuri Live</h1>
         <Filters
           tabs={{ value: tab, onChange: setTab }}
           team={{ value: team, onChange: (t) => { setTeam(t); track('team_filter_apply', { team: t }); } , options: data?.filters?.teams || [] }}
