@@ -22,7 +22,7 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
       setLoading(true);
       
       // Replace 'YOUR_TMDB_API_KEY' with your actual API key
-      const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || 'YOUR_TMDB_API_KEY';
+      const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || 'ae8a3afb56e4df07bad508ad8528faed';
       
       fetch(`https://api.themoviedb.org/3/movie/${movie.tmdb_id}/credits?api_key=${TMDB_API_KEY}`)
         .then(response => response.json())
