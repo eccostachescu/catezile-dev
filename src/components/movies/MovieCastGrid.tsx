@@ -87,9 +87,10 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
               Actori principali ({castMembers.length})
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {castMembers.map((person) => {
-                const hasProfilePath = person.profile_path && person.profile_path !== null;
+              {castMembers.map((person, index) => {
+                const hasProfilePath = person.profile_path && person.profile_path !== null && person.profile_path !== '';
                 const tmdbUrl = person.id && typeof person.id === 'number' ? `https://www.themoviedb.org/person/${person.id}` : null;
+                const imageUrl = hasProfilePath ? `https://image.tmdb.org/t/p/w185${person.profile_path}` : null;
                 
                 const CastCard = ({ children }: { children: React.ReactNode }) => {
                   if (tmdbUrl) {
@@ -108,30 +109,39 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                 };
 
                 return (
-                  <CastCard key={person.id || person.name}>
+                  <CastCard key={person.id || person.name || index}>
                     <div className="space-y-2">
                       <div className="aspect-[2/3] bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all relative">
-                        {hasProfilePath ? (
-                          <img
-                            src={`https://image.tmdb.org/t/p/w185${person.profile_path}`}
-                            alt={person.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                            onError={(e) => {
-                              const img = e.currentTarget;
-                              img.style.display = 'none';
-                              const fallback = img.parentElement?.querySelector('.actor-fallback');
-                              if (fallback) {
-                                (fallback as HTMLElement).style.display = 'flex';
-                              }
-                            }}
-                          />
-                        ) : null}
-                        <div 
-                          className={`actor-fallback w-full h-full bg-muted flex items-center justify-center absolute inset-0 ${hasProfilePath ? 'hidden' : 'flex'}`}
-                        >
-                          <Users className="h-8 w-8 text-muted-foreground" />
-                        </div>
+                        {imageUrl ? (
+                          <>
+                            <img
+                              src={imageUrl}
+                              alt={person.name}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              onError={(e) => {
+                                console.log('Image failed to load:', imageUrl);
+                                const img = e.currentTarget;
+                                img.style.display = 'none';
+                                const fallback = img.parentElement?.querySelector('.actor-fallback');
+                                if (fallback) {
+                                  (fallback as HTMLElement).classList.remove('hidden');
+                                  (fallback as HTMLElement).classList.add('flex');
+                                }
+                              }}
+                              onLoad={() => {
+                                console.log('Image loaded successfully:', imageUrl);
+                              }}
+                            />
+                            <div className="actor-fallback w-full h-full bg-muted flex items-center justify-center absolute inset-0 hidden">
+                              <Users className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                          </>
+                        ) : (
+                          <div className="actor-fallback w-full h-full bg-muted flex items-center justify-center">
+                            <Users className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-1">
                         <div className="font-medium text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2">
