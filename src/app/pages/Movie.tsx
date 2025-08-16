@@ -1,6 +1,5 @@
 import Container from "@/components/Container";
 import { SEO } from "@/seo/SEO";
-import MovieCard from "@/components/cards/MovieCard";
 import { Helmet } from "react-helmet-async";
 import { movieJsonLd } from "@/seo/jsonld";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -9,11 +8,8 @@ import { useLocation, useParams } from "react-router-dom";
 import { getInitialData } from "@/ssg/serialize";
 import { useEffect, useState } from "react";
 import { loadMovie } from "@/ssg/loader";
-import MovieHero from "@/components/movies/MovieHero";
-import TrailerEmbed from "@/components/movies/TrailerEmbed";
-import ActionsBar from "@/components/movies/ActionsBar";
-import { MovieMeta } from "@/components/movies/MovieMeta";
-import { MovieWhereToWatch } from "@/components/movies/MovieWhereToWatch";
+import { MovieHeroEnhanced } from "@/components/movies/MovieHeroEnhanced";
+import { MovieDetailsGrid } from "@/components/movies/MovieDetailsGrid";
 
 export default function Movie() {
   const { pathname } = useLocation();
@@ -44,46 +40,19 @@ export default function Movie() {
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(movieJsonLd({ name: title, releaseDate: release }))}</script>
       </Helmet>
-      <Container className="py-8 space-y-6">
-        <Breadcrumbs items={[{ label: "Acasă", href: routes.home() }, { label: "Filme", href: routes.movies() }, { label: title }]} />
-      </Container>
-      {m && (
-        <>
-          <MovieHero movie={m} />
-          <Container className="py-6 space-y-6">
-            <section aria-labelledby="movie-info" className="space-y-4">
-              <h2 id="movie-info" className="sr-only">Detalii film</h2>
-              
-              {/* Movie metadata */}
-              <MovieMeta 
-                runtime={m.runtime}
-                genres={m.genres}
-                certification={m.certification}
-                popularity={m.popularity}
-                releaseYear={m.cinema_release_ro ? new Date(m.cinema_release_ro).getFullYear() : undefined}
-              />
-              
-              <ActionsBar url={typeof window !== 'undefined' ? window.location.href : ''} cinemaDate={m.cinema_release_ro} netflixDate={m.netflix_date} primeDate={m.prime_date} />
-              
-              {/* Overview */}
-              {m.overview && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-lg">Despre film</h3>
-                  <p className="text-muted-foreground max-w-3xl leading-relaxed">{m.overview}</p>
-                </div>
-              )}
-              
-              {/* Where to watch */}
-              {m.platforms && m.platforms.length > 0 && (
-                <MovieWhereToWatch platforms={m.platforms} />
-              )}
-              
-              {/* Trailer */}
-              <TrailerEmbed youtubeKey={m.trailer_youtube_key} />
-            </section>
-          </Container>
-        </>
-      )}
+      
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
+        <Container className="pt-4 pb-2">
+          <Breadcrumbs items={[{ label: "Acasă", href: routes.home() }, { label: "Filme", href: routes.movies() }, { label: title }]} />
+        </Container>
+        
+        {m && (
+          <>
+            <MovieHeroEnhanced movie={m} />
+            <MovieDetailsGrid movie={m} />
+          </>
+        )}
+      </div>
     </>
   );
 }
