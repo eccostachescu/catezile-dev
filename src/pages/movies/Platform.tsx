@@ -8,9 +8,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 export default function Platform() {
   const { platform } = useParams();
+  const { isAdmin } = useAuth();
   const [movies, setMovies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -105,6 +107,7 @@ export default function Platform() {
     
     setSyncing(true);
     try {
+      console.log('Syncing platform:', platform);
       const { data, error } = await supabase.functions.invoke('sync-platform-movies', {
         body: { platform, limit: 20 }
       });
@@ -144,16 +147,18 @@ export default function Platform() {
             subtitle={`Următoarele filme care vor apărea pe ${platformName} în România`}
           />
           
-          <Button 
-            onClick={syncFromTMDB}
-            disabled={syncing}
-            variant="outline"
-            size="sm"
-            className="ml-4"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Sincronizare...' : 'Actualizează din TMDB'}
-          </Button>
+          {isAdmin && (
+            <Button 
+              onClick={syncFromTMDB}
+              disabled={syncing}
+              variant="outline"
+              size="sm"
+              className="ml-4"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Sincronizare...' : 'Actualizează din TMDB'}
+            </Button>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-4 gap-6 mt-8">
@@ -175,14 +180,16 @@ export default function Platform() {
                 <p className="text-muted-foreground mb-4">
                   Nu am găsit filme programate pe {platformName} în perioada următoare.
                 </p>
-                <Button 
-                  onClick={syncFromTMDB}
-                  disabled={syncing}
-                  variant="default"
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-                  {syncing ? 'Sincronizare...' : 'Importă din TMDB'}
-                </Button>
+                {isAdmin && (
+                  <Button 
+                    onClick={syncFromTMDB}
+                    disabled={syncing}
+                    variant="default"
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
+                    {syncing ? 'Sincronizare...' : 'Importă din TMDB'}
+                  </Button>
+                )}
               </div>
             )}
           </div>
