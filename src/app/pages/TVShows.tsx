@@ -78,16 +78,19 @@ export function TVShows() {
       console.log('🔧 Loading shows for tab:', activeTab, 'genre:', selectedGenre);
 
       if (activeTab === 'romanian') {
-        const { data, error } = await supabase.functions.invoke('tv_popular_shows', {
-          body: { 
-            category: selectedGenre,
-            limit: 12 
-          }
-        });
-
-        console.log('🔧 Romanian shows response:', { data, error });
-        if (error) throw error;
-        setRomanianShows(data?.shows || []);
+        // Load both API shows and homepage shows
+        const [apiShows, homepageShows] = await Promise.all([
+          loadApiShows(),
+          loadHomepageShows()
+        ]);
+        
+        // Combine and deduplicate shows
+        const allShows = [...apiShows, ...homepageShows];
+        const uniqueShows = allShows.filter((show, index, self) => 
+          index === self.findIndex(s => s.title === show.title)
+        );
+        
+        setRomanianShows(uniqueShows);
       } else {
         const { data, error } = await supabase.functions.invoke('tmdb_popular_tv', {
           body: { 
@@ -104,6 +107,77 @@ export function TVShows() {
       console.error('Error loading shows:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadApiShows = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('tv_popular_shows', {
+        body: { 
+          category: selectedGenre,
+          limit: 12 
+        }
+      });
+
+      console.log('🔧 Romanian API shows response:', { data, error });
+      if (error) throw error;
+      return data?.shows || [];
+    } catch (error) {
+      console.error('Error loading API shows:', error);
+      return [];
+    }
+  };
+
+  const loadHomepageShows = async () => {
+    try {
+      // Get Romanian TV shows from homepage popular events
+      const { data, error } = await supabase.functions.invoke('popular_countdowns', {
+        body: { 
+          limit: 50,
+          onlyWithImage: false
+        }
+      });
+
+      if (error) throw error;
+
+      // Filter for TV/Entertainment events
+      const tvEvents = (data?.events || []).filter((event: any) => {
+        const title = event.title?.toLowerCase() || '';
+        const category = event.category_name?.toLowerCase() || '';
+        
+        return category.includes('tv') || 
+               category.includes('emisiuni') ||
+               title.includes('survivor') ||
+               title.includes('te cunosc') ||
+               title.includes('ferma') ||
+               title.includes('insula') ||
+               title.includes('chefi') ||
+               title.includes('asia express') ||
+               title.includes('bravo') ||
+               title.includes('masked singer') ||
+               title.includes('vocea') ||
+               title.includes('românii au talent');
+      });
+
+      // Convert to our show format
+      const convertedShows = tvEvents.map((event: any) => ({
+        title: event.title,
+        channel: 'Program TV',
+        type: 'entertainment',
+        typical_time: '20:30',
+        typical_days: ['verifică programul'],
+        description: `${event.title} - Vezi când este difuzat`,
+        airs_today: false,
+        next_typical_day: 'verifică programul',
+        id: event.id,
+        slug: event.slug,
+        next_air_time: event.starts_at
+      }));
+
+      return convertedShows;
+    } catch (error) {
+      console.error('Error loading homepage shows:', error);
+      return [];
     }
   };
 
