@@ -16,6 +16,8 @@ interface PopularEvent {
   image_url?: string;
   city?: string;
   category_name?: string;
+  category_slug?: string;
+  source?: string;
 }
 
 export default function NewHomepage() {
@@ -151,13 +153,24 @@ export default function NewHomepage() {
     if (event) {
       // Debug logging to see what we have
       console.log('Clicking event:', event);
-      console.log('Event slug:', event.slug);
-      console.log('Event title:', event.title);
+      console.log('Event source:', event.source);
+      console.log('Event category:', event.category_slug);
       
-      // Try slug first, fallback to ID if no slug
-      const identifier = event.slug || eventId;
-      console.log('Navigating to:', `/evenimente/${identifier}`);
-      navigate(`/evenimente/${identifier}`);
+      // Route based on event source/type
+      let path;
+      if (event.source === 'match_api' || event.category_slug === 'sport') {
+        // Sports matches go to /sport/ route
+        path = `/sport/${event.slug || eventId}`;
+      } else if (event.source === 'movie_api' || event.category_slug === 'filme') {
+        // Movies go to /filme/ route  
+        path = `/filme/${event.slug || eventId}`;
+      } else {
+        // Regular events go to /evenimente/ route
+        path = `/evenimente/${event.slug || eventId}`;
+      }
+      
+      console.log('Navigating to:', path);
+      navigate(path);
     } else {
       console.error('Event not found for ID:', eventId);
     }
