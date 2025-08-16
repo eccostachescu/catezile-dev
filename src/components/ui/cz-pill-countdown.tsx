@@ -29,7 +29,13 @@ function PillCountdown({ date, status = "upcoming", className }: PillCountdownPr
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
       if (days > 0) {
-        return `în ${days} zile`;
+        if (days === 1) {
+          return `mâine`;
+        } else if (days <= 7) {
+          return `în ${days} zile`;
+        } else {
+          return `în ${days} zile`;
+        }
       } else if (hours > 0) {
         return `în ${hours}h ${minutes}m`;
       } else if (minutes > 0) {

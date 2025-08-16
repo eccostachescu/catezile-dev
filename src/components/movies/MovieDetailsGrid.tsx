@@ -33,18 +33,20 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {movie.director && (
+                {(movie.streaming_ro?.director || movie.director) && (
                   <div>
                     <h4 className="font-medium mb-2 text-sm text-muted-foreground">Regizor</h4>
-                    <Badge variant="secondary">{movie.director}</Badge>
+                    <Badge variant="secondary">{movie.streaming_ro?.director || movie.director}</Badge>
                   </div>
                 )}
                 
-                {movie.main_cast && movie.main_cast.length > 0 && (
+                {(movie.streaming_ro?.main_cast || movie.main_cast) && (
                   <div>
                     <h4 className="font-medium mb-2 text-sm text-muted-foreground">Actori principali</h4>
                     <div className="flex flex-wrap gap-2">
-                      {movie.main_cast.map((actor: string, index: number) => (
+                      {(movie.streaming_ro?.main_cast 
+                        ? movie.streaming_ro.main_cast.split(',').map((actor: string) => actor.trim())
+                        : movie.main_cast || []).slice(0, 6).map((actor: string, index: number) => (
                         <Badge key={index} variant="outline">{actor}</Badge>
                       ))}
                     </div>
@@ -184,10 +186,14 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
                 </div>
               )}
               
-              {movie.main_cast && movie.main_cast.length > 0 && (
+              {(movie.streaming_ro?.main_cast || movie.main_cast) && (
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">Actori principali</span>
-                  <span className="font-medium">{movie.main_cast.length}</span>
+                  <span className="font-medium">
+                    {movie.streaming_ro?.main_cast 
+                      ? movie.streaming_ro.main_cast.split(',').length 
+                      : movie.main_cast ? movie.main_cast.length : 0}
+                  </span>
                 </div>
               )}
               
@@ -219,10 +225,10 @@ export function MovieDetailsGrid({ movie }: MovieDetailsGridProps) {
                 </Button>
               )}
               
-              {movie.trailer_youtube_key && (
+              {(movie.trailer_youtube_key || movie.trailer_key) && (
                 <Button variant="outline" size="sm" className="w-full justify-between" asChild>
                   <a 
-                    href={`https://www.youtube.com/watch?v=${movie.trailer_youtube_key}`}
+                    href={`https://www.youtube.com/watch?v=${movie.trailer_youtube_key || movie.trailer_key}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

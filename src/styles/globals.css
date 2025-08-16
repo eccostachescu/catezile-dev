@@ -1,59 +1,102 @@
-/* Global design tokens for T2 — Festival Gradient theme */
+/* Global design tokens for CZ Design System */
 @layer base {
   :root {
-    /* brand */
-    --brand: 30 95% 55%;
-    --brand-foreground: 20 30% 12%;
-    --accent: 260 90% 60%;
-
-    /* base surfaces & text */
-    --bg: 0 0% 100%;
-    --fg: 220 15% 12%;
-    --muted: 220 12% 96%;
+    /* System colors for shadcn components */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 72.22% 50.59%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 47.4% 11.2%;
+    --radius: 0.5rem;
 
-    /* states */
-    --ring: 260 90% 60%;
-    --success: 142 76% 36%;
-    --warning: 32 95% 45%;
-    --danger: 0 72% 50%;
-
-    /* radii */
-    --radius-sm: 6px;
-    --radius: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
-
-    /* shadows */
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
-    --shadow-md: 0 4px 10px rgba(0,0,0,.08);
-    --shadow-lg: 0 12px 24px rgba(0,0,0,.10);
+    /* CZ Design System colors */
+    --cz-bg: 0 0% 100%;
+    --cz-surface: 0 0% 98%;
+    --cz-ink: 222.2 84% 4.9%;
+    --cz-ink-muted: 215.4 16.3% 46.9%;
+    --cz-border: 214.3 31.8% 91.4%;
+    --cz-primary: 222.2 47.4% 11.2%;
+    --cz-primary-600: 222.2 47.4% 20%;
+    --cz-accent: 142 76% 36%;
+    --cz-success: 142 76% 36%;
+    --cz-danger: 0 72% 50%;
+    --cz-overlay: 0 0% 0%;
   }
 
   .dark {
-    --bg: 220 15% 8%;
-    --fg: 0 0% 100%;
-    --muted: 220 14% 14%;
-    --card: 220 14% 12%;
-    --ring: 260 90% 65%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    
+    /* CZ Design System dark colors */
+    --cz-bg: 222.2 84% 4.9%;
+    --cz-surface: 217.2 32.6% 17.5%;
+    --cz-ink: 210 40% 98%;
+    --cz-ink-muted: 215 20.2% 65.1%;
+    --cz-border: 217.2 32.6% 17.5%;
+    --cz-primary: 210 40% 98%;
+    --cz-primary-600: 210 40% 80%;
+    --cz-accent: 142 76% 50%;
+    --cz-success: 142 76% 50%;
+    --cz-danger: 0 72% 60%;
+    --cz-overlay: 0 0% 100%;
   }
 }
 
 @layer base {
-  html { color-scheme: light dark; }
-  body { font-feature-settings: "tnum" 1, "ss01" 1; }
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html { 
+    color-scheme: light dark; 
+  }
+  
+  body { 
+    font-feature-settings: "tnum" 1, "ss01" 1; 
+  }
 }
 
 @layer utilities {
-  /* T2 gradient + card helpers */
-  .bg-hero { background: linear-gradient(140deg,#D946EF 0%,#2563EB 55%,#F59E0B 100%); }
-  .bg-card { background: hsl(var(--card)); }
-
   /* Link underline animation */
   .story-link { position: relative; display: inline-block; }
   .story-link::after {
     content: ""; position: absolute; width: 100%; transform: scaleX(0); height: 2px; bottom: 0; left: 0;
-    background-color: hsl(var(--brand)); transform-origin: bottom right; transition: transform 0.3s ease-out;
+    background-color: hsl(var(--primary)); transform-origin: bottom right; transition: transform 0.3s ease-out;
   }
   .story-link:hover::after { transform: scaleX(1); transform-origin: bottom left; }
 

@@ -62,10 +62,10 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
   return (
     <div className="relative overflow-hidden">
       {/* Backdrop with overlay */}
-      {movie.backdrop_url && (
+      {(movie.backdrop_url || movie.backdrop_path) && (
         <div className="absolute inset-0 z-0">
           <img 
-            src={movie.backdrop_url} 
+            src={movie.backdrop_url || `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`} 
             alt={`Backdrop ${movie.title}`} 
             className="w-full h-full object-cover"
             loading="lazy" 
@@ -81,9 +81,9 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
           <div className="lg:col-span-3">
             <Card className="overflow-hidden bg-black/20 backdrop-blur-sm border-white/10">
               <CardContent className="p-0">
-                {movie.poster_url ? (
+                {(movie.poster_url || movie.poster_path) ? (
                   <img 
-                    src={movie.poster_url} 
+                    src={movie.poster_url || `https://image.tmdb.org/t/p/w500${movie.poster_path}`} 
                     alt={`Poster ${movie.title}`} 
                     className="w-full aspect-[2/3] object-cover"
                     loading="lazy" 
@@ -169,21 +169,27 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
             )}
 
             {/* Cast preview */}
-            {movie.main_cast && movie.main_cast.length > 0 && (
+            {(movie.streaming_ro?.main_cast || movie.main_cast) && (
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                   <Users className="h-5 w-5" />
                   Actori principali
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {movie.main_cast.slice(0, 4).map((actor: string, index: number) => (
+                  {(movie.streaming_ro?.main_cast 
+                    ? movie.streaming_ro.main_cast.split(',').map((actor: string) => actor.trim())
+                    : movie.main_cast || []).slice(0, 4).map((actor: string, index: number) => (
                     <Badge key={index} variant="secondary" className="bg-white/10 text-white/90">
                       {actor}
                     </Badge>
                   ))}
-                  {movie.main_cast.length > 4 && (
+                  {(movie.streaming_ro?.main_cast 
+                    ? movie.streaming_ro.main_cast.split(',').length 
+                    : movie.main_cast ? movie.main_cast.length : 0) > 4 && (
                     <Badge variant="secondary" className="bg-white/10 text-white/90">
-                      +{movie.main_cast.length - 4}
+                      +{(movie.streaming_ro?.main_cast 
+                        ? movie.streaming_ro.main_cast.split(',').length 
+                        : movie.main_cast ? movie.main_cast.length : 0) - 4}
                     </Badge>
                   )}
                 </div>
@@ -204,7 +210,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                 )}
 
                 {/* Trailer */}
-                {movie.trailer_youtube_key && (
+                {(movie.trailer_youtube_key || movie.trailer_key) && (
                   <Dialog open={isTrailerOpen} onOpenChange={setIsTrailerOpen}>
                     <DialogTrigger asChild>
                       <Button size="lg" className="w-full bg-red-600 hover:bg-red-700 text-white">
@@ -216,7 +222,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                       <div className="relative aspect-video">
                         <iframe
                           ref={iframeRef}
-                          src={`https://www.youtube.com/embed/${movie.trailer_youtube_key}?autoplay=1&mute=${isMuted ? 1 : 0}&rel=0&modestbranding=1`}
+                          src={`https://www.youtube.com/embed/${movie.trailer_youtube_key || movie.trailer_key}?autoplay=1&mute=${isMuted ? 1 : 0}&rel=0&modestbranding=1`}
                           title="Movie Trailer"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
