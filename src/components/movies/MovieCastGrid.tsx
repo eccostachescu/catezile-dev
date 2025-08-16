@@ -12,11 +12,18 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
   const castFromStreaming = movie.streaming_ro?.main_cast;
   const directorFromStreaming = movie.streaming_ro?.director;
   
+  // DEBUG: Log all movie data to see what we have
+  console.log('Full movie data:', movie);
+  console.log('Credits data:', credits);
+  console.log('Cast from credits:', credits?.cast);
+  console.log('Streaming cast:', castFromStreaming);
+  
   // Combine cast data
   let castMembers: any[] = [];
   
   if (credits?.cast && credits.cast.length > 0) {
     castMembers = credits.cast.slice(0, 10);
+    console.log('Using TMDB cast data:', castMembers);
   } else if (castFromStreaming) {
     castMembers = castFromStreaming.split(',').map((name: string, index: number) => ({
       id: index,
@@ -24,6 +31,7 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
       character: '',
       profile_path: null
     }));
+    console.log('Using streaming cast data:', castMembers);
   } else if (movie.main_cast && Array.isArray(movie.main_cast)) {
     castMembers = movie.main_cast.map((name: string, index: number) => ({
       id: index,
@@ -31,6 +39,7 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
       character: '',
       profile_path: null
     }));
+    console.log('Using main_cast data:', castMembers);
   }
 
   // Get crew data
@@ -53,6 +62,15 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* DEBUG INFO - Remove this in production */}
+        <div className="p-4 bg-yellow-100 border border-yellow-300 rounded text-sm">
+          <p><strong>Debug Info:</strong></p>
+          <p>Cast members count: {castMembers.length}</p>
+          <p>First member: {JSON.stringify(castMembers[0], null, 2)}</p>
+          <p>Has TMDB credits: {!!credits?.cast}</p>
+          <p>TMDB credits count: {credits?.cast?.length || 0}</p>
+        </div>
+
         {/* Key Crew */}
         {(director || writer || producer) && (
           <div>
@@ -89,8 +107,17 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {castMembers.map((person, index) => {
                 const hasProfilePath = person.profile_path && person.profile_path !== null && person.profile_path !== '';
-                const tmdbUrl = person.id && typeof person.id === 'number' ? `https://www.themoviedb.org/person/${person.id}` : null;
+                const tmdbUrl = person.id && typeof person.id === 'number' && person.id > 100 ? `https://www.themoviedb.org/person/${person.id}` : null;
                 const imageUrl = hasProfilePath ? `https://image.tmdb.org/t/p/w185${person.profile_path}` : null;
+                
+                // DEBUG: Log each person's data
+                console.log(`Person ${index}:`, {
+                  name: person.name,
+                  profile_path: person.profile_path,
+                  hasProfilePath,
+                  imageUrl,
+                  id: person.id
+                });
                 
                 const CastCard = ({ children }: { children: React.ReactNode }) => {
                   if (tmdbUrl) {
@@ -120,7 +147,7 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                               className="w-full h-full object-cover"
                               loading="lazy"
                               onError={(e) => {
-                                console.log('Image failed to load:', imageUrl);
+                                console.error('Image failed to load:', imageUrl, 'for person:', person.name);
                                 const img = e.currentTarget;
                                 img.style.display = 'none';
                                 const fallback = img.parentElement?.querySelector('.actor-fallback');
@@ -130,7 +157,7 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                                 }
                               }}
                               onLoad={() => {
-                                console.log('Image loaded successfully:', imageUrl);
+                                console.log('✅ Image loaded successfully:', imageUrl, 'for person:', person.name);
                               }}
                             />
                             <div className="actor-fallback w-full h-full bg-muted flex items-center justify-center absolute inset-0 hidden">
@@ -140,6 +167,9 @@ export function MovieCastGrid({ movie }: MovieCastGridProps) {
                         ) : (
                           <div className="actor-fallback w-full h-full bg-muted flex items-center justify-center">
                             <Users className="h-8 w-8 text-muted-foreground" />
+                            <div className="absolute bottom-1 right-1 text-xs bg-red-500 text-white px-1 rounded">
+                              No IMG
+                            </div>
                           </div>
                         )}
                       </div>
