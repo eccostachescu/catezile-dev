@@ -136,7 +136,7 @@ export default function NewHomepage() {
   const handleCardClick = (eventId: string) => {
     const event = events.find(e => e.id === eventId);
     if (event?.slug) {
-      window.location.href = `/countdown/${event.slug}`;
+      window.location.href = `/evenimente/${event.slug}`;
     }
   };
 
