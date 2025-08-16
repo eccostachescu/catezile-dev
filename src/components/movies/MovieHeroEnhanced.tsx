@@ -202,7 +202,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                 {/* Countdown */}
                 {isUpcoming && releaseDate && (
                   <div className="text-center space-y-4 mb-6">
-                    <h4 className="text-sm font-medium text-foreground/80 uppercase tracking-wider">Premiere în</h4>
+                    <h4 className="text-sm font-medium text-foreground/80 uppercase tracking-wider">Premiera</h4>
                     <div className="flex justify-center">
                       <PillCountdown 
                         date={releaseDate} 
