@@ -34,6 +34,7 @@ const translateMovieText = (text: string): string => {
     'Mystery': 'Mister',
     'Romance': 'Romantic',
     'Science Fiction': 'Științifico-Fantastic',
+    'Sci-Fi': 'Științifico-Fantastic',
     'TV Movie': 'Film TV',
     'Thriller': 'Thriller',
     'War': 'Război',
@@ -50,7 +51,13 @@ const translateMovieText = (text: string): string => {
     'Genres': 'Genuri',
     'Rating': 'Rating',
     'Vote Average': 'Nota medie',
-    'Original Title': 'Titlu original'
+    'Original Title': 'Titlu original',
+    
+    // Additional terms that might appear
+    'min': 'min',
+    'minutes': 'minute',
+    'year': 'an',
+    'years': 'ani'
   };
   
   return translations[text] || text;
@@ -287,33 +294,35 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   </Dialog>
                 )}
 
-                {/* Actions - CENTRAT */}
-                <div className="space-y-3">
+                {/* Actions - IMPROVED SPACING */}
+                <div className="space-y-4">
                   {releaseDate && (
                     <div className="flex justify-center w-full">
-                      <ReminderButton 
-                        when={releaseDate} 
-                        kind="movie" 
-                        entityId={movie.id}
-                      />
+                      <div className="w-full [&>div>button]:w-full [&>div>button]:py-3 [&>div>button]:px-6 [&>div>button]:font-semibold [&>div>button]:text-base">
+                        <ReminderButton 
+                          when={releaseDate} 
+                          kind="movie" 
+                          entityId={movie.id}
+                        />
+                      </div>
                     </div>
                   )}
                   
                   <div className="flex justify-center">
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="lg"
                       onClick={handleShare}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 py-3 px-6 font-semibold"
                     >
-                      <Share2 className="h-4 w-4 mr-2" />
+                      <Share2 className="h-5 w-5 mr-2" />
                       Distribuie
                     </Button>
                   </div>
                 </div>
 
                 {/* Release info */}
-                <div className="space-y-3 pt-4 border-t border-white/20">
+                <div className="space-y-2 pt-6 border-t border-white/10">
                   {movie.cinema_release_ro && (
                     <div className="flex justify-between items-center text-sm bg-white/5 rounded-lg p-3">
                       <span className="text-foreground/70 font-medium">Cinema</span>
