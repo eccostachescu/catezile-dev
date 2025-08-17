@@ -424,6 +424,12 @@ export default function NewHomepage() {
         onFilterChange={handleFilterChange}
         activeFilter={activeFilter}
       />
+      
+      {/* Live Now Section - only shows if there are live events */}
+      <LiveNowSection 
+        onCardClick={handleCardClick}
+        onReminderClick={handleReminderClick}
+      />
 
       {/* Simple events list for testing */}
       <section className="py-12">

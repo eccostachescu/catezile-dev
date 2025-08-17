@@ -57,9 +57,6 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
   console.log('🔴 LiveNowSection render - loading:', loading, 'events count:', liveEvents.length);
   console.log('🔴 Live events data:', liveEvents);
   
-  // Temporarily disable live section to debug 500 error
-  return null;
-  
   if (loading) {
     console.log('🔴 LiveNowSection showing loading state');
     return (
@@ -122,7 +119,8 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
                   
                   {event.score && (
                     <div className="text-xs text-[--cz-ink-muted] mb-1">
-                      {event.score.home || 0} - {event.score.away || 0}
+                      {(event.score.home?.ft ?? event.score.home?.ht ?? 0)} - {(event.score.away?.ft ?? event.score.away?.ht ?? 0)}
+                      {event.score.minute && <span className="ml-1">({event.score.minute}')</span>}
                     </div>
                   )}
                   
