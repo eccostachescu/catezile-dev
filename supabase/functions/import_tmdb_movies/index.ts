@@ -29,7 +29,8 @@ async function tmdb(path: string, params: Record<string, string | number> = {}) 
 function parseCinemaReleaseRO(release_dates: any): string | null {
   try {
     const ro = release_dates?.results?.find((r: any) => r.iso_3166_1 === REGION_RO);
-    const candidates = ro?.release_dates?.filter((x: any) => x.type === 3 || x.type === 4) || [];
+    // Include all release types: 1=Premiere, 2=Theatrical(limited), 3=Theatrical, 4=Digital, 5=Physical, 6=TV
+    const candidates = ro?.release_dates?.filter((x: any) => [1, 2, 3, 4, 5, 6].includes(x.type)) || [];
     const sorted = candidates.sort((a: any, b: any) => new Date(a.release_date).getTime() - new Date(b.release_date).getTime());
     return sorted[0]?.release_date?.slice(0, 10) || null; // YYYY-MM-DD
   } catch {
@@ -58,14 +59,38 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pages = 3, year }: { pages?: number; year?: number } = req.method === 'POST' ? await req.json().catch(() => ({})) : Object.fromEntries(new URL(req.url).searchParams) as any;
+    const { pages = 5, year }: { pages?: number; year?: number } = req.method === 'POST' ? await req.json().catch(() => ({})) : Object.fromEntries(new URL(req.url).searchParams) as any;
 
     const ids = new Set<number>();
-    const listTypes = ['upcoming', 'now_playing'] as const;
+    
+    // Expanded list of movie sources to get more comprehensive results
+    const listTypes = ['upcoming', 'now_playing', 'popular', 'top_rated'] as const;
+    
     for (const typ of listTypes) {
       for (let page = 1; page <= Number(pages); page++) {
-        const data = await tmdb(`/movie/${typ}`, { region: REGION_RO, page, ...(year ? { year } : {}) });
+        try {
+          const data = await tmdb(`/movie/${typ}`, { region: REGION_RO, page, ...(year ? { year } : {}) });
+          for (const m of data.results || []) ids.add(m.id);
+        } catch (e) {
+          console.warn(`Failed to fetch ${typ} page ${page}:`, e);
+        }
+      }
+    }
+    
+    // Also fetch discover endpoint for more movies
+    for (let page = 1; page <= Math.min(Number(pages), 3); page++) {
+      try {
+        const currentYear = year || new Date().getFullYear();
+        const data = await tmdb('/discover/movie', { 
+          region: REGION_RO, 
+          page,
+          'primary_release_date.gte': `${currentYear}-01-01`,
+          'primary_release_date.lte': `${currentYear + 1}-12-31`,
+          sort_by: 'popularity.desc'
+        });
         for (const m of data.results || []) ids.add(m.id);
+      } catch (e) {
+        console.warn(`Failed to fetch discover page ${page}:`, e);
       }
     }
 

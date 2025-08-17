@@ -39,7 +39,24 @@ export default function Movies() {
     async function load() {
       setLoading(true);
       try {
-        let q = supabase.from('movie').select('id, title, poster_url, cinema_release_ro, netflix_date, prime_date, status, genres, provider, streaming_ro').order('cinema_release_ro', { ascending: true }).limit(48);
+        let q = supabase.from('movie').select(`
+          id, 
+          title, 
+          poster_url, 
+          backdrop_url,
+          cinema_release_ro, 
+          netflix_date, 
+          prime_date, 
+          status, 
+          genres, 
+          provider, 
+          streaming_ro,
+          popularity,
+          vote_average,
+          overview,
+          trailer_youtube_key
+        `).order('popularity', { ascending: false }).limit(100);
+        
         if (status) q = q.eq('status', status);
         if (genre) q = q.contains('genres', [genre]);
         if (year) q = q.gte('cinema_release_ro', `${year}-01-01`).lte('cinema_release_ro', `${year}-12-31`);
@@ -48,6 +65,12 @@ export default function Movies() {
           const next = month === 12 ? `${year+1}-01-01` : `${year}-${String(month+1).padStart(2,'0')}-01`;
           q = q.gte('cinema_release_ro', `${year}-${mm}-01`).lt('cinema_release_ro', next);
         }
+        
+        // If no specific filters, show a mix of popular and upcoming movies
+        if (!status && !genre && !year && !month) {
+          q = q.or('status.eq.SCHEDULED,status.eq.RELEASED').order('popularity', { ascending: false });
+        }
+        
         const { data } = await q;
         if (!cancelled) setItems(data || []);
       } finally {
@@ -60,11 +83,13 @@ export default function Movies() {
 
   useEffect(() => {
     const runImport = params.get('import');
+    const populateMonthly = params.get('populate');
+    
     if (runImport === '1') {
       (async () => {
         try {
           toast({ title: 'Import TMDB pornit', description: 'Se importă filme…' });
-          await supabase.functions.invoke('import_tmdb_movies', { body: { pages: 3 } });
+          await supabase.functions.invoke('import_tmdb_movies', { body: { pages: 5 } });
           await supabase.functions.invoke('update_movie_providers', { body: {} as any });
           toast({ title: 'Gata', description: 'Filmele au fost importate/actualizate.' });
         } catch (e) {
@@ -72,6 +97,22 @@ export default function Movies() {
         } finally {
           const next = new URLSearchParams(params);
           next.delete('import');
+          setParams(next, { replace: true });
+        }
+      })();
+    }
+    
+    if (populateMonthly === '1') {
+      (async () => {
+        try {
+          toast({ title: 'Populare lunară pornită', description: 'Se populează filme pentru toate lunile 2025…' });
+          await supabase.functions.invoke('populate_monthly_movies', { body: { year: 2025 } });
+          toast({ title: 'Gata', description: 'Filmele au fost populate pentru 2025.' });
+        } catch (e) {
+          toast({ title: 'Eroare la populare', description: String((e as any)?.message || e), variant: 'destructive' as any });
+        } finally {
+          const next = new URLSearchParams(params);
+          next.delete('populate');
           setParams(next, { replace: true });
         }
       })();
@@ -117,6 +158,24 @@ export default function Movies() {
             <option value="RELEASED">Lansat</option>
           </select>
         </div>
+
+        {/* Admin Actions */}
+        {window.location.hostname.includes('localhost') || window.location.hostname.includes('lovable.app') ? (
+          <div className="flex gap-2 p-4 bg-muted/50 rounded-lg">
+            <button 
+              onClick={() => updateParam('populate', '1')}
+              className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm"
+            >
+              Populează filme 2025
+            </button>
+            <button 
+              onClick={() => updateParam('import', '1')}
+              className="px-3 py-1 bg-secondary text-secondary-foreground rounded text-sm"
+            >
+              Import TMDB
+            </button>
+          </div>
+        ) : null}
 
         {/* Sections */}
         <MovieStrip title="La cinema în curând" items={sections?.upcomingCinema || []} />

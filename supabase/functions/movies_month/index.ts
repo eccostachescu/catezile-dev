@@ -38,26 +38,66 @@ serve(async (req) => {
 
     console.log(`Fetching movies for ${year}-${month}: ${startDateStr} to ${endDateStr}`);
 
-    // Fetch cinema releases for the month
+    // Fetch cinema releases for the month - improved query with more fields
     const { data: cinemaMovies, error: cinemaError } = await supabase
       .from('movie')
       .select(`
         id,
         title,
         slug,
-        poster_path,
+        poster_url,
+        backdrop_url,
         cinema_release_ro,
         overview,
         genres,
         runtime,
-        popularity
+        popularity,
+        vote_average,
+        vote_count,
+        trailer_youtube_key,
+        status
       `)
       .gte('cinema_release_ro', startDateStr)
       .lte('cinema_release_ro', endDateStr)
-      .order('cinema_release_ro', { ascending: true });
+      .order('popularity', { ascending: false })
+      .limit(100);
 
     if (cinemaError) {
       throw new Error(`Failed to fetch cinema movies: ${cinemaError.message}`);
+    }
+    
+    // If we don't have many movies for this specific month, also fetch nearby months
+    let additionalMovies: any[] = [];
+    if ((cinemaMovies || []).length < 10) {
+      const prevMonth = new Date(yearNum, monthNum - 2, 1);
+      const nextMonth = new Date(yearNum, monthNum, 1);
+      
+      const prevStartDate = prevMonth.toISOString().split('T')[0];
+      const nextEndDate = new Date(yearNum, monthNum + 1, 0).toISOString().split('T')[0];
+      
+      const { data: nearbyMovies } = await supabase
+        .from('movie')
+        .select(`
+          id,
+          title,
+          slug,
+          poster_url,
+          backdrop_url,
+          cinema_release_ro,
+          overview,
+          genres,
+          runtime,
+          popularity,
+          vote_average,
+          vote_count,
+          trailer_youtube_key,
+          status
+        `)
+        .or(`cinema_release_ro.gte.${prevStartDate},cinema_release_ro.lte.${nextEndDate}`)
+        .order('popularity', { ascending: false })
+        .limit(50);
+        
+      additionalMovies = nearbyMovies || [];
     }
 
     // Fetch streaming releases for the month
@@ -103,14 +143,26 @@ serve(async (req) => {
       });
     }
 
+    // Combine main movies with additional ones, remove duplicates
+    const allCinemaMovies = [...(cinemaMovies || [])];
+    const existingIds = new Set(allCinemaMovies.map(m => m.id));
+    
+    for (const movie of additionalMovies) {
+      if (!existingIds.has(movie.id)) {
+        allCinemaMovies.push(movie);
+        existingIds.add(movie.id);
+      }
+    }
+
     const response = {
       year: yearNum,
       month: monthNum,
       month_name: new Date(yearNum, monthNum - 1).toLocaleDateString('ro-RO', { month: 'long' }),
-      cinema: cinemaMovies || [],
+      cinema: allCinemaMovies,
       streaming: streamingByPlatform,
-      total_cinema: cinemaMovies?.length || 0,
-      total_streaming: streamingMovies?.length || 0
+      total_cinema: allCinemaMovies.length,
+      total_streaming: streamingMovies?.length || 0,
+      has_nearby_movies: additionalMovies.length > 0
     };
 
     return new Response(JSON.stringify(response), {
