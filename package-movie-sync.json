@@ -1,0 +1,8 @@
+{
+  "name": "movie-sync-script",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sync-movies": "node trigger-movie-sync.js"
+  }
+}
