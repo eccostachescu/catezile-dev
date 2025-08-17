@@ -309,8 +309,9 @@ export default function NewHomepage() {
           break;
 
         case 'month':
-          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-          const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+          const monthNow = new Date();
+          const startOfMonth = new Date(monthNow.getFullYear(), monthNow.getMonth(), 1);
+          const endOfMonth = new Date(monthNow.getFullYear(), monthNow.getMonth() + 1, 0, 23, 59, 59, 999);
 
           const { data: monthEvents } = await supabase
             .from('event')
