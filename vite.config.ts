@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  target: 'esnext', // Use modern JS for Node 20+
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
