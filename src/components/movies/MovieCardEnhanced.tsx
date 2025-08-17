@@ -2,6 +2,7 @@ import { Film, Calendar, Clock, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ReminderButton from "@/components/ReminderButton";
+import CountdownTimer from "@/components/CountdownTimer";
 import { Link } from "react-router-dom";
 
 interface MovieCardEnhancedProps {
@@ -185,6 +186,24 @@ export function MovieCardEnhanced({ movie, showReminder = true, className = "" }
                 {genre}
               </Badge>
             ))}
+          </div>
+        )}
+        
+        {/* Show countdown for upcoming releases */}
+        {movie.next_date && new Date(movie.next_date.date) > new Date() && (
+          <div className="mt-3 p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">
+                {movie.next_date.type === 'cinema' ? 'Lansare cinema:' : `Lansare ${movie.next_date.platform}:`}
+              </span>
+              <Badge variant="outline" className="text-xs">
+                {new Date(movie.next_date.date).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })}
+              </Badge>
+            </div>
+            <CountdownTimer 
+              target={movie.next_date.date}
+              className="text-center"
+            />
           </div>
         )}
         
