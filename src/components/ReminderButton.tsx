@@ -89,25 +89,97 @@ export default function ReminderButton({ when, kind, entityId }: Props) {
           {set ? "Reminder activ" : "Setează reminder"}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 space-y-3">
-        <div className="text-sm font-medium">Când să te anunțăm?</div>
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant={days === 7 && hours === 0 ? 'secondary' : 'outline'} size="sm" onClick={() => { setDays(7); setHours(0); }}>7 zile</Button>
-          <Button variant={days === 3 && hours === 0 ? 'secondary' : 'outline'} size="sm" onClick={() => { setDays(3); setHours(0); }}>3 zile</Button>
-          <Button variant={days === 1 && hours === 0 ? 'secondary' : 'outline'} size="sm" onClick={() => { setDays(1); setHours(0); }}>1 zi</Button>
-          <Button variant={days === 0 && hours === 0 ? 'secondary' : 'outline'} size="sm" onClick={() => { setDays(0); setHours(0); }}>În ziua evenimentului</Button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm whitespace-nowrap">Cu</span>
-          <Input type="number" min={0} max={12} value={hours} onChange={(e)=>setHours(Number(e.target.value)||0)} className="h-8" />
-          <span className="text-sm">ore înainte</span>
-        </div>
-        {nextFireAt && (
-          <p className="text-xs text-muted-foreground">Programat: {formatRoDate(new Date(nextFireAt), true)}</p>
-        )}
-        <div className="flex justify-end gap-2 pt-1">
-          <Button variant="outline" size="sm" onClick={()=>setOpen(false)}>Renunță</Button>
-          <Button size="sm" onClick={doSave} disabled={disabled}>Salvează</Button>
+      <PopoverContent className="w-80 p-0 bg-background/95 backdrop-blur-lg border-border/50 shadow-2xl">
+        <div className="p-6 space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-1">
+            <h3 className="text-lg font-semibold text-foreground">Setează reminder</h3>
+            <p className="text-sm text-muted-foreground">Când să te anunțăm despre acest film?</p>
+          </div>
+
+          {/* Quick options */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-foreground">Opțiuni rapide</label>
+            <div className="grid grid-cols-2 gap-3">
+              <Button 
+                variant={days === 7 && hours === 0 ? 'default' : 'outline'} 
+                size="lg" 
+                onClick={() => { setDays(7); setHours(0); }}
+                className="h-12 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                7 zile
+              </Button>
+              <Button 
+                variant={days === 3 && hours === 0 ? 'default' : 'outline'} 
+                size="lg" 
+                onClick={() => { setDays(3); setHours(0); }}
+                className="h-12 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                3 zile
+              </Button>
+              <Button 
+                variant={days === 1 && hours === 0 ? 'default' : 'outline'} 
+                size="lg" 
+                onClick={() => { setDays(1); setHours(0); }}
+                className="h-12 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                1 zi
+              </Button>
+              <Button 
+                variant={days === 0 && hours === 0 ? 'default' : 'outline'} 
+                size="lg" 
+                onClick={() => { setDays(0); setHours(0); }}
+                className="h-12 font-medium text-xs leading-tight transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                În ziua<br />evenimentului
+              </Button>
+            </div>
+          </div>
+
+          {/* Custom hours */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-foreground">Personalizează (ore înainte)</label>
+            <div className="flex items-center gap-3 bg-muted/30 rounded-lg p-4">
+              <span className="text-sm font-medium text-foreground whitespace-nowrap">Cu</span>
+              <Input 
+                type="number" 
+                min={0} 
+                max={23} 
+                value={hours} 
+                onChange={(e)=>setHours(Number(e.target.value)||0)} 
+                className="h-11 text-center font-medium bg-background border-border/50 focus:ring-2 focus:ring-primary/20"
+                placeholder="0"
+              />
+              <span className="text-sm font-medium text-foreground whitespace-nowrap">ore înainte</span>
+            </div>
+          </div>
+
+          {/* Status */}
+          {nextFireAt && (
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+              <p className="text-sm text-primary font-medium text-center">
+                📅 Programat: {formatRoDate(new Date(nextFireAt), true)}
+              </p>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-2">
+            <Button 
+              variant="outline" 
+              onClick={()=>setOpen(false)}
+              className="flex-1 h-11 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Renunță
+            </Button>
+            <Button 
+              onClick={doSave} 
+              disabled={disabled}
+              className="flex-1 h-11 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+            >
+              {saving ? "Se salvează..." : "Salvează"}
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
