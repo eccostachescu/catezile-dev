@@ -9,16 +9,23 @@ interface PlausibleEvent {
 
 // Check if we're in development/preview environment
 const isDevelopment = 
-  window.location.hostname === 'localhost' ||
-  window.location.hostname.includes('lovable.app') ||
-  window.location.hostname.includes('preview') ||
-  import.meta.env.DEV;
+  typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname.includes('lovable.app') ||
+    window.location.hostname.includes('preview') ||
+    window.location.hostname.includes('127.0.0.1') ||
+    window.location.hostname.includes('vercel.app') ||
+    window.location.port === '8080' ||
+    import.meta.env.DEV
+  );
 
-// Rate limiting
+// More aggressive rate limiting
 let eventQueue: PlausibleEvent[] = [];
 let lastFlush = 0;
-const FLUSH_INTERVAL = 2000; // 2 seconds
-const MAX_EVENTS_PER_FLUSH = 5;
+let eventHistory = new Set<string>();
+const FLUSH_INTERVAL = 5000; // 5 seconds
+const MAX_EVENTS_PER_FLUSH = 2;
+const EVENT_DEDUP_TIME = 10000; // 10 seconds
 
 const flushEvents = () => {
   if (isDevelopment) {
@@ -48,12 +55,33 @@ const flushEvents = () => {
   });
 };
 
-// Debounced track function
+// Debounced track function with deduplication
 export const track = (eventName: string, props?: Record<string, any>) => {
   try {
+    // Early return for development
+    if (isDevelopment) {
+      console.log('📊 Analytics (dev mode):', eventName, props);
+      return;
+    }
+    
     if (!isGranted('analytics_storage')) return;
     
-    // Add to queue
+    // Create unique event key for deduplication
+    const eventKey = `${eventName}:${JSON.stringify(props || {})}`;
+    const now = Date.now();
+    
+    // Skip if same event was recently tracked
+    if (eventHistory.has(eventKey)) return;
+    
+    // Add to history with cleanup
+    eventHistory.add(eventKey);
+    setTimeout(() => eventHistory.delete(eventKey), EVENT_DEDUP_TIME);
+    
+    // Add to queue with limits
+    if (eventQueue.length >= 10) {
+      eventQueue.shift(); // Remove oldest if queue is full
+    }
+    
     eventQueue.push({
       name: eventName,
       url: window.location.href,
@@ -61,8 +89,8 @@ export const track = (eventName: string, props?: Record<string, any>) => {
       props: props || {}
     });
 
-    // Flush periodically
-    setTimeout(flushEvents, 100);
+    // Debounced flush
+    setTimeout(flushEvents, 1000);
   } catch (error) {
     console.debug('Analytics error:', error);
   }
