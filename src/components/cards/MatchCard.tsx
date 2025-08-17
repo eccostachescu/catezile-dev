@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatEventDate } from "@/lib/safe-date";
 import { Badge } from "@/components/Badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/Card";
 import CountdownTimer from "@/components/CountdownTimer";
@@ -24,7 +24,7 @@ export default function MatchCard({ id, homeTeam, awayTeam, datetime, tv = [], i
         </div>
         <CardTitle className="text-2xl sm:text-3xl">{homeTeam} vs {awayTeam}</CardTitle>
         <CardDescription>
-          {format(date, "PPP p")} • {tv.length ? `TV: ${tv.join(", ")}` : ""}
+          {formatEventDate(datetime)} • {tv.length ? `TV: ${tv.join(", ")}` : ""}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

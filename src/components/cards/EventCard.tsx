@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatEventDate } from "@/lib/safe-date";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/Badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/Card";
@@ -62,7 +62,7 @@ export default function EventCard({ id, title, datetime, category, affiliateUrl,
           </>
         )}
         <CardDescription>
-          {format(date, "PPP p")} • Timp rămas mai jos
+          {formatEventDate(datetime)} • Timp rămas mai jos
         </CardDescription>
       </CardHeader>
       
