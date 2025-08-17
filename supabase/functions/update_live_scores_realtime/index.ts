@@ -53,6 +53,8 @@ Deno.serve(async (req) => {
           away: { ft: 0 },
           minute: 65
         },
+        slug: 'rapid-fcsb-test',
+        image_url: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&h=600&fit=crop',
         updated_at: new Date().toISOString(),
         created_at: new Date().toISOString()
       }
@@ -75,16 +77,26 @@ Deno.serve(async (req) => {
         
         const currentScore = match.score || { home: { ft: 0 }, away: { ft: 0 }, minute: 1 }
         
+        // Ensure score object has proper structure
+        const homeScore = currentScore.home?.ft || currentScore.home || 0
+        const awayScore = currentScore.away?.ft || currentScore.away || 0
+        const currentMinute = currentScore.minute || 1
+        
         // Randomly update minute
-        const newMinute = Math.min((currentScore.minute || 1) + Math.floor(Math.random() * 3), 90)
+        const newMinute = Math.min(currentMinute + Math.floor(Math.random() * 3), 90)
         
         // Small chance to update score
-        let newScore = { ...currentScore, minute: newMinute }
+        let newScore = { 
+          home: { ft: homeScore }, 
+          away: { ft: awayScore }, 
+          minute: newMinute 
+        }
+        
         if (Math.random() < 0.1) { // 10% chance of goal
           if (Math.random() < 0.5) {
-            newScore.home.ft = (newScore.home.ft || 0) + 1
+            newScore.home.ft = newScore.home.ft + 1
           } else {
-            newScore.away.ft = (newScore.away.ft || 0) + 1
+            newScore.away.ft = newScore.away.ft + 1
           }
         }
 
