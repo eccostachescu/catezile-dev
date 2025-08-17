@@ -7,16 +7,18 @@ interface PlausibleEvent {
   props?: Record<string, string | number | boolean>;
 }
 
-// Check if we're in development/preview environment
+// Check if we're in development/preview environment (more aggressive)
 const isDevelopment = 
   typeof window !== 'undefined' && (
     window.location.hostname === 'localhost' ||
-    window.location.hostname.includes('lovable.app') ||
+    window.location.hostname.includes('lovable') ||
     window.location.hostname.includes('preview') ||
     window.location.hostname.includes('127.0.0.1') ||
     window.location.hostname.includes('vercel.app') ||
+    window.location.hostname.includes('dev') ||
     window.location.port === '8080' ||
-    import.meta.env.DEV
+    import.meta.env.DEV ||
+    import.meta.env.MODE !== 'production'
   );
 
 // More aggressive rate limiting
@@ -55,31 +57,29 @@ const flushEvents = () => {
   });
 };
 
-// Debounced track function with deduplication
+// Completely disabled track function for development
 export const track = (eventName: string, props?: Record<string, any>) => {
+  // COMPLETELY DISABLE ANALYTICS IN DEVELOPMENT
+  if (isDevelopment) {
+    return; // Do nothing, not even logging
+  }
+  
   try {
-    // Early return for development
-    if (isDevelopment) {
-      console.log('📊 Analytics (dev mode):', eventName, props);
-      return;
-    }
-    
     if (!isGranted('analytics_storage')) return;
     
     // Create unique event key for deduplication
     const eventKey = `${eventName}:${JSON.stringify(props || {})}`;
-    const now = Date.now();
     
-    // Skip if same event was recently tracked
+    // Skip if same event was recently tracked (extended to 30 seconds)
     if (eventHistory.has(eventKey)) return;
     
     // Add to history with cleanup
     eventHistory.add(eventKey);
-    setTimeout(() => eventHistory.delete(eventKey), EVENT_DEDUP_TIME);
+    setTimeout(() => eventHistory.delete(eventKey), 30000); // Extended deduplication
     
-    // Add to queue with limits
-    if (eventQueue.length >= 10) {
-      eventQueue.shift(); // Remove oldest if queue is full
+    // More conservative queue management
+    if (eventQueue.length >= 3) {
+      return; // Don't add more if queue is getting full
     }
     
     eventQueue.push({
@@ -89,18 +89,18 @@ export const track = (eventName: string, props?: Record<string, any>) => {
       props: props || {}
     });
 
-    // Debounced flush
-    setTimeout(flushEvents, 1000);
+    // Much longer debounced flush
+    setTimeout(flushEvents, 5000);
   } catch (error) {
-    console.debug('Analytics error:', error);
+    // Silently ignore all errors
   }
 };
 
-// Track page views with rate limiting
+// Completely disabled page view tracking for development
 export const trackPageView = (url?: string) => {
+  // COMPLETELY DISABLE IN DEVELOPMENT
   if (isDevelopment) {
-    console.log('📊 Page view (dev mode):', url || window.location.href);
-    return;
+    return; // Do nothing
   }
 
   try {
@@ -110,15 +110,14 @@ export const trackPageView = (url?: string) => {
       u: url || window.location.href
     });
   } catch (error) {
-    console.warn('Page view tracking error:', error);
+    // Silently ignore
   }
 };
 
-// Initialize analytics only in production
+// COMPLETELY DISABLE analytics initialization in development
 export const initAnalytics = () => {
   if (isDevelopment) {
-    console.log('📊 Analytics initialized in development mode (tracking disabled)');
-    return;
+    return; // Do nothing in development
   }
 
   // Load Plausible script only in production
@@ -129,7 +128,7 @@ export const initAnalytics = () => {
     script.src = 'https://plausible.io/js/script.outbound-links.pageview-props.tagged-events.js';
     
     script.onerror = () => {
-      console.warn('Failed to load Plausible analytics');
+      // Silently fail
     };
     
     document.head.appendChild(script);

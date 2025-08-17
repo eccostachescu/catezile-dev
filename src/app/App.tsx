@@ -18,7 +18,6 @@ import MoviesHome from "../pages/movies/Home";
 import MovieMonth from "../pages/movies/Month";
 import MovieDetail from "../pages/movies/Movie";
 import MoviesPlatform from "./pages/MoviesPlatform";
-import Movie from "./pages/Movie";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import OutRedirect from "./pages/OutRedirect";

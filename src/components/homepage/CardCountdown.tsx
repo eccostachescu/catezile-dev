@@ -155,49 +155,9 @@ export default function CardCountdown({
     }
   }, [title, category, imageUrl]);
 
-  // Track impression when card becomes visible (throttled)
+  // COMPLETELY DISABLED analytics tracking for card impressions
   useEffect(() => {
-    if (!cardRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Track impression analytics with enhanced throttling
-            if (typeof window !== 'undefined' && window.plausible) {
-              // Only track if we haven't tracked this card recently
-              const trackingKey = `card_impression_${id}`;
-              const lastTracked = sessionStorage.getItem(trackingKey);
-              const now = Date.now();
-              
-              // Increased throttle to 60 seconds and add randomization to prevent bursts
-              if (!lastTracked || now - parseInt(lastTracked) > 60000) {
-                // Add random delay to spread out analytics calls
-                const delay = Math.random() * 2000; // 0-2 second random delay
-                setTimeout(() => {
-                  try {
-                    window.plausible('popular_card_impression', {
-                      props: { 
-                        event_id: id,
-                        category: category || 'unknown'
-                      }
-                    });
-                    sessionStorage.setItem(trackingKey, now.toString());
-                  } catch (error) {
-                    // Silently ignore analytics errors
-                  }
-                }, delay);
-              }
-            }
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    observer.observe(cardRef.current);
-    return () => observer.disconnect();
+    // Disabled - no analytics tracking in development
   }, [id, category]);
 
   const getCategoryVariant = (cat: string) => {
