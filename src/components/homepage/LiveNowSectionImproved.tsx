@@ -20,42 +20,54 @@ interface LiveNowSectionProps {
   onReminderClick?: (id: string) => void;
 }
 
-export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNowSectionProps) {
+export default function LiveNowSectionImproved({ onCardClick, onReminderClick }: LiveNowSectionProps) {
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   useEffect(() => {
-  const fetchLiveEvents = async () => {
-    try {
-      console.log('🔴 Fetching live events...');
-      const { data, error } = await supabase.rpc('get_live_events');
-      
-      if (error) {
-        console.error('Error fetching live events:', error);
-        setLiveEvents([]);
-        return;
-      }
+    const fetchLiveEvents = async () => {
+      try {
+        console.log('🔴 Fetching live events...');
+        
+        // First call the update function to ensure fresh data
+        try {
+          await supabase.functions.invoke('update_live_scores_realtime');
+          console.log('🔄 Live scores updated');
+        } catch (updateError) {
+          console.warn('⚠️ Could not update live scores:', updateError);
+        }
 
-      console.log('🔴 Raw live events data:', data);
-      // Filter for truly live events
-      const liveItems = data?.filter((item: any) => 
-        item.is_live && 
-        ['1H', '2H', 'HT', 'ET', 'LIVE'].includes(item.status)
-      ) || [];
-      
-      console.log('🔴 Filtered live events:', liveItems);
-      setLiveEvents(liveItems.slice(0, 4)); // Max 4 live events
-    } catch (error) {
-      console.error('Error in live events fetch:', error);
-      setLiveEvents([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const { data, error } = await supabase.rpc('get_live_events');
+        
+        if (error) {
+          console.error('Error fetching live events:', error);
+          setLiveEvents([]);
+          return;
+        }
+
+        console.log('🔴 Raw live events data:', data);
+        
+        // Filter for truly live events
+        const liveItems = data?.filter((item: any) => 
+          item.is_live && 
+          ['1H', '2H', 'HT', 'ET', 'LIVE'].includes(item.status)
+        ) || [];
+        
+        console.log('🔴 Filtered live events:', liveItems);
+        setLiveEvents(liveItems.slice(0, 4)); // Max 4 live events
+        setLastUpdate(new Date());
+      } catch (error) {
+        console.error('Error in live events fetch:', error);
+        setLiveEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchLiveEvents();
     
-    // Refresh every minute for live data (more frequent updates)
+    // Refresh every minute for live data
     const interval = setInterval(fetchLiveEvents, 60000);
     return () => clearInterval(interval);
   }, []);
@@ -93,6 +105,9 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 <h2 className="text-h2 font-bold text-[--cz-ink]">LIVE acum</h2>
               </div>
+              <div className="text-xs text-[--cz-ink-muted]">
+                Actualizat: {lastUpdate.toLocaleTimeString('ro-RO')}
+              </div>
             </div>
             <button
               onClick={() => {
@@ -106,11 +121,15 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {liveEvents.map((event) => (
-              <div key={event.id} className="bg-white rounded-xl shadow-sm border border-[--cz-border] overflow-hidden">
+              <div 
+                key={event.id} 
+                className="bg-white rounded-xl shadow-sm border border-[--cz-border] overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => onCardClick?.(event.id)}
+              >
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2 py-1 rounded-full">
-                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
                       LIVE
                     </span>
                     {event.tv_channels && event.tv_channels.length > 0 && (
@@ -125,9 +144,13 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
                   </h3>
                   
                   {event.score && (
-                    <div className="text-xs text-[--cz-ink-muted] mb-1">
+                    <div className="text-lg font-bold text-[--cz-ink] mb-1">
                       {(event.score.home?.ft ?? event.score.home?.ht ?? 0)} - {(event.score.away?.ft ?? event.score.away?.ht ?? 0)}
-                      {event.score.minute && <span className="ml-1">({event.score.minute}')</span>}
+                      {event.score.minute && (
+                        <span className="text-xs font-normal ml-2 text-[--cz-ink-muted]">
+                          ({event.score.minute}')
+                        </span>
+                      )}
                     </div>
                   )}
                   

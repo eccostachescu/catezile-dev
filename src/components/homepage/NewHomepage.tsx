@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import HeroSearchNew from "./HeroSearchNew";
-import LiveNowSection from "./LiveNowSection";
+import LiveNowSectionImproved from "./LiveNowSectionImproved";
 import CardCountdown from "./CardCountdown";
 import { RailWeekend } from "./RailWeekend";
 import { TvNow } from "./TvNow";
@@ -423,8 +423,8 @@ export default function NewHomepage() {
         activeFilter={activeFilter}
       />
       
-      {/* Live Now Section - only shows if there are live events */}
-      <LiveNowSection 
+      {/* Live Now Section - updates every minute */}
+      <LiveNowSectionImproved 
         onCardClick={handleCardClick}
         onReminderClick={handleReminderClick}
       />
