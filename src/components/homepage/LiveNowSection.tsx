@@ -55,9 +55,21 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
 
   // Don't render section if no live events
   console.log('🔴 LiveNowSection render - loading:', loading, 'events count:', liveEvents.length);
-  if (loading || liveEvents.length === 0) {
-    if (loading) console.log('🔴 LiveNowSection not rendering - still loading');
-    if (liveEvents.length === 0) console.log('🔴 LiveNowSection not rendering - no live events');
+  console.log('🔴 Live events data:', liveEvents);
+  
+  if (loading) {
+    console.log('🔴 LiveNowSection showing loading state');
+    return (
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center">Încărcare evenimente live...</div>
+        </div>
+      </section>
+    );
+  }
+  
+  if (liveEvents.length === 0) {
+    console.log('🔴 LiveNowSection not rendering - no live events');
     return null;
   }
 
