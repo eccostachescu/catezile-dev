@@ -2,12 +2,12 @@ import Container from "@/components/Container";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Star, Users, Play, Volume2, VolumeX } from "lucide-react";
+import { Calendar, Clock, Star, Users, Play, Volume2, VolumeX, Copy } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import ReminderButton from "@/components/ReminderButton";
 import { PillCountdown } from "@/components/ui/cz-pill-countdown";
 import FollowButton from "@/components/FollowButton";
-import { Share2 } from "lucide-react";
+
 import { track } from "@/lib/analytics";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
@@ -345,7 +345,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                         onClick={handleShare}
                         className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 py-4 px-6 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        <Share2 className="h-5 w-5 mr-2" />
+                        <Copy className="h-5 w-5 mr-2" />
                         Copiază link
                       </Button>
                     </div>
