@@ -188,17 +188,35 @@ serve(async (req) => {
     // Limit results
     filteredShows = filteredShows.slice(0, limit);
 
-    // Add TMDB image URLs
-    const enrichedShows = filteredShows.map(show => ({
-      ...show,
-      poster_url: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : null,
-      backdrop_url: show.backdrop_path ? `https://image.tmdb.org/t/p/w1280${show.backdrop_path}` : null,
-      slug: show.name.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim('-')
-    }));
+    // Add TMDB image URLs and mock upcoming episodes
+    const enrichedShows = filteredShows.map((show, index) => {
+      const baseShow = {
+        ...show,
+        poster_url: show.poster_path ? `https://image.tmdb.org/t/p/w500${show.poster_path}` : null,
+        backdrop_url: show.backdrop_path ? `https://image.tmdb.org/t/p/w1280${show.backdrop_path}` : null,
+        slug: show.name.toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim('-')
+      };
+
+      // Add mock upcoming episodes for some shows
+      if (index < 6) { // First 6 shows get upcoming episodes
+        const daysToAdd = [7, 14, 21, 28, 35, 42][index];
+        const nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + daysToAdd);
+        
+        baseShow.next_episode_to_air = {
+          air_date: nextDate.toISOString().split('T')[0],
+          episode_number: Math.floor(Math.random() * 10) + 1,
+          season_number: Math.floor(Math.random() * 3) + 1,
+          name: `Episode ${Math.floor(Math.random() * 10) + 1}`
+        };
+      }
+
+      return baseShow;
+    });
 
     console.log(`Returning ${enrichedShows.length} popular international TV shows`);
 
