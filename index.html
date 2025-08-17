@@ -28,9 +28,29 @@
         (window.plausible.q = window.plausible.q || []).push(arguments) 
       };
       
-      // Prevent Firebase/Firestore auto-initialization
+      // Completely disable Firebase/Firestore
       window.FIREBASE_APPCHECK_DEBUG_TOKEN = false;
       window.__FIREBASE_DEFAULTS__ = null;
+      window.firebase = undefined;
+      window.Firebase = undefined;
+      
+      // Block any Firebase initialization attempts
+      Object.defineProperty(window, 'firebase', {
+        get: () => undefined,
+        set: () => {},
+        configurable: false
+      });
+      
+      // Prevent Firestore requests by overriding fetch for Firebase domains
+      const originalFetch = window.fetch;
+      window.fetch = function(...args) {
+        const url = args[0];
+        if (typeof url === 'string' && (url.includes('firestore.googleapis.com') || url.includes('firebase'))) {
+          console.warn('Blocked Firebase request:', url);
+          return Promise.reject(new Error('Firebase requests blocked'));
+        }
+        return originalFetch.apply(this, args);
+      };
     </script>
   </head>
 
