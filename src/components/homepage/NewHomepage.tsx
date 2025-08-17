@@ -411,6 +411,12 @@ export default function NewHomepage() {
 
   return (
     <main>
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>Homepage Test</h1>
+        <p>Loading: {loading ? 'true' : 'false'}</p>
+        <p>Events count: {events.length}</p>
+        <p>Active filter: {activeFilter}</p>
+      </div>
 
       {/* Hero Section with Search */}
       <HeroSearchNew 
@@ -419,87 +425,28 @@ export default function NewHomepage() {
         activeFilter={activeFilter}
       />
 
-      {/* Live Now Section - only shows if there are live events */}
-      <LiveNowSection 
-        onCardClick={handleCardClick}
-        onReminderClick={handleReminderClick}
-      />
-
-      {/* Popular Countdowns Section */}
-      <section className="py-12" style={{ backgroundColor: 'var(--cz-bg)' }}>
+      {/* Simple events list for testing */}
+      <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-h2 font-bold text-[--cz-ink]">
-              {activeFilter === 'popular' && 'Cele mai populare countdown-uri'}
-              {activeFilter === 'today' && 'Astăzi'}
-              {activeFilter === 'tomorrow' && 'Mâine'}
-              {activeFilter === 'weekend' && 'În acest weekend'}
-              {activeFilter === 'month' && 'Luna aceasta'}
-            </h2>
-            <button
-              onClick={() => window.location.href = '/populare'}
-              className="text-sm font-medium text-[--cz-primary] hover:text-[--cz-primary-600] transition-colors"
-            >
-              Vezi toate →
-            </button>
-          </div>
-
+          <h2>Events Test</h2>
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-[--cz-surface] rounded-2xl p-4 border border-[--cz-border] animate-pulse">
-                  <div className="aspect-video bg-[--cz-border] rounded-xl mb-4"></div>
-                  <div className="h-4 bg-[--cz-border] rounded mb-2"></div>
-                  <div className="h-3 bg-[--cz-border] rounded w-2/3"></div>
+            <p>Loading events...</p>
+          ) : events.length > 0 ? (
+            <div>
+              <p>Found {events.length} events</p>
+              {events.slice(0, 3).map((event) => (
+                <div key={event.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
+                  <h3>{event.title}</h3>
+                  <p>Source: {event.source}</p>
+                  <p>Date: {event.starts_at}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {events.map((event, index) => (
-                <CardCountdown
-                  key={event.id}
-                  id={event.id}
-                  title={event.title}
-                  slug={event.slug}
-                  startDate={event.starts_at}
-                  imageUrl={event.image_url}
-                  location={event.city}
-                  category={event.category_name || 'Evenimente'}
-                  rank={index + 1}
-                  onReminderClick={() => handleReminderClick(event.id)}
-                  source={event.source}
-                  category_slug={event.category_slug}
-                />
-              ))}
-            </div>
-          )}
-
-          {!loading && events.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-[--cz-ink-muted]">Nu sunt evenimente disponibile momentan.</p>
-            </div>
+            <p>No events found</p>
           )}
         </div>
       </section>
-
-      {/* Weekend Section */}
-      <section className="py-12" style={{ backgroundColor: 'var(--cz-surface)' }}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-h2 font-bold text-[--cz-ink]">
-              În acest weekend
-            </h2>
-          </div>
-          <RailWeekend events={weekendEvents} />
-        </div>
-      </section>
-
-      {/* TV Now Section */}
-      <TvNow />
-      
-      {/* Popular TV Shows Section */}
-      <PopularShows />
     </main>
   );
 }

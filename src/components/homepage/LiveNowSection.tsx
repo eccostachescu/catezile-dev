@@ -57,6 +57,9 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
   console.log('🔴 LiveNowSection render - loading:', loading, 'events count:', liveEvents.length);
   console.log('🔴 Live events data:', liveEvents);
   
+  // Temporarily disable live section to debug 500 error
+  return null;
+  
   if (loading) {
     console.log('🔴 LiveNowSection showing loading state');
     return (
