@@ -7,6 +7,10 @@ import CardCountdown from "./CardCountdown";
 import { RailWeekend } from "./RailWeekend";
 import { TvNow } from "./TvNow";
 import PopularShows from "@/components/tv/PopularShows";
+import PopularSection from "@/components/home/PopularSection";
+import TodayGrid from "@/components/home/TodayGrid";
+import WeekAhead from "@/components/home/WeekAhead";
+import TrendingRail from "@/components/home/TrendingRail";
 
 interface PopularEvent {
   id: string;
@@ -44,6 +48,8 @@ export default function NewHomepage() {
   const navigate = useNavigate();
   const [events, setEvents] = useState<PopularEvent[]>([]);
   const [weekendEvents, setWeekendEvents] = useState<any[]>([]);
+  const [todayItems, setTodayItems] = useState<any[]>([]);
+  const [trendingItems, setTrendingItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('popular');
 
@@ -424,6 +430,18 @@ export default function NewHomepage() {
         onCardClick={handleCardClick}
         onReminderClick={handleReminderClick}
       />
+
+      {/* Popular Section */}
+      <PopularSection />
+
+      {/* Today Grid */}
+      <TodayGrid items={todayItems} />
+
+      {/* Week Ahead */}
+      <WeekAhead trending={events} />
+
+      {/* Trending Rail */}
+      <TrendingRail items={trendingItems} />
 
     </main>
   );
