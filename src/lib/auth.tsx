@@ -37,13 +37,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    async function check() {
-      if (!user) { setIsAdmin(false); return; }
-      const { data } = await supabase.rpc('is_admin');
-      setIsAdmin(!!data);
+    async function checkAdmin() {
+      if (!user) { 
+        setIsAdmin(false); 
+        return; 
+      }
+      try {
+        const { data, error } = await supabase.rpc('is_admin');
+        if (error) {
+          console.error('Admin check error:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!data);
+        }
+      } catch (err) {
+        console.error('Admin check failed:', err);
+        setIsAdmin(false);
+      }
     }
-    // Defer to avoid doing work synchronously in auth change
-    setTimeout(check, 0);
+    checkAdmin();
   }, [user]);
 
   const signInWithEmail = async (email: string) => {
