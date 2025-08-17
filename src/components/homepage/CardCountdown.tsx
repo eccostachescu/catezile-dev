@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Clock, Bell } from 'lucide-react';
+import { MapPin, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/cz-badge';
 import { formatRoDate } from '@/lib/date';
 import { getEventImageSmart } from '@/lib/images';
+import ReminderButton from '@/components/ReminderButton';
 
 interface CardCountdownProps {
   id: string;
@@ -241,7 +242,6 @@ export default function CardCountdown({
 
   const handleReminderClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
-    onReminderClick?.(id);
   };
 
   return (
@@ -348,13 +348,13 @@ export default function CardCountdown({
           )}
           
           {status !== "past" && new Date(startDate) > new Date() && (
-            <button
-              onClick={handleReminderClick}
-              className="flex items-center gap-1 text-[--cz-primary] hover:text-[--cz-primary-600] transition-colors text-sm font-medium"
-            >
-              <Bell className="h-3 w-3" />
-              Reminder
-            </button>
+            <div onClick={handleReminderClick}>
+              <ReminderButton 
+                when={startDate}
+                kind={source === 'match_api' ? 'match' : 'event'}
+                entityId={id}
+              />
+            </div>
           )}
         </div>
       </div>
