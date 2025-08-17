@@ -48,8 +48,6 @@ export default function NewHomepage() {
   const navigate = useNavigate();
   const [events, setEvents] = useState<PopularEvent[]>([]);
   const [weekendEvents, setWeekendEvents] = useState<any[]>([]);
-  const [todayItems, setTodayItems] = useState<any[]>([]);
-  const [trendingItems, setTrendingItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('popular');
 
@@ -435,13 +433,13 @@ export default function NewHomepage() {
       <PopularSection />
 
       {/* Today Grid */}
-      <TodayGrid items={todayItems} />
+      <TodayGrid />
 
       {/* Week Ahead */}
       <WeekAhead trending={events} />
 
       {/* Trending Rail */}
-      <TrendingRail items={trendingItems} />
+      <TrendingRail />
 
     </main>
   );
