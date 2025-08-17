@@ -55,27 +55,43 @@ export default function NewHomepage() {
     const fetchPopularEvents = async () => {
       try {
         console.log('🔍 Fetching popular events...');
-        // Get popular countdowns using the RPC function
-        const { data, error } = await supabase.rpc('get_popular_countdowns', {
-          limit_count: 12,
-          offset_count: 0
-        });
+        
+        // First try to get events from the event table directly
+        const { data: eventsData, error: eventsError } = await supabase
+          .from('event')
+          .select('id, title, slug, start_at, image_url, city')
+          .eq('status', 'PUBLISHED')
+          .gte('start_at', new Date().toISOString())
+          .order('start_at', { ascending: true })
+          .limit(12);
 
-        console.log('🔍 Popular countdowns response:', { data, error });
+        console.log('🔍 Events response:', { eventsData, eventsError });
 
-        if (error) {
-          console.error('Error fetching popular events:', error);
-          setEvents([]); // Set empty array on error to prevent crashes
+        if (eventsError) {
+          console.error('Error fetching events:', eventsError);
+          setEvents([]);
           return;
         }
 
-        console.log('🔍 Popular events data:', data);
-        const eventData = data || [];
-        setEvents(eventData);
-        console.log('🔍 Set events:', eventData.length);
+        // Transform events to match expected interface
+        const transformedEvents: PopularEvent[] = (eventsData || []).map((event: any) => ({
+          id: event.id,
+          title: event.title,
+          slug: event.slug || '',
+          starts_at: event.start_at, // Use original field name
+          image_url: event.image_url,
+          city: event.city,
+          category_name: undefined,
+          category_slug: undefined,
+          source: 'event_api' as const
+        }));
+
+        console.log('🔍 Transformed events:', transformedEvents);
+        setEvents(transformedEvents);
+        console.log('🔍 Set events:', transformedEvents.length);
       } catch (error) {
-        console.error('Error in popular events fetch:', error);
-        setEvents([]); // Set empty array on error to prevent crashes
+        console.error('Error in events fetch:', error);
+        setEvents([]);
       } finally {
         setLoading(false);
       }
