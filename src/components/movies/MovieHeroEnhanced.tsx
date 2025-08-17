@@ -74,19 +74,46 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
   const handleShare = async () => {
     try {
       const url = typeof window !== 'undefined' ? window.location.href : '';
-      if (navigator.share) {
-        await navigator.share({ 
-          title: movie.title,
-          text: `Urmărește ${movie.title} pe CateZile.ro`,
-          url 
-        });
+      const shareData = {
+        title: `${movie.title} - CateZile.ro`,
+        text: `Urmărește ${movie.title} pe CateZile.ro`,
+        url: url
+      };
+
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
       } else {
+        // Fallback to clipboard
         await navigator.clipboard.writeText(url);
-        // You might want to show a toast here
+        
+        // Show toast notification for copy feedback
+        const toast = document.createElement('div');
+        toast.textContent = 'Link copiat în clipboard!';
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 12px 24px;
+          border-radius: 8px;
+          z-index: 1000;
+          font-size: 14px;
+          backdrop-filter: blur(8px);
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 2000);
       }
+      
       track('share_click', { url, title: movie.title });
     } catch (error) {
-      // Silently fail
+      console.log('Share failed:', error);
     }
   };
 
@@ -294,30 +321,34 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                   </Dialog>
                 )}
 
-                {/* Actions - IMPROVED SPACING */}
-                <div className="space-y-4">
+                {/* Actions - IMPROVED SPACING AND CENTERING */}
+                <div className="space-y-6">
                   {releaseDate && (
-                    <div className="flex justify-center w-full">
-                      <div className="w-full [&>div>button]:w-full [&>div>button]:py-3 [&>div>button]:px-6 [&>div>button]:font-semibold [&>div>button]:text-base">
-                        <ReminderButton 
-                          when={releaseDate} 
-                          kind="movie" 
-                          entityId={movie.id}
-                        />
+                    <div className="flex justify-center">
+                      <div className="w-full max-w-sm">
+                        <div className="[&>div>button]:w-full [&>div>button]:py-4 [&>div>button]:px-6 [&>div>button]:font-semibold [&>div>button]:text-base [&>div>button]:rounded-xl">
+                          <ReminderButton 
+                            when={releaseDate} 
+                            kind="movie" 
+                            entityId={movie.id}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
                   
                   <div className="flex justify-center">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={handleShare}
-                      className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 py-3 px-6 font-semibold"
-                    >
-                      <Share2 className="h-5 w-5 mr-2" />
-                      Distribuie
-                    </Button>
+                    <div className="w-full max-w-sm">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={handleShare}
+                        className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 py-4 px-6 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        <Share2 className="h-5 w-5 mr-2" />
+                        Distribuie
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
