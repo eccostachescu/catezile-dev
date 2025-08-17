@@ -425,28 +425,6 @@ export default function NewHomepage() {
         onReminderClick={handleReminderClick}
       />
 
-      {/* Simple events list for testing */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <h2>Events Test</h2>
-          {loading ? (
-            <p>Loading events...</p>
-          ) : events.length > 0 ? (
-            <div>
-              <p>Found {events.length} events</p>
-              {events.slice(0, 3).map((event) => (
-                <div key={event.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
-                  <h3>{event.title}</h3>
-                  <p>Source: {event.source}</p>
-                  <p>Date: {event.starts_at}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No events found</p>
-          )}
-        </div>
-      </section>
     </main>
   );
 }
