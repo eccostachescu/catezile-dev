@@ -50,6 +50,7 @@ export default function NewHomepage() {
   useEffect(() => {
     const fetchPopularEvents = async () => {
       try {
+        console.log('🔍 Fetching popular events...');
         // Get popular countdowns (now with sample data that has images)
         const { data, error } = await supabase.functions.invoke('popular_countdowns', {
           body: { 
@@ -59,15 +60,21 @@ export default function NewHomepage() {
           }
         });
 
+        console.log('🔍 Popular countdowns response:', { data, error });
+
         if (error) {
           console.error('Error fetching popular events:', error);
+          setEvents([]); // Set empty array on error to prevent crashes
           return;
         }
 
+        console.log('🔍 Popular events data:', data);
         const eventData = data?.events || [];
         setEvents(eventData);
+        console.log('🔍 Set events:', eventData.length);
       } catch (error) {
         console.error('Error in popular events fetch:', error);
+        setEvents([]); // Set empty array on error to prevent crashes
       } finally {
         setLoading(false);
       }
