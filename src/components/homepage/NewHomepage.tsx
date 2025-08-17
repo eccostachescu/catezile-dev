@@ -45,6 +45,7 @@ interface DatabaseMatch {
 }
 
 export default function NewHomepage() {
+  console.log('🏠 NewHomepage component is mounting...');
   const navigate = useNavigate();
   const [events, setEvents] = useState<PopularEvent[]>([]);
   const [weekendEvents, setWeekendEvents] = useState<any[]>([]);

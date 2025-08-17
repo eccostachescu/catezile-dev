@@ -25,12 +25,10 @@ export default function PopularSection() {
   useEffect(() => {
     const fetchPopular = async () => {
       try {
-        // Use Supabase SDK instead of direct fetch
-        const { data, error } = await supabase.functions.invoke('popular_countdowns', {
-          body: { 
-            limit: 8,
-            exclude_past: true // Exclude past events from popular section
-          }
+        // Use the RPC function that exists
+        const { data, error } = await supabase.rpc('get_popular_countdowns', {
+          limit_count: 8,
+          offset_count: 0
         });
         
         if (error) {
@@ -38,7 +36,18 @@ export default function PopularSection() {
         }
         
         console.log('Popular countdowns data:', data);
-        setEvents(data?.events || []);
+        const eventData = (data || []).map((item: any) => ({
+          id: item.id,
+          slug: item.slug,
+          title: item.title,
+          starts_at: item.starts_at,
+          image_url: item.image_url,
+          city: item.city,
+          category_name: item.category_name,
+          category_slug: item.category_slug,
+          score: item.score || 0
+        }));
+        setEvents(eventData);
       } catch (error) {
         console.error('Failed to fetch popular countdowns:', error);
         setEvents([]);
