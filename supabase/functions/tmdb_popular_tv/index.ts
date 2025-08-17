@@ -161,7 +161,13 @@ const popularInternationalShows = [
     genre_ids: [18, 10765],
     genres: ["Drama", "Sci-Fi & Fantasy"],
     vote_average: 7.7,
-    popularity: 976.0
+    popularity: 976.0,
+    next_episode_to_air: {
+      air_date: "2025-03-15",
+      episode_number: 1,
+      season_number: 10,
+      name: "Season 10 Episode 1"
+    }
   },
   {
     id: 1622,
@@ -173,7 +179,49 @@ const popularInternationalShows = [
     genre_ids: [18, 9648, 10765],
     genres: ["Drama", "Mystery", "Sci-Fi & Fantasy"],
     vote_average: 8.3,
-    popularity: 954.0
+    popularity: 954.0,
+    next_episode_to_air: {
+      air_date: "2025-10-02",
+      episode_number: 1,
+      season_number: 16,
+      name: "Revival Season Episode 1"
+    }
+  },
+  {
+    id: 237,
+    name: "Stranger Things",
+    overview: "A love letter to the '80s classics that captivated a generation, Stranger Things is set in 1983 Indiana.",
+    poster_path: "/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
+    backdrop_path: "/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+    first_air_date: "2016-07-15",
+    genre_ids: [18, 9648, 10765],
+    genres: ["Drama", "Mystery", "Sci-Fi & Fantasy"],
+    vote_average: 8.6,
+    popularity: 2156.0,
+    next_episode_to_air: {
+      air_date: "2025-07-04",
+      episode_number: 1,
+      season_number: 5,
+      name: "Final Season Episode 1"
+    }
+  },
+  {
+    id: 95557,
+    name: "Invincible",
+    overview: "An adult animated series that revolves around 17-year-old Mark Grayson, who's just like every other guy his age.",
+    poster_path: "/yDWJYRAwMNKbIYT8ZB33qy84uzO.jpg",
+    backdrop_path: "/6UH52Fmau8RPsMAbQbjwN3wJSCj.jpg",
+    first_air_date: "2021-03-25",
+    genre_ids: [16, 10759, 18],
+    genres: ["Animation", "Action & Adventure", "Drama"],
+    vote_average: 8.7,
+    popularity: 1890.0,
+    next_episode_to_air: {
+      air_date: "2025-02-14",
+      episode_number: 1,
+      season_number: 3,
+      name: "Season 3 Episode 1"
+    }
   }
 ];
 

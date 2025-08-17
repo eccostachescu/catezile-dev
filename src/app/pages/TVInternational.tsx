@@ -192,18 +192,21 @@ export function TVInternational() {
 
                       {/* Countdown for next episode */}
                       {hasUpcomingEpisode && nextEpisodeDate && (
-                        <div className="mb-3 p-2 bg-muted/50 rounded-lg">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-medium">Următorul episod:</span>
+                        <div className="mb-3 p-2 bg-primary/10 rounded-lg border border-primary/20">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium text-primary">Următorul episod:</span>
                             {show.next_episode_to_air && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="default" className="text-xs">
                                 S{show.next_episode_to_air.season_number}E{show.next_episode_to_air.episode_number}
                               </Badge>
                             )}
                           </div>
+                          <div className="text-xs text-muted-foreground mb-2">
+                            {show.next_episode_to_air?.name}
+                          </div>
                           <CountdownTimer 
                             target={nextEpisodeDate}
-                            className="text-center text-xs"
+                            className="text-center text-xs font-mono"
                           />
                         </div>
                       )}
