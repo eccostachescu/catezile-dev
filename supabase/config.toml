@@ -139,6 +139,9 @@ verify_jwt = false
 [functions.popular_refresh]
 verify_jwt = false
 
+[functions.populate_sample_events]
+verify_jwt = false
+
 [functions.claude-code-review]
 verify_jwt = false
 
