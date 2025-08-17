@@ -67,11 +67,11 @@ export default function AdminDashboard() {
                 </Button>
                 <Button 
                   onClick={updateProviders}
-                  disabled={loading === 'update_movie_providers'}
+                  disabled={loading === 'movies_refresh_providers'}
                   variant="outline"
                   className="w-full"
                 >
-                  {loading === 'update_movie_providers' ? 'Se actualizează...' : 'Actualizează Provideri'}
+                  {loading === 'movies_refresh_providers' ? 'Se actualizează...' : 'Actualizează Provideri'}
                 </Button>
                 <Button 
                   onClick={syncPlatformMovies}

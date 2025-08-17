@@ -32,14 +32,29 @@ export default function AdminMetrics() {
     const load = async () => {
       setLoading(true);
       try {
-        const [mRes, aRes, tRes] = await Promise.all([
+        const [mRes, aRes] = await Promise.all([
           supabase.from('metric_daily').select('*').gte('day', startISO).order('day', { ascending: true }),
           supabase.from('affiliate_kpi_daily').select('*').gte('day', startISO).order('day', { ascending: true }),
-          supabase.from('trending').select('*').order('score', { ascending: false }).limit(30),
         ]);
+        
+        // Get trending data from popular_signals instead
+        const { data: trendingData } = await supabase
+          .from('popular_signals')
+          .select(`
+            event_id,
+            score,
+            event:event_id (
+              title,
+              slug,
+              start_at
+            )
+          `)
+          .order('score', { ascending: false })
+          .limit(30);
+        
         setMetrics(mRes.data || []);
         setAff(aRes.data || []);
-        setTrending(tRes.data || []);
+        setTrending(trendingData || []);
       } catch (error) {
         console.error('Error loading metrics:', error);
         setTrending([]);
