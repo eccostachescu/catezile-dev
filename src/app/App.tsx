@@ -37,7 +37,8 @@ import TeamPage from "./pages/Team";
 import TVGuide from "./pages/TVGuide";
 import TVChannelPage from "./pages/TVChannel";
 import AdminSearch from "./pages/AdminSearch";
-import { TVShows } from "./pages/TVShows";
+import { TVInternational } from "./pages/TVInternational";
+import { EmisiuniRomanesti } from "./pages/EmisiuniRomanesti";
 import { TVShow } from "./pages/TVShow";
 import { AdminTVShows } from "./pages/AdminTVShows";
 import AdminTMDB from "./pages/AdminTMDB";
@@ -134,9 +135,9 @@ const AppShell = () => {
                 <Route path="/cauta" element={<SearchPage />} />
                 <Route path="/tag/:slug" element={<TagPage />} />
                 <Route path="/echipa/:teamSlug" element={<TeamPage />} />
-                <Route path="/tv" element={<TVShows />} />
+                <Route path="/tv" element={<TVInternational />} />
                 <Route path="/tv/program" element={<TVGuide />} />
-                <Route path="/tv/emisiuni" element={<TVShows />} />
+                <Route path="/tv/emisiuni" element={<EmisiuniRomanesti />} />
                 <Route path="/tv/emisiuni/:slug" element={<TVShow />} />
                 <Route path="/countdown/tv/:slug" element={<TVShow />} />
                 <Route path="/tv/:channelSlug" element={<TVChannelPage />} />
