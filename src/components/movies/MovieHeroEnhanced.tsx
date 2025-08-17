@@ -346,7 +346,7 @@ export function MovieHeroEnhanced({ movie }: MovieHeroEnhancedProps) {
                         className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 py-4 px-6 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                       >
                         <Share2 className="h-5 w-5 mr-2" />
-                        Distribuie
+                        Copiază link
                       </Button>
                     </div>
                   </div>
