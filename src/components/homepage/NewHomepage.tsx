@@ -55,13 +55,10 @@ export default function NewHomepage() {
     const fetchPopularEvents = async () => {
       try {
         console.log('🔍 Fetching popular events...');
-        // Get popular countdowns (now with sample data that has images)
-        const { data, error } = await supabase.functions.invoke('popular_countdowns', {
-          body: { 
-            limit: 12, 
-            onlyWithImage: false, // We'll handle fallbacks in the component
-            exclude_past: true // Exclude past events from popular section
-          }
+        // Get popular countdowns using the RPC function
+        const { data, error } = await supabase.rpc('get_popular_countdowns', {
+          limit_count: 12,
+          offset_count: 0
         });
 
         console.log('🔍 Popular countdowns response:', { data, error });
@@ -73,7 +70,7 @@ export default function NewHomepage() {
         }
 
         console.log('🔍 Popular events data:', data);
-        const eventData = data?.events || [];
+        const eventData = data || [];
         setEvents(eventData);
         console.log('🔍 Set events:', eventData.length);
       } catch (error) {
@@ -177,14 +174,11 @@ export default function NewHomepage() {
 
       switch (filter) {
         case 'popular':
-          const { data: popularData } = await supabase.functions.invoke('popular_countdowns', {
-            body: { 
-              limit: 12, 
-              onlyWithImage: false,
-              exclude_past: true
-            }
+          const { data: popularData } = await supabase.rpc('get_popular_countdowns', {
+            limit_count: 12,
+            offset_count: 0
           });
-          eventData = popularData?.events || [];
+          eventData = popularData || [];
           break;
 
         case 'today':
@@ -362,14 +356,11 @@ export default function NewHomepage() {
 
         default:
           // Fallback to popular
-          const { data: defaultData } = await supabase.functions.invoke('popular_countdowns', {
-            body: { 
-              limit: 12, 
-              onlyWithImage: false,
-              exclude_past: true
-            }
+          const { data: defaultData } = await supabase.rpc('get_popular_countdowns', {
+            limit_count: 12,
+            offset_count: 0
           });
-          eventData = defaultData?.events || [];
+          eventData = defaultData || [];
       }
 
       setEvents(eventData);
