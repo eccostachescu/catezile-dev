@@ -32,10 +32,10 @@ export default function AdminDashboard() {
   const syncMovies = () => triggerFunction('movies_sync_tmdb', {}, 'Filme sincronizate cu TMDB');
   const populateMonthlyMovies = () => triggerFunction(
     'populate_monthly_movies', 
-    { year: 2025, months: [1,2,3,4,5,6,7,8,9,10,11,12] }, 
+    { year: 2025 }, 
     'Filme populate pentru 2025'
   );
-  const updateProviders = () => triggerFunction('update_movie_providers', {}, 'Provideri actualizați');
+  const updateProviders = () => triggerFunction('movies_refresh_providers', {}, 'Provideri actualizați');
   const syncPlatformMovies = () => triggerFunction('sync-platform-movies', {}, 'Platforme sincronizate');
   return (
     <>
