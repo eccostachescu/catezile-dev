@@ -27,6 +27,7 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
   useEffect(() => {
     const fetchLiveEvents = async () => {
       try {
+        console.log('🔴 Fetching live events...');
         const { data, error } = await supabase.rpc('get_live_events');
         
         if (error) {
@@ -34,7 +35,9 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
           return;
         }
 
+        console.log('🔴 Raw live events data:', data);
         const liveItems = data?.filter((item: any) => item.is_live) || [];
+        console.log('🔴 Filtered live events:', liveItems);
         setLiveEvents(liveItems.slice(0, 4)); // Max 4 live events
       } catch (error) {
         console.error('Error in live events fetch:', error);
@@ -51,7 +54,10 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
   }, []);
 
   // Don't render section if no live events
+  console.log('🔴 LiveNowSection render - loading:', loading, 'events count:', liveEvents.length);
   if (loading || liveEvents.length === 0) {
+    if (loading) console.log('🔴 LiveNowSection not rendering - still loading');
+    if (liveEvents.length === 0) console.log('🔴 LiveNowSection not rendering - no live events');
     return null;
   }
 
