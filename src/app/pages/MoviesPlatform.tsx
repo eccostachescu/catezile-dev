@@ -27,6 +27,20 @@ const platformInfo = {
     description: "Filmele disponibile pe HBO Max în România. Explorează catalogul de filme.",
     color: "outline",
     field: "HBO Max"
+  },
+  "disney-plus": {
+    name: "Disney+",
+    title: "Filme pe Disney+ România",
+    description: "Filmele disponibile pe Disney+ în România. Vezi filmele și serialele Disney, Marvel, Star Wars.",
+    color: "outline",
+    field: "Disney Plus"
+  },
+  "apple-tv": {
+    name: "Apple TV+",
+    title: "Filme pe Apple TV+ România",
+    description: "Filmele disponibile pe Apple TV+ în România. Explorează originalele Apple.",
+    color: "outline", 
+    field: "Apple TV Plus"
   }
 };
 
@@ -46,22 +60,68 @@ export default function MoviesPlatform() {
 
       setLoading(true);
       try {
-        // Query movies that have the platform in their streaming_ro data
-        const { data, error } = await supabase
-          .from('movie')
-          .select('*')
-          .not('streaming_ro', 'is', null)
-          .order('popularity', { ascending: false })
+        // First try to get movies from movie_platform table
+        const { data: platformData, error: platformError } = await supabase
+          .from('movie_platform')
+          .select(`
+            movie:movie_id(
+              id,
+              title,
+              slug,
+              poster_path,
+              poster_url,
+              cinema_release_ro,
+              streaming_ro,
+              overview,
+              genres,
+              runtime,
+              popularity,
+              status
+            ),
+            platform:platform_id(slug, name)
+          `)
+          .eq('platform.slug', platform)
+          .order('available_from', { ascending: false })
           .limit(50);
 
-        if (error) throw error;
+        let movies = [];
+        
+        if (platformData && platformData.length > 0) {
+          movies = platformData.map(item => item.movie).filter(Boolean);
+        } else {
+          // Fallback: Query movies that have the platform in their streaming_ro data  
+          const { data, error } = await supabase
+            .from('movie')
+            .select('*')
+            .not('streaming_ro', 'is', null)
+            .order('popularity', { ascending: false })
+            .limit(100);
 
-        // Filter movies that have the specific platform
-        const platformMovies = (data || []).filter((movie: any) => {
-          return movie.streaming_ro && movie.streaming_ro[info.field];
-        });
+          if (error) throw error;
 
-        setMovies(platformMovies);
+          // Filter movies that have the specific platform
+          movies = (data || []).filter((movie: any) => {
+            if (!movie.streaming_ro) return false;
+            
+            // Check for different platform name variations
+            const platformNames = [
+              info.field,
+              info.name,
+              platform,
+              platform.replace('-', ' '),
+              platform.replace('-', '+')
+            ];
+            
+            return platformNames.some(name => 
+              movie.streaming_ro[name] || 
+              Object.keys(movie.streaming_ro).some(key => 
+                key.toLowerCase().includes(name.toLowerCase())
+              )
+            );
+          });
+        }
+
+        setMovies(movies);
       } catch (error) {
         console.error('Error loading platform movies:', error);
         setMovies([]);
