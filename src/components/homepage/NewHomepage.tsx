@@ -88,12 +88,6 @@ export default function NewHomepage() {
         }));
 
         console.log('🔍 Transformed events:', transformedEvents);
-        console.log('🔍 Sample event for debugging:', transformedEvents[0]);
-        if (transformedEvents[0]) {
-          console.log('🔍 Sample startDate:', transformedEvents[0].starts_at);
-          console.log('🔍 Sample startDate type:', typeof transformedEvents[0].starts_at);
-          console.log('🔍 Sample startDate parsed:', new Date(transformedEvents[0].starts_at));
-        }
         setEvents(transformedEvents);
         console.log('🔍 Set events:', transformedEvents.length);
       } catch (error) {
@@ -443,55 +437,34 @@ export default function NewHomepage() {
         onReminderClick={handleReminderClick}
       />
 
-      {/* Events Grid - Main Cards */}
-      <section className="py-8 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <h2 className="text-2xl font-bold text-[--cz-ink] mb-6">Trending acum</h2>
-          
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-80 bg-gray-200 animate-pulse rounded-2xl" />
-              ))}
-            </div>
-          ) : events.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.slice(0, 6).map((event, index) => (
-                <CardCountdown
-                  key={event.id}
-                  id={event.id}
-                  title={event.title}
-                  slug={event.slug}
-                  startDate={event.starts_at}
-                  imageUrl={event.image_url}
-                  location={event.city}
-                  category={event.category_name || 'Eveniment'}
-                  rank={index + 1}
-                  source={event.source}
-                  category_slug={event.category_slug}
-                  onReminderClick={handleReminderClick}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-[--cz-ink-muted]">Nu sunt evenimente disponibile momentan.</p>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* Popular Section */}
-      <PopularSection />
+      <div className="py-8 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <PopularSection />
+        </div>
+      </div>
 
       {/* Today Grid */}
-      <TodayGrid />
+      <div className="py-8 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <TodayGrid />
+        </div>
+      </div>
 
       {/* Week Ahead */}
-      <WeekAhead trending={events} />
+      <div className="py-8 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <WeekAhead trending={events} />
+        </div>
+      </div>
 
       {/* Trending Rail */}
-      <TrendingRail />
+      <div className="py-8 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <TrendingRail />
+        </div>
+      </div>
 
     </main>
   );
