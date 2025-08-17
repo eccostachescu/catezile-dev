@@ -203,8 +203,72 @@ serve(async (req: Request) => {
     if (provider === "api-football") {
       if (!baseUrl || !apiKey || !leagueId) throw new Error("Missing SPORTS_API_URL/KEY or LIGA1_PROVIDER_LEAGUE_ID");
       console.log('Fetching fixtures from API-Football...');
-      fixtures = await fetchFixturesAPIFootball(baseUrl, apiKey, leagueId, season);
-      console.log(`Fetched ${fixtures.length} fixtures from API`);
+      console.log(`URL: ${baseUrl}/fixtures?league=${leagueId}&season=${season}`);
+      console.log(`Headers: x-apisports-key present: ${!!apiKey}`);
+
+      try {
+        fixtures = await fetchFixturesAPIFootball(baseUrl, apiKey, leagueId, season);
+        console.log(`API Response: ${fixtures.length} fixtures fetched`);
+        
+        // Debug first fixture
+        if (fixtures.length > 0) {
+          console.log('First fixture sample:', JSON.stringify(fixtures[0], null, 2));
+        } else {
+          // Try different league IDs for Romanian Liga 1
+          const alternativeLeagueIds = ['283', '384', '288']; // Different possible IDs
+          
+          for (const altId of alternativeLeagueIds) {
+            console.log(`Trying alternative league ID: ${altId}`);
+            try {
+              const altFixtures = await fetchFixturesAPIFootball(baseUrl, apiKey, altId, season);
+              if (altFixtures.length > 0) {
+                console.log(`SUCCESS with league ID ${altId}: ${altFixtures.length} fixtures`);
+                fixtures = altFixtures;
+                break;
+              }
+            } catch (altError) {
+              console.log(`Failed with league ID ${altId}:`, altError.message);
+            }
+          }
+          
+          // Try current season and previous season
+          if (fixtures.length === 0) {
+            const currentYear = new Date().getFullYear();
+            const seasonsToTry = [currentYear, currentYear - 1, currentYear + 1];
+            
+            for (const tryYear of seasonsToTry) {
+              console.log(`Trying season: ${tryYear}`);
+              try {
+                const seasonFixtures = await fetchFixturesAPIFootball(baseUrl, apiKey, leagueId, tryYear);
+                if (seasonFixtures.length > 0) {
+                  console.log(`SUCCESS with season ${tryYear}: ${seasonFixtures.length} fixtures`);
+                  fixtures = seasonFixtures;
+                  break;
+                }
+              } catch (seasonError) {
+                console.log(`Failed with season ${tryYear}:`, seasonError.message);
+              }
+            }
+          }
+        }
+      } catch (fetchError) {
+        console.error('API-Football fetch error:', fetchError);
+        
+        // Try to get available leagues to debug
+        try {
+          const leaguesUrl = `${baseUrl.replace(/\/$/, "")}/leagues?country=Romania`;
+          const leaguesRes = await fetch(leaguesUrl, { headers: { "x-apisports-key": apiKey } });
+          if (leaguesRes.ok) {
+            const leaguesData = await leaguesRes.json();
+            console.log('Available Romanian leagues:', JSON.stringify(leaguesData.response, null, 2));
+          }
+        } catch (debugError) {
+          console.log('Could not fetch available leagues for debugging');
+        }
+        
+        throw fetchError;
+      }
+      console.log(`Fetched ${fixtures?.length || 0} fixtures from API`);
     } else {
       throw new Error(`Unsupported provider: ${provider}`);
     }

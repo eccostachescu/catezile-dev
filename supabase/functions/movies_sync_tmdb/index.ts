@@ -149,16 +149,50 @@ serve(async (req) => {
 
     const processedMovies = [];
 
-    // Fetch upcoming movies
-    console.log('Fetching upcoming movies...');
-    const upcoming = await fetchTMDB('/movie/upcoming?region=RO&page=1');
-    
-    // Fetch popular movies
-    console.log('Fetching popular movies...');
-    const popular = await fetchTMDB('/movie/popular?region=RO&page=1');
+    // Multiple categories for more comprehensive import
+    const movieCategories = [
+      { name: 'upcoming', endpoint: '/movie/upcoming?region=RO' },
+      { name: 'popular', endpoint: '/movie/popular?region=RO' },
+      { name: 'now_playing', endpoint: '/movie/now_playing?region=RO' },
+      { name: 'top_rated', endpoint: '/movie/top_rated?region=RO' },
+      { name: 'discover_2024', endpoint: '/discover/movie?primary_release_year=2024&region=RO&sort_by=popularity.desc' },
+      { name: 'discover_2025', endpoint: '/discover/movie?primary_release_year=2025&region=RO&sort_by=popularity.desc' }
+    ];
 
-    // Combine and deduplicate
-    const allMovies = [...upcoming.results, ...popular.results];
+    console.log(`Fetching movies from ${movieCategories.length} categories...`);
+
+    const allMovies: any[] = [];
+    let totalFetched = 0;
+
+    // Fetch from multiple pages and categories
+    for (const category of movieCategories) {
+      console.log(`Fetching ${category.name}...`);
+      
+      for (let page = 1; page <= 3; page++) { // Fetch 3 pages per category
+        try {
+          const endpoint = `${category.endpoint}${category.endpoint.includes('?') ? '&' : '?'}page=${page}`;
+          const response = await fetchTMDB(endpoint);
+          
+          if (response.results && response.results.length > 0) {
+            allMovies.push(...response.results);
+            totalFetched += response.results.length;
+            console.log(`${category.name} page ${page}: ${response.results.length} movies`);
+            
+            // Small delay between requests
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+          
+          // Stop if no more results
+          if (!response.results || response.results.length === 0) break;
+          
+        } catch (error) {
+          console.error(`Error fetching ${category.name} page ${page}:`, error);
+          break;
+        }
+      }
+    }
+
+    // Deduplicate movies
     const uniqueMovies = allMovies.reduce((acc, movie) => {
       if (!acc.find(m => m.id === movie.id)) {
         acc.push(movie);
@@ -166,12 +200,43 @@ serve(async (req) => {
       return acc;
     }, []);
 
-    console.log(`Processing ${uniqueMovies.length} unique movies...`);
+    console.log(`Total fetched: ${totalFetched}, Unique movies: ${uniqueMovies.length}`);
 
-    // Process each movie
-    for (const movie of uniqueMovies.slice(0, 50)) { // Limit to 50 per run
+    // Filter movies: only those with release dates in reasonable range
+    const now = new Date();
+    const twoYearsAgo = new Date(now.getFullYear() - 2, 0, 1);
+    const twoYearsFromNow = new Date(now.getFullYear() + 2, 11, 31);
+
+    const filteredMovies = uniqueMovies.filter(movie => {
+      if (!movie.release_date) return false;
+      const releaseDate = new Date(movie.release_date);
+      return releaseDate >= twoYearsAgo && releaseDate <= twoYearsFromNow;
+    });
+
+    console.log(`Filtered movies (${twoYearsAgo.getFullYear()}-${twoYearsFromNow.getFullYear()}): ${filteredMovies.length}`);
+
+    // Process movies (remove artificial limit)
+    for (const movie of filteredMovies) {
       try {
         console.log(`Processing: ${movie.title} (${movie.id})`);
+        
+        // Check if movie exists and when it was last updated
+        const { data: existingMovie } = await supabase
+          .from('movie')
+          .select('id, tmdb_id, updated_ext_at')
+          .eq('tmdb_id', movie.id)
+          .maybeSingle();
+        
+        // Skip if updated recently (less than 7 days ago)
+        if (existingMovie?.updated_ext_at) {
+          const lastUpdate = new Date(existingMovie.updated_ext_at);
+          const daysSinceUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
+          
+          if (daysSinceUpdate < 7) {
+            console.log(`Skipping ${movie.title} - updated ${Math.round(daysSinceUpdate)} days ago`);
+            continue;
+          }
+        }
         
         // Fetch detailed movie data with enhanced metadata
         const detailed = await fetchTMDB(
@@ -245,8 +310,8 @@ serve(async (req) => {
           processedMovies.push(detailed.title);
         }
 
-        // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Longer delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 300));
         
       } catch (error) {
         console.error(`Error processing movie ${movie.title}:`, error);
