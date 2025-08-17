@@ -411,12 +411,6 @@ export default function NewHomepage() {
 
   return (
     <main>
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>Homepage Test</h1>
-        <p>Loading: {loading ? 'true' : 'false'}</p>
-        <p>Events count: {events.length}</p>
-        <p>Active filter: {activeFilter}</p>
-      </div>
 
       {/* Hero Section with Search */}
       <HeroSearchNew 
