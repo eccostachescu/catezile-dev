@@ -20,6 +20,26 @@ interface PopularEvent {
   source?: string;
 }
 
+interface DatabaseEvent {
+  id: string;
+  title: string;
+  slug?: string;
+  starts_at: string;
+  image_url?: string;
+  city?: string;
+  category_name?: string;
+  category_slug?: string;
+}
+
+interface DatabaseMatch {
+  id: string;
+  home: string;
+  away: string;
+  kickoff_at: string;
+  image_url?: string;
+  slug?: string;
+}
+
 export default function NewHomepage() {
   const navigate = useNavigate();
   const [events, setEvents] = useState<PopularEvent[]>([]);
@@ -137,10 +157,215 @@ export default function NewHomepage() {
     }
   };
 
-  const handleFilterChange = (filter: string) => {
+  const handleFilterChange = async (filter: string) => {
     setActiveFilter(filter);
-    // TODO: Implement filter logic for popular events
-    console.log('Filter changed to:', filter);
+    setLoading(true);
+
+    try {
+      let eventData: PopularEvent[] = [];
+
+      switch (filter) {
+        case 'popular':
+          const { data: popularData } = await supabase.functions.invoke('popular_countdowns', {
+            body: { 
+              limit: 12, 
+              onlyWithImage: false,
+              exclude_past: true
+            }
+          });
+          eventData = popularData?.events || [];
+          break;
+
+        case 'today':
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const endOfToday = new Date(today);
+          endOfToday.setHours(23, 59, 59, 999);
+
+          const { data: todayEvents } = await supabase
+            .from('event')
+            .select('id, title, slug, start_at as starts_at, image_url, city, category_name, category_slug')
+            .eq('status', 'PUBLISHED')
+            .gte('start_at', today.toISOString())
+            .lte('start_at', endOfToday.toISOString())
+            .order('start_at')
+            .limit(12);
+
+          const { data: todayMatches } = await supabase
+            .from('match')
+            .select('id, home, away, kickoff_at, image_url, slug')
+            .gte('kickoff_at', today.toISOString())
+            .lte('kickoff_at', endOfToday.toISOString())
+            .order('kickoff_at')
+            .limit(12);
+
+          const todayEventData: PopularEvent[] = (todayEvents || [] as DatabaseEvent[]).map(e => ({ 
+            ...e, 
+            source: 'event_api' as const 
+          }));
+          const todayMatchData: PopularEvent[] = (todayMatches || [] as DatabaseMatch[]).map(m => ({
+            id: m.id,
+            title: `${m.home} vs ${m.away}`,
+            slug: m.slug || '',
+            starts_at: m.kickoff_at,
+            image_url: m.image_url,
+            source: 'match_api' as const,
+            category_slug: 'sport'
+          }));
+          
+          eventData = [...todayEventData, ...todayMatchData]
+            .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+            .slice(0, 12);
+          break;
+
+        case 'tomorrow':
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(0, 0, 0, 0);
+          const endOfTomorrow = new Date(tomorrow);
+          endOfTomorrow.setHours(23, 59, 59, 999);
+
+          const { data: tomorrowEvents } = await supabase
+            .from('event')
+            .select('id, title, slug, start_at as starts_at, image_url, city, category_name, category_slug')
+            .eq('status', 'PUBLISHED')
+            .gte('start_at', tomorrow.toISOString())
+            .lte('start_at', endOfTomorrow.toISOString())
+            .order('start_at')
+            .limit(12);
+
+          const { data: tomorrowMatches } = await supabase
+            .from('match')
+            .select('id, home, away, kickoff_at, image_url, slug')
+            .gte('kickoff_at', tomorrow.toISOString())
+            .lte('kickoff_at', endOfTomorrow.toISOString())
+            .order('kickoff_at')
+            .limit(12);
+
+          const tomorrowEventData: PopularEvent[] = (tomorrowEvents || [] as DatabaseEvent[]).map(e => ({ 
+            ...e, 
+            source: 'event_api' as const 
+          }));
+          const tomorrowMatchData: PopularEvent[] = (tomorrowMatches || [] as DatabaseMatch[]).map(m => ({
+            id: m.id,
+            title: `${m.home} vs ${m.away}`,
+            slug: m.slug || '',
+            starts_at: m.kickoff_at,
+            image_url: m.image_url,
+            source: 'match_api' as const,
+            category_slug: 'sport'
+          }));
+          
+          eventData = [...tomorrowEventData, ...tomorrowMatchData]
+            .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+            .slice(0, 12);
+          break;
+
+        case 'weekend':
+          const now = new Date();
+          const nextSaturday = new Date(now);
+          const daysUntilSaturday = (6 - now.getDay()) % 7;
+          nextSaturday.setDate(now.getDate() + daysUntilSaturday);
+          nextSaturday.setHours(0, 0, 0, 0);
+          
+          const nextSunday = new Date(nextSaturday);
+          nextSunday.setDate(nextSaturday.getDate() + 1);
+          nextSunday.setHours(23, 59, 59, 999);
+
+          const { data: weekendEvs } = await supabase
+            .from('event')
+            .select('id, title, slug, start_at as starts_at, image_url, city, category_name, category_slug')
+            .eq('status', 'PUBLISHED')
+            .gte('start_at', nextSaturday.toISOString())
+            .lte('start_at', nextSunday.toISOString())
+            .order('start_at')
+            .limit(12);
+
+          const { data: weekendMatches } = await supabase
+            .from('match')
+            .select('id, home, away, kickoff_at, image_url, slug')
+            .gte('kickoff_at', nextSaturday.toISOString())
+            .lte('kickoff_at', nextSunday.toISOString())
+            .order('kickoff_at')
+            .limit(12);
+
+          const weekendEventData: PopularEvent[] = (weekendEvs || [] as DatabaseEvent[]).map(e => ({ 
+            ...e, 
+            source: 'event_api' as const 
+          }));
+          const weekendMatchData: PopularEvent[] = (weekendMatches || [] as DatabaseMatch[]).map(m => ({
+            id: m.id,
+            title: `${m.home} vs ${m.away}`,
+            slug: m.slug || '',
+            starts_at: m.kickoff_at,
+            image_url: m.image_url,
+            source: 'match_api' as const,
+            category_slug: 'sport'
+          }));
+          
+          eventData = [...weekendEventData, ...weekendMatchData]
+            .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+            .slice(0, 12);
+          break;
+
+        case 'month':
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+          const { data: monthEvents } = await supabase
+            .from('event')
+            .select('id, title, slug, start_at as starts_at, image_url, city, category_name, category_slug')
+            .eq('status', 'PUBLISHED')
+            .gte('start_at', startOfMonth.toISOString())
+            .lte('start_at', endOfMonth.toISOString())
+            .order('start_at')
+            .limit(12);
+
+          const { data: monthMatches } = await supabase
+            .from('match')
+            .select('id, home, away, kickoff_at, image_url, slug')
+            .gte('kickoff_at', startOfMonth.toISOString())
+            .lte('kickoff_at', endOfMonth.toISOString())
+            .order('kickoff_at')
+            .limit(12);
+
+          const monthEventData: PopularEvent[] = (monthEvents || [] as DatabaseEvent[]).map(e => ({ 
+            ...e, 
+            source: 'event_api' as const 
+          }));
+          const monthMatchData: PopularEvent[] = (monthMatches || [] as DatabaseMatch[]).map(m => ({
+            id: m.id,
+            title: `${m.home} vs ${m.away}`,
+            slug: m.slug || '',
+            starts_at: m.kickoff_at,
+            image_url: m.image_url,
+            source: 'match_api' as const,
+            category_slug: 'sport'
+          }));
+          
+          eventData = [...monthEventData, ...monthMatchData]
+            .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+            .slice(0, 12);
+          break;
+
+        default:
+          // Fallback to popular
+          const { data: defaultData } = await supabase.functions.invoke('popular_countdowns', {
+            body: { 
+              limit: 12, 
+              onlyWithImage: false,
+              exclude_past: true
+            }
+          });
+          eventData = defaultData?.events || [];
+      }
+
+      setEvents(eventData);
+    } catch (error) {
+      console.error('Error filtering events:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReminderClick = (eventId: string) => {
@@ -197,7 +422,11 @@ export default function NewHomepage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-h2 font-bold text-[--cz-ink]">
-              Cele mai populare countdown-uri
+              {activeFilter === 'popular' && 'Cele mai populare countdown-uri'}
+              {activeFilter === 'today' && 'Astăzi'}
+              {activeFilter === 'tomorrow' && 'Mâine'}
+              {activeFilter === 'weekend' && 'În acest weekend'}
+              {activeFilter === 'month' && 'Luna aceasta'}
             </h2>
             <button
               onClick={() => window.location.href = '/populare'}
