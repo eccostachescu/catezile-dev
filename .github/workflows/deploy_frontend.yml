@@ -100,9 +100,6 @@ jobs:
         run: |
           echo "🎉 Starting data population..."
           
-          # Link to Supabase project
-          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-          
           # Generate holidays
           echo "📋 Generating holidays..."
           curl -X POST "${{ secrets.VITE_SUPABASE_URL }}/functions/v1/holidays_generate" \
