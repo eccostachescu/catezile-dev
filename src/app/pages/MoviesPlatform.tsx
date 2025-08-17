@@ -154,6 +154,42 @@ export default function MoviesPlatform() {
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold">{info.title}</h1>
           <p className="text-muted-foreground">{info.description}</p>
+          
+          {/* Admin controls for localhost/development */}
+          {(window.location.hostname === 'localhost' || window.location.hostname.includes('lovable')) && (
+            <div className="flex gap-2 mt-4">
+              <button 
+                onClick={async () => {
+                  const response = await fetch('https://ibihfzhrsllndxhfwgvb.supabase.co/functions/v1/populate_monthly_movies', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ year: 2025 })
+                  });
+                  const result = await response.json();
+                  console.log('Population result:', result);
+                  alert('Movie population triggered - check console');
+                }}
+                className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+              >
+                Populate Movies 2025
+              </button>
+              <button 
+                onClick={async () => {
+                  const response = await fetch('https://ibihfzhrsllndxhfwgvb.supabase.co/functions/v1/import_tmdb_movies', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pages: 10, year: 2025 })
+                  });
+                  const result = await response.json();
+                  console.log('Import result:', result);
+                  alert('Movie import triggered - check console');
+                }}
+                className="px-3 py-1 bg-green-500 text-white rounded text-sm"
+              >
+                Import TMDB Movies
+              </button>
+            </div>
+          )}
         </div>
 
         {loading ? (
