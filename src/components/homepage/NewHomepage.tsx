@@ -2,15 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import HeroSearchNew from "./HeroSearchNew";
-import LiveNowSectionImproved from "./LiveNowSectionImproved";
+import LiveNowSection from "./LiveNowSection";
 import CardCountdown from "./CardCountdown";
 import { RailWeekend } from "./RailWeekend";
 import { TvNow } from "./TvNow";
 import PopularShows from "@/components/tv/PopularShows";
-import PopularSection from "@/components/home/PopularSection";
-import TodayGrid from "@/components/home/TodayGrid";
-import WeekAhead from "@/components/home/WeekAhead";
-import TrendingRail from "@/components/home/TrendingRail";
 
 interface PopularEvent {
   id: string;
@@ -45,7 +41,6 @@ interface DatabaseMatch {
 }
 
 export default function NewHomepage() {
-  console.log('🏠 NewHomepage component is mounting...');
   const navigate = useNavigate();
   const [events, setEvents] = useState<PopularEvent[]>([]);
   const [weekendEvents, setWeekendEvents] = useState<any[]>([]);
@@ -55,44 +50,24 @@ export default function NewHomepage() {
   useEffect(() => {
     const fetchPopularEvents = async () => {
       try {
-        console.log('🔍 Fetching popular events...');
-        
-        // First try to get events from the event table directly
-        const { data: eventsData, error: eventsError } = await supabase
-          .from('event')
-          .select('id, title, slug, start_at, image_url, city')
-          .eq('status', 'PUBLISHED')
-          .gte('start_at', new Date().toISOString())
-          .order('start_at', { ascending: true })
-          .limit(12);
+        // Get popular countdowns (now with sample data that has images)
+        const { data, error } = await supabase.functions.invoke('popular_countdowns', {
+          body: { 
+            limit: 12, 
+            onlyWithImage: false, // We'll handle fallbacks in the component
+            exclude_past: true // Exclude past events from popular section
+          }
+        });
 
-        console.log('🔍 Events response:', { eventsData, eventsError });
-
-        if (eventsError) {
-          console.error('Error fetching events:', eventsError);
-          setEvents([]);
+        if (error) {
+          console.error('Error fetching popular events:', error);
           return;
         }
 
-        // Transform events to match expected interface
-        const transformedEvents: PopularEvent[] = (eventsData || []).map((event: any) => ({
-          id: event.id,
-          title: event.title,
-          slug: event.slug || '',
-          starts_at: event.start_at, // Use original field name
-          image_url: event.image_url,
-          city: event.city,
-          category_name: undefined,
-          category_slug: undefined,
-          source: 'event_api' as const
-        }));
-
-        console.log('🔍 Transformed events:', transformedEvents);
-        setEvents(transformedEvents);
-        console.log('🔍 Set events:', transformedEvents.length);
+        const eventData = data?.events || [];
+        setEvents(eventData);
       } catch (error) {
-        console.error('Error in events fetch:', error);
-        setEvents([]);
+        console.error('Error in popular events fetch:', error);
       } finally {
         setLoading(false);
       }
@@ -191,11 +166,14 @@ export default function NewHomepage() {
 
       switch (filter) {
         case 'popular':
-          const { data: popularData } = await supabase.rpc('get_popular_countdowns', {
-            limit_count: 12,
-            offset_count: 0
+          const { data: popularData } = await supabase.functions.invoke('popular_countdowns', {
+            body: { 
+              limit: 12, 
+              onlyWithImage: false,
+              exclude_past: true
+            }
           });
-          eventData = popularData || [];
+          eventData = popularData?.events || [];
           break;
 
         case 'today':
@@ -373,11 +351,14 @@ export default function NewHomepage() {
 
         default:
           // Fallback to popular
-          const { data: defaultData } = await supabase.rpc('get_popular_countdowns', {
-            limit_count: 12,
-            offset_count: 0
+          const { data: defaultData } = await supabase.functions.invoke('popular_countdowns', {
+            body: { 
+              limit: 12, 
+              onlyWithImage: false,
+              exclude_past: true
+            }
           });
-          eventData = defaultData || [];
+          eventData = defaultData?.events || [];
       }
 
       setEvents(eventData);
@@ -430,42 +411,88 @@ export default function NewHomepage() {
         onFilterChange={handleFilterChange}
         activeFilter={activeFilter}
       />
-      
-      {/* Live Now Section - updates every minute */}
-      <LiveNowSectionImproved 
+
+      {/* Live Now Section - only shows if there are live events */}
+      <LiveNowSection 
         onCardClick={handleCardClick}
         onReminderClick={handleReminderClick}
       />
 
+      {/* Popular Countdowns Section */}
+      <section className="py-12" style={{ backgroundColor: 'var(--cz-bg)' }}>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-h2 font-bold text-[--cz-ink]">
+              {activeFilter === 'popular' && 'Cele mai populare countdown-uri'}
+              {activeFilter === 'today' && 'Astăzi'}
+              {activeFilter === 'tomorrow' && 'Mâine'}
+              {activeFilter === 'weekend' && 'În acest weekend'}
+              {activeFilter === 'month' && 'Luna aceasta'}
+            </h2>
+            <button
+              onClick={() => window.location.href = '/populare'}
+              className="text-sm font-medium text-[--cz-primary] hover:text-[--cz-primary-600] transition-colors"
+            >
+              Vezi toate →
+            </button>
+          </div>
 
-      {/* Popular Section */}
-      <div className="py-8 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <PopularSection />
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="bg-[--cz-surface] rounded-2xl p-4 border border-[--cz-border] animate-pulse">
+                  <div className="aspect-video bg-[--cz-border] rounded-xl mb-4"></div>
+                  <div className="h-4 bg-[--cz-border] rounded mb-2"></div>
+                  <div className="h-3 bg-[--cz-border] rounded w-2/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {events.map((event, index) => (
+                <CardCountdown
+                  key={event.id}
+                  id={event.id}
+                  title={event.title}
+                  slug={event.slug}
+                  startDate={event.starts_at}
+                  imageUrl={event.image_url}
+                  location={event.city}
+                  category={event.category_name || 'Evenimente'}
+                  rank={index + 1}
+                  onReminderClick={() => handleReminderClick(event.id)}
+                  source={event.source}
+                  category_slug={event.category_slug}
+                />
+              ))}
+            </div>
+          )}
+
+          {!loading && events.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-[--cz-ink-muted]">Nu sunt evenimente disponibile momentan.</p>
+            </div>
+          )}
         </div>
-      </div>
+      </section>
 
-      {/* Today Grid */}
-      <div className="py-8 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <TodayGrid />
+      {/* Weekend Section */}
+      <section className="py-12" style={{ backgroundColor: 'var(--cz-surface)' }}>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-h2 font-bold text-[--cz-ink]">
+              În acest weekend
+            </h2>
+          </div>
+          <RailWeekend events={weekendEvents} />
         </div>
-      </div>
+      </section>
 
-      {/* Week Ahead */}
-      <div className="py-8 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <WeekAhead trending={events} />
-        </div>
-      </div>
-
-      {/* Trending Rail */}
-      <div className="py-8 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <TrendingRail />
-        </div>
-      </div>
-
+      {/* TV Now Section */}
+      <TvNow />
+      
+      {/* Popular TV Shows Section */}
+      <PopularShows />
     </main>
   );
 }

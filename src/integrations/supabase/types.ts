@@ -3305,10 +3305,6 @@ export type Database = {
         Args: { txt: string }
         Returns: string
       }
-      trigger_live_scores_update: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       ugc_quota_exceeded: {
         Args: { p_kind?: string; p_user: string }
         Returns: boolean

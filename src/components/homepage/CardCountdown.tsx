@@ -50,35 +50,23 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
     if (!isVisible) return;
 
     const calculateTimeLeft = () => {
-      try {
-        const now = new Date();
-        const target = new Date(targetDate);
-        
-        // Verifică dacă data este validă
-        if (isNaN(target.getTime()) || !targetDate) {
-          console.warn('Invalid targetDate:', targetDate);
-          return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "invalid" };
+      const now = new Date();
+      const target = new Date(targetDate);
+      const diff = target.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        if (status === "live") {
+          return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "LIVE" };
         }
-        
-        const diff = target.getTime() - now.getTime();
-
-        if (diff <= 0) {
-          if (status === "live") {
-            return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "LIVE" };
-          }
-          return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "Trecut" };
-        }
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        return { days, hours, minutes, seconds, status: "countdown" };
-      } catch (error) {
-        console.error('Error calculating time left:', error, targetDate);
-        return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "error" };
+        return { days: 0, hours: 0, minutes: 0, seconds: 0, status: "Trecut" };
       }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      return { days, hours, minutes, seconds, status: "countdown" };
     };
 
     const updateTimer = () => {
@@ -112,31 +100,27 @@ function RealCountdown({ targetDate, status }: { targetDate: string; status?: st
       {countdownStatus === "countdown" && (
         <div className="grid grid-cols-4 gap-1 text-center">
           <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
-            <div className="text-lg font-bold leading-none">{String(days || 0).padStart(2, '0')}</div>
+            <div className="text-lg font-bold leading-none">{String(days).padStart(2, '0')}</div>
             <div className="text-xs opacity-80">Zile</div>
           </div>
           <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
-            <div className="text-lg font-bold leading-none">{String(hours || 0).padStart(2, '0')}</div>
+            <div className="text-lg font-bold leading-none">{String(hours).padStart(2, '0')}</div>
             <div className="text-xs opacity-80">Ore</div>
           </div>
           <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
-            <div className="text-lg font-bold leading-none">{String(minutes || 0).padStart(2, '0')}</div>
+            <div className="text-lg font-bold leading-none">{String(minutes).padStart(2, '0')}</div>
             <div className="text-xs opacity-80">Min</div>
           </div>
           <div className="bg-black/80 backdrop-blur-sm text-white rounded-lg py-2 px-1">
-            <div className="text-lg font-bold leading-none">{String(seconds || 0).padStart(2, '0')}</div>
+            <div className="text-lg font-bold leading-none">{String(seconds).padStart(2, '0')}</div>
             <div className="text-xs opacity-80">Sec</div>
           </div>
         </div>
       )}
       
-      {(countdownStatus === "loading" || countdownStatus === "error" || countdownStatus === "invalid") && (
+      {countdownStatus === "loading" && (
         <div className="bg-gray-300 animate-pulse rounded-lg py-4 text-center">
-          <div className="text-gray-500 text-sm">
-            {countdownStatus === "error" ? "Eroare la încărcarea datei" : 
-             countdownStatus === "invalid" ? "Data invalidă" : 
-             "Se încarcă..."}
-          </div>
+          <div className="text-gray-500 text-sm">...</div>
         </div>
       )}
     </div>
@@ -344,16 +328,7 @@ export default function CardCountdown({
         <div className="flex items-center justify-between text-sm text-[--cz-ink-muted]">
           <div className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            <span>
-              {(() => {
-                try {
-                  return formatRoDate(new Date(startDate), false);
-                } catch (error) {
-                  console.error('Error formatting date in CardCountdown:', error, startDate);
-                  return 'Data nedefinită';
-                }
-              })()}
-            </span>
+            <span>{formatRoDate(new Date(startDate), false)}</span>
           </div>
           
           {location && (

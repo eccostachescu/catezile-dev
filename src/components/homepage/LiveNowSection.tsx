@@ -25,58 +25,33 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchLiveEvents = async () => {
-    try {
-      console.log('🔴 Fetching live events...');
-      const { data, error } = await supabase.rpc('get_live_events');
-      
-      if (error) {
-        console.error('Error fetching live events:', error);
-        setLiveEvents([]);
-        return;
-      }
+    const fetchLiveEvents = async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_live_events');
+        
+        if (error) {
+          console.error('Error fetching live events:', error);
+          return;
+        }
 
-      console.log('🔴 Raw live events data:', data);
-      // Filter for truly live events
-      const liveItems = data?.filter((item: any) => 
-        item.is_live && 
-        ['1H', '2H', 'HT', 'ET', 'LIVE'].includes(item.status)
-      ) || [];
-      
-      console.log('🔴 Filtered live events:', liveItems);
-      setLiveEvents(liveItems.slice(0, 4)); // Max 4 live events
-    } catch (error) {
-      console.error('Error in live events fetch:', error);
-      setLiveEvents([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const liveItems = data?.filter((item: any) => item.is_live) || [];
+        setLiveEvents(liveItems.slice(0, 4)); // Max 4 live events
+      } catch (error) {
+        console.error('Error in live events fetch:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchLiveEvents();
     
-    // Refresh every minute for live data (more frequent updates)
-    const interval = setInterval(fetchLiveEvents, 60000);
+    // Refresh every 30 seconds for live data
+    const interval = setInterval(fetchLiveEvents, 30000);
     return () => clearInterval(interval);
   }, []);
 
   // Don't render section if no live events
-  console.log('🔴 LiveNowSection render - loading:', loading, 'events count:', liveEvents.length);
-  console.log('🔴 Live events data:', liveEvents);
-  
-  if (loading) {
-    console.log('🔴 LiveNowSection showing loading state');
-    return (
-      <section className="py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center">Încărcare evenimente live...</div>
-        </div>
-      </section>
-    );
-  }
-  
-  if (liveEvents.length === 0) {
-    console.log('🔴 LiveNowSection not rendering - no live events');
+  if (loading || liveEvents.length === 0) {
     return null;
   }
 
@@ -126,8 +101,7 @@ export default function LiveNowSection({ onCardClick, onReminderClick }: LiveNow
                   
                   {event.score && (
                     <div className="text-xs text-[--cz-ink-muted] mb-1">
-                      {(event.score.home?.ft ?? event.score.home?.ht ?? 0)} - {(event.score.away?.ft ?? event.score.away?.ht ?? 0)}
-                      {event.score.minute && <span className="ml-1">({event.score.minute}')</span>}
+                      {event.score.home || 0} - {event.score.away || 0}
                     </div>
                   )}
                   
