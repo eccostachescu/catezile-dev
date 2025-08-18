@@ -6,9 +6,35 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Star, Play, Clock, Bell, Tv, ExternalLink } from "lucide-react";
-import CountdownTimer from "@/components/CountdownTimer";
-import ReminderButton from "@/components/ReminderButton";
+import { Calendar, Star, Play, Clock, Bell, Tv, ExternalLink, Zap } from "lucide-react";
+import { TVShowCard } from "@/components/tv/TVShowCard";
+import { tmdbService } from "@/services/tmdb";
+
+interface TVShow {
+  id: number;
+  name: string;
+  overview: string;
+  poster_path: string;
+  backdrop_path: string;
+  first_air_date: string;
+  genres: string[];
+  vote_average: number;
+  popularity: number;
+  poster_url: string;
+  backdrop_url: string;
+  slug: string;
+  air_date?: string;
+  episode_name?: string;
+  season_number?: number;
+  episode_number?: number;
+  next_episode?: {
+    air_date: string;
+    name: string;
+    season_number: number;
+    episode_number: number;
+    overview: string;
+  };
+}
 
 interface PopularShow {
   title: string;
@@ -24,27 +50,13 @@ interface PopularShow {
   id?: string;
 }
 
-interface InternationalShow {
-  id: number;
-  name: string;
-  overview: string;
-  poster_path: string;
-  backdrop_path: string;
-  first_air_date: string;
-  genres: string[];
-  vote_average: number;
-  popularity: number;
-  poster_url: string;
-  backdrop_url: string;
-  slug: string;
-}
-
 export function TVShows() {
   const navigate = useNavigate();
   const [romanianShows, setRomanianShows] = useState<PopularShow[]>([]);
-  const [internationalShows, setInternationalShows] = useState<InternationalShow[]>([]);
+  const [internationalShows, setInternationalShows] = useState<TVShow[]>([]);
+  const [upcomingShows, setUpcomingShows] = useState<TVShow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'romanian' | 'international'>('international');
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'romanian' | 'international'>('upcoming');
   const [selectedGenre, setSelectedGenre] = useState<string>('');
 
   const genres = [
@@ -55,6 +67,8 @@ export function TVShows() {
     { key: 'sci-fi', label: 'Sci-Fi' },
     { key: 'fantasy', label: 'Fantasy' },
     { key: 'action', label: 'Acțiune' },
+    { key: 'thriller', label: 'Thriller' },
+    { key: 'animation', label: 'Animație' },
   ];
 
   const romanianCategories = [
@@ -68,23 +82,22 @@ export function TVShows() {
   ];
 
   useEffect(() => {
-    console.log('🔧 Tab changed to:', activeTab, 'Loading shows...');
     loadShows();
   }, [activeTab, selectedGenre]);
 
   const loadShows = async () => {
     try {
       setLoading(true);
-      console.log('🔧 Loading shows for tab:', activeTab, 'genre:', selectedGenre);
 
-      if (activeTab === 'romanian') {
-        // Load both API shows and homepage shows
+      if (activeTab === 'upcoming') {
+        const shows = await tmdbService.getUpcomingTVShowsWithEpisodes(20);
+        setUpcomingShows(shows);
+      } else if (activeTab === 'romanian') {
         const [apiShows, homepageShows] = await Promise.all([
           loadApiShows(),
           loadHomepageShows()
         ]);
         
-        // Combine and deduplicate shows
         const allShows = [...apiShows, ...homepageShows];
         const uniqueShows = allShows.filter((show, index, self) => 
           index === self.findIndex(s => s.title === show.title)
@@ -99,7 +112,6 @@ export function TVShows() {
           }
         });
 
-        console.log('🔧 International shows response:', { data, error });
         if (error) throw error;
         setInternationalShows(data?.shows || []);
       }
@@ -119,7 +131,6 @@ export function TVShows() {
         }
       });
 
-      console.log('🔧 Romanian API shows response:', { data, error });
       if (error) throw error;
       return data?.shows || [];
     } catch (error) {
@@ -130,7 +141,6 @@ export function TVShows() {
 
   const loadHomepageShows = async () => {
     try {
-      // Get Romanian TV shows from homepage popular events
       const { data, error } = await supabase.functions.invoke('popular_countdowns', {
         body: { 
           limit: 50,
@@ -140,7 +150,6 @@ export function TVShows() {
 
       if (error) throw error;
 
-      // Filter for TV/Entertainment events
       const tvEvents = (data?.events || []).filter((event: any) => {
         const title = event.title?.toLowerCase() || '';
         const category = event.category_name?.toLowerCase() || '';
@@ -149,17 +158,9 @@ export function TVShows() {
                category.includes('emisiuni') ||
                title.includes('survivor') ||
                title.includes('te cunosc') ||
-               title.includes('ferma') ||
-               title.includes('insula') ||
-               title.includes('chefi') ||
-               title.includes('asia express') ||
-               title.includes('bravo') ||
-               title.includes('masked singer') ||
-               title.includes('vocea') ||
-               title.includes('românii au talent');
+               title.includes('ferma');
       });
 
-      // Convert to our show format
       const convertedShows = tvEvents.map((event: any) => ({
         title: event.title,
         channel: 'Program TV',
@@ -181,350 +182,147 @@ export function TVShows() {
     }
   };
 
-  const getNextAirDateTime = (show: PopularShow) => {
-    const today = new Date();
-    const currentDay = today.toLocaleDateString('ro-RO', { weekday: 'long' });
-    
-    if (show.airs_today) {
-      const [hours, minutes] = show.typical_time.split(':');
-      const airTime = new Date(today);
-      airTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-      
-      if (airTime > today) {
-        return airTime;
-      }
-    }
-    
-    // Find next air date
-    const dayMap: { [key: string]: number } = {
-      'luni': 1, 'marți': 2, 'miercuri': 3, 'joi': 4, 'vineri': 5, 'sâmbătă': 6, 'duminică': 0
-    };
-    
-    const currentDayNum = today.getDay();
-    let nextAirDate = new Date(today);
-    
-    for (let i = 1; i <= 7; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(today.getDate() + i);
-      const checkDayNum = checkDate.getDay();
-      const checkDayName = checkDate.toLocaleDateString('ro-RO', { weekday: 'long' });
-      
-      if (show.typical_days.includes(checkDayName)) {
-        const [hours, minutes] = show.typical_time.split(':');
-        checkDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-        return checkDate;
-      }
-    }
-    
-    return null;
-  };
-
-  const handleShowClick = (show: PopularShow | InternationalShow) => {
-    if (activeTab === 'romanian') {
-      const romanianShow = show as PopularShow;
-      // Create a slug from title
-      const slug = romanianShow.title.toLowerCase()
+  const handleShowClick = (show: TVShow | PopularShow) => {
+    if ('name' in show) {
+      const slug = show.name.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-');
+      navigate(`/tv/show/${show.id}/${slug}`);
+    } else {
+      const slug = show.title.toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-');
       navigate(`/tv/emisiuni/${slug}`);
-    } else {
-      const intlShow = show as InternationalShow;
-      navigate(`/tv/emisiuni/${intlShow.slug || intlShow.id}`);
     }
   };
 
-  const addToPopular = async (show: PopularShow | InternationalShow) => {
-    try {
-      const title = activeTab === 'romanian' ? (show as PopularShow).title : (show as InternationalShow).name;
-      
-      await supabase.functions.invoke('create_countdown', {
-        body: {
-          title: `${title} - Urmărește-l!`,
-          description: activeTab === 'romanian' 
-            ? `Serialul ${title} pe ${(show as PopularShow).channel}`
-            : `Serialul ${title}`,
-          target_at: activeTab === 'romanian' 
-            ? getNextAirDateTime(show as PopularShow)?.toISOString()
-            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Next week
-          category: 'TV Shows',
-          privacy: 'PUBLIC'
-        }
-      });
-      
-      console.log('Added to popular countdowns');
-    } catch (error) {
-      console.error('Error adding to popular:', error);
-    }
+  const addToPopular = async (show: PopularShow) => {
+    // Handle adding to popular logic
   };
 
   return (
     <>
       <SEO 
-        title="Seriale TV Populare — Românești și Internaționale"
-        description="Descoperă cele mai populare seriale TV românești și internaționale. Dexter, Wednesday, Breaking Bad, Survivor România, Chefi la Cuțite și multe altele."
+        title="Seriale TV Populare — Cu Countdown și Episoade Noi"
+        description="Descoperă serialele TV cu countdown pentru episoade noi, seriale românești și internaționale populare."
         path="/tv"
       />
       
       <Container className="py-8">
-        {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Seriale TV Populare
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Descoperă cele mai urmărite seriale TV din România și din întreaga lume. 
-            De la reality show-uri locale la producții internaționale de top.
+            Urmărește countdown-uri pentru episoade noi și descoperă cele mai populare seriale TV.
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex bg-muted rounded-lg p-1">
-            <Button
-              variant={activeTab === 'romanian' ? 'default' : 'ghost'}
-              onClick={() => setActiveTab('romanian')}
-              className="px-6"
-            >
-              Seriale Românești
-            </Button>
-            <Button
-              variant={activeTab === 'international' ? 'default' : 'ghost'}
-              onClick={() => setActiveTab('international')}
-              className="px-6"
-            >
-              Seriale Internaționale
-            </Button>
-          </div>
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 bg-muted p-1 rounded-lg mb-8">
+          <button
+            onClick={() => setActiveTab('upcoming')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'upcoming'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Cu Countdown
+          </button>
+          <button
+            onClick={() => setActiveTab('romanian')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'romanian'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Seriale Românești
+          </button>
+          <button
+            onClick={() => setActiveTab('international')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'international'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Seriale Internaționale
+          </button>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 justify-center mb-8">
-          {(activeTab === 'romanian' ? romanianCategories : genres).map((category) => (
-            <Button
-              key={category.key}
-              variant={selectedGenre === category.key ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedGenre(category.key)}
-            >
-              {category.label}
-            </Button>
-          ))}
-        </div>
+        {/* Genre Filters */}
+        {activeTab !== 'upcoming' && (
+          <div className="flex flex-wrap gap-2 mb-8">
+            {(activeTab === 'romanian' ? romanianCategories : genres).map((genre) => (
+              <button
+                key={genre.key}
+                onClick={() => setSelectedGenre(genre.key)}
+                className={`px-4 py-2 text-sm rounded-full transition-colors ${
+                  selectedGenre === genre.key
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {genre.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Content */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <Skeleton key={i} className="aspect-[2/3] rounded-lg" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="space-y-4">
+                <Skeleton className="aspect-video rounded-lg" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {activeTab === 'romanian' ? (
-              romanianShows.map((show, index) => {
-                const nextAirTime = getNextAirDateTime(show);
-                return (
-                  <div 
-                    key={index} 
-                    className="group bg-card rounded-lg overflow-hidden border shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => handleShowClick(show)}
-                  >
-                    <div className="aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center relative">
-                      <Play className="w-12 h-12 text-primary/60" />
-                      <div className="absolute top-2 left-2">
-                        <Badge variant={show.airs_today ? "destructive" : "secondary"} className="text-xs">
-                          <Tv className="w-3 h-3 mr-1" />
-                          {show.channel}
-                        </Badge>
-                      </div>
-                      {show.airs_today && (
-                        <div className="absolute top-2 right-2">
-                          <Badge variant="destructive" className="text-xs animate-pulse">
-                            LIVE AZI
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-lg line-clamp-2 flex-1">
-                          {show.title}
-                        </h3>
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                        {show.description}
-                      </p>
-                      
-                      {nextAirTime && (
-                        <div className="mb-3 p-3 bg-muted/50 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">Următoarea difuzare:</span>
-                            <Badge variant="outline" className="text-xs">
-                              {show.typical_time}
-                            </Badge>
-                          </div>
-                          <CountdownTimer 
-                            target={nextAirTime}
-                            className="text-center"
-                          />
-                        </div>
-                      )}
-                      
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          <span>{show.typical_days.join(', ')}</span>
-                        </div>
-                        
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4 mr-2" />
-                          <span>Ora {show.typical_time}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        {nextAirTime && (
-                          <ReminderButton
-                            when={nextAirTime}
-                            kind="event"
-                            entityId={show.id || `${show.title}-${index}`}
-                          />
-                        )}
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            addToPopular(show);
-                          }}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Star className="w-4 h-4 mr-1" />
-                          Adaugă în Populare
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              internationalShows.map((show) => (
-                <div 
-                  key={show.id} 
-                  className="group bg-card rounded-lg overflow-hidden border shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        ) : activeTab === 'upcoming' ? (
+          upcomingShows.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingShows.map((show) => (
+                <TVShowCard
+                  key={show.id}
+                  show={show}
                   onClick={() => handleShowClick(show)}
-                >
-                  <div className="aspect-[2/3] relative overflow-hidden">
-                    {show.poster_url ? (
-                      <img 
-                        src={show.poster_url} 
-                        alt={show.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <Play className="w-12 h-12 text-primary/60" />
-                      </div>
-                    )}
-                    
-                    <div className="absolute top-2 right-2 bg-black/80 text-white px-2 py-1 rounded-md text-sm flex items-center">
-                      <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
-                      {show.vote_average.toFixed(1)}
-                    </div>
-
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <Badge variant="secondary" className="text-xs bg-black/80 text-white">
-                        <Tv className="w-3 h-3 mr-1" />
-                        Streaming disponibil
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg line-clamp-2 mb-2">
-                      {show.name}
-                    </h3>
-                    
-                    <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
-                      {show.overview}
-                    </p>
-                    
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        <span>Premiera: {new Date(show.first_air_date).getFullYear()}</span>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1">
-                        {show.genres.slice(0, 2).map((genre) => (
-                          <Badge key={genre} variant="secondary" className="text-xs">
-                            {genre}
-                          </Badge>
-                        ))}
-                        {show.genres.length > 2 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{show.genres.length - 2}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToPopular(show);
-                        }}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <Star className="w-4 h-4 mr-1" />
-                        Adaugă în Populare
-                      </Button>
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`https://www.imdb.com/title/tt${show.id}`, '_blank');
-                        }}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
+                  showCountdown={true}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Tv className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Nu s-au găsit seriale cu countdown</h3>
+              <p className="text-muted-foreground">Încearcă din nou mai târziu pentru episoade noi.</p>
+            </div>
+          )
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(activeTab === 'romanian' ? romanianShows : internationalShows).map((show: any) => (
+              <TVShowCard
+                key={activeTab === 'romanian' ? show.title : show.id}
+                show={activeTab === 'romanian' ? {
+                  id: 0,
+                  name: show.title,
+                  overview: show.description,
+                  poster_path: '',
+                  backdrop_path: '',
+                  vote_average: 0,
+                  first_air_date: '',
+                  genres: [show.type]
+                } : show}
+                onClick={() => handleShowClick(show)}
+                showCountdown={false}
+              />
+            ))}
           </div>
         )}
-        
-        {!loading && (activeTab === 'romanian' ? romanianShows : internationalShows).length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>Nu sunt seriale disponibile pentru filtrele selectate.</p>
-          </div>
-        )}
-
-        {/* CTA Section */}
-        <div className="mt-16 text-center bg-muted/50 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold mb-4">Urmărește-ți serialele favorite</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Descoperă când sunt difuzate emisiunile tale preferate și nu rata niciun episod. 
-            Explorează atât producțiile românești cât și cele internaționale.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg">
-              <Calendar className="w-5 h-5 mr-2" />
-              Vezi Program TV
-            </Button>
-            <Button variant="outline" size="lg">
-              <Star className="w-5 h-5 mr-2" />
-              Top Recomandări
-            </Button>
-          </div>
-        </div>
       </Container>
     </>
   );
