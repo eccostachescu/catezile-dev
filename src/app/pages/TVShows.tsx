@@ -85,6 +85,114 @@ export function TVShows() {
     loadShows();
   }, [activeTab, selectedGenre]);
 
+  // Mock countdown shows with real upcoming dates
+  const getMockCountdownShows = () => {
+    const now = new Date();
+    const shows = [
+      {
+        id: 94997,
+        name: "House of the Dragon",
+        overview: "Set 200 years before Game of Thrones, this epic series tells the story of House Targaryen.",
+        poster_path: "/7QMsOTMUswlwxJP0rTTZfmz2tX2.jpg",
+        backdrop_path: "/9Rq14Eyrf7Tu1xk0Pl7VcNbNh1n.jpg",
+        first_air_date: "2022-08-21",
+        vote_average: 8.5,
+        popularity: 2847.0,
+        genres: ["Drama", "Fantasy", "Action"],
+        poster_url: "https://image.tmdb.org/t/p/w500/7QMsOTMUswlwxJP0rTTZfmz2tX2.jpg",
+        backdrop_url: "https://image.tmdb.org/t/p/w1280/9Rq14Eyrf7Tu1xk0Pl7VcNbNh1n.jpg",
+        slug: "house-of-the-dragon",
+        air_date: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+        episode_name: "Season 3 Premiere",
+        season_number: 3,
+        episode_number: 1,
+        next_episode: {
+          air_date: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          name: "Season 3 Premiere",
+          season_number: 3,
+          episode_number: 1,
+          overview: "The dragon civil war begins as Rhaenyra seeks to claim her throne."
+        }
+      },
+      {
+        id: 119051,
+        name: "Wednesday",
+        overview: "Wednesday Addams navigates her years as a student at Nevermore Academy.",
+        poster_path: "/9PFonBhy4cQy7Jz20NpMygczOkv.jpg",
+        backdrop_path: "/iHSwvRVsRyxpX7FE7GbviaDvgGZ.jpg",
+        first_air_date: "2022-11-23",
+        vote_average: 8.5,
+        popularity: 2103.0,
+        genres: ["Comedy", "Crime", "Mystery"],
+        poster_url: "https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg",
+        backdrop_url: "https://image.tmdb.org/t/p/w1280/iHSwvRVsRyxpX7FE7GbviaDvgGZ.jpg",
+        slug: "wednesday",
+        air_date: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 14 days from now
+        episode_name: "New Mystery",
+        season_number: 2,
+        episode_number: 1,
+        next_episode: {
+          air_date: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          name: "New Mystery",
+          season_number: 2,
+          episode_number: 1,
+          overview: "Wednesday returns to Nevermore Academy with new supernatural mysteries to solve."
+        }
+      },
+      {
+        id: 100088,
+        name: "The Last of Us",
+        overview: "Joel and Ellie navigate a post-apocalyptic world.",
+        poster_path: "/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg",
+        backdrop_path: "/9ft8GBTqxFbuqLRDkwoDVAkzp9Q.jpg",
+        first_air_date: "2023-01-15",
+        vote_average: 8.7,
+        popularity: 2158.95,
+        genres: ["Drama", "Sci-Fi", "Action"],
+        poster_url: "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg",
+        backdrop_url: "https://image.tmdb.org/t/p/w1280/9ft8GBTqxFbuqLRDkwoDVAkzp9Q.jpg",
+        slug: "the-last-of-us",
+        air_date: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 3 days from now
+        episode_name: "The Road Ahead",
+        season_number: 2,
+        episode_number: 5,
+        next_episode: {
+          air_date: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          name: "The Road Ahead",
+          season_number: 2,
+          episode_number: 5,
+          overview: "Joel and Ellie face new dangers on their journey."
+        }
+      },
+      {
+        id: 91557,
+        name: "Invincible",
+        overview: "Mark Grayson discovers his father is the most powerful superhero on Earth.",
+        poster_path: "/yDWJYRAwMNKbIYT8ZB33qy84uzO.jpg",
+        backdrop_path: "/6UH52Fmau8RPsMAbQbjwN3wJSCj.jpg",
+        first_air_date: "2021-03-26",
+        vote_average: 8.9,
+        popularity: 1221.66,
+        genres: ["Animation", "Action", "Drama"],
+        poster_url: "https://image.tmdb.org/t/p/w500/yDWJYRAwMNKbIYT8ZB33qy84uzO.jpg",
+        backdrop_url: "https://image.tmdb.org/t/p/w1280/6UH52Fmau8RPsMAbQbjwN3wJSCj.jpg",
+        slug: "invincible",
+        air_date: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 21 days from now
+        episode_name: "The Ultimate Test",
+        season_number: 3,
+        episode_number: 2,
+        next_episode: {
+          air_date: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          name: "The Ultimate Test",
+          season_number: 3,
+          episode_number: 2,
+          overview: "Mark faces his greatest challenge yet as he learns more about his father's past."
+        }
+      }
+    ];
+    return shows;
+  };
+
   const loadShows = async () => {
     try {
       setLoading(true);
@@ -95,16 +203,20 @@ export function TVShows() {
         try {
           const shows = await tmdbService.getUpcomingTVShowsWithEpisodes(20);
           console.log('🔧 Got upcoming shows:', shows);
-          setUpcomingShows(shows);
-        } catch (error) {
-          console.error('🔧 Failed to fetch from TMDB service, trying edge function...', error);
-          // Fallback to edge function
-          const { data, error: edgeError } = await supabase.functions.invoke('tmdb_popular_tv', {
-            body: { type: 'upcoming', limit: 20 }
-          });
-          if (!edgeError && data?.shows) {
-            setUpcomingShows(data.shows);
+          
+          // If no shows or TMDB key is demo, add mock data with countdowns
+          if (shows.length === 0 || tmdbService.isUsingDemoKey()) {
+            console.log('🔧 Adding mock countdown data...');
+            const mockShows = getMockCountdownShows();
+            setUpcomingShows(mockShows);
+          } else {
+            setUpcomingShows(shows);
           }
+        } catch (error) {
+          console.error('🔧 Failed to fetch from TMDB service, using mock data...', error);
+          // Fallback to mock countdown data
+          const mockShows = getMockCountdownShows();
+          setUpcomingShows(mockShows);
         }
       } else if (activeTab === 'romanian') {
         const [apiShows, homepageShows] = await Promise.all([

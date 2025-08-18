@@ -11,6 +11,11 @@ export class TMDBService {
     }
   }
 
+  // Check if using demo key
+  isUsingDemoKey(): boolean {
+    return this.apiKey === 'demo';
+  }
+
   // Get popular movies
   async getPopularMovies(page = 1) {
     const response = await fetch(

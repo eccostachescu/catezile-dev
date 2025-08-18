@@ -45,10 +45,12 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
   const [isAiring, setIsAiring] = useState(false);
 
   useEffect(() => {
+    console.log('🔧 TVShowCard effect:', { showCountdown, airDate: show.air_date, showName: show.name });
     if (!showCountdown || !show.air_date) return;
 
     const updateCountdown = () => {
       const timeData = tmdbService.getTimeUntilAiring(show.air_date!);
+      console.log('🔧 Countdown calculation for', show.name, ':', timeData);
       
       if (timeData) {
         setCountdown({
@@ -170,6 +172,20 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
                   <div className="text-xs text-muted-foreground">Sec</div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Show countdown even if no data for debugging */}
+        {showCountdown && !countdown && show.air_date && (
+          <div className="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="text-center">
+              <p className="text-sm font-medium text-yellow-800 mb-1">
+                Episode airing: {show.air_date}
+              </p>
+              <p className="text-xs text-yellow-600">
+                Debug: Countdown calculation failed
+              </p>
             </div>
           </div>
         )}
