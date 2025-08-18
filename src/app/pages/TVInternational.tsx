@@ -220,8 +220,8 @@ export function TVInternational() {
                         ))}
                       </div>
 
-                      {/* Countdown for next episode */}
-                      {hasUpcomingEpisode && nextEpisodeDate && (
+                      {/* Countdown for next episode - Always show if next_episode_to_air exists */}
+                      {show.next_episode_to_air && nextEpisodeDate && nextEpisodeDate > new Date() && (
                         <div className="mb-4 p-4 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 rounded-xl border border-primary/30 backdrop-blur-sm relative overflow-hidden">
                           {/* Animated background elements */}
                           <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full blur-2xl animate-pulse"></div>
@@ -233,20 +233,18 @@ export function TVInternational() {
                                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
                                 <span className="text-sm font-semibold text-primary">Următorul episod</span>
                               </div>
-                              {show.next_episode_to_air && (
-                                <Badge variant="default" className="text-xs font-semibold shadow-sm">
-                                  S{show.next_episode_to_air.season_number}E{show.next_episode_to_air.episode_number}
-                                </Badge>
-                              )}
+                              <Badge variant="default" className="text-xs font-semibold shadow-sm">
+                                S{show.next_episode_to_air.season_number}E{show.next_episode_to_air.episode_number}
+                              </Badge>
                             </div>
                             
                             <div className="text-xs text-muted-foreground mb-3 font-medium line-clamp-1">
-                              {show.next_episode_to_air?.name}
+                              {show.next_episode_to_air.name}
                             </div>
                             
                              <div className="bg-white/80 dark:bg-black/40 rounded-lg p-2 backdrop-blur-sm border border-white/30">
                                <CountdownTimer 
-                                 target={nextEpisodeDate!}
+                                 target={nextEpisodeDate}
                                  className="w-full"
                                />
                              </div>
