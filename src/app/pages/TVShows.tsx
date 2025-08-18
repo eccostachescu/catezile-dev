@@ -88,10 +88,24 @@ export function TVShows() {
   const loadShows = async () => {
     try {
       setLoading(true);
+      console.log('🔧 Loading shows for tab:', activeTab, 'genre:', selectedGenre);
 
       if (activeTab === 'upcoming') {
-        const shows = await tmdbService.getUpcomingTVShowsWithEpisodes(20);
-        setUpcomingShows(shows);
+        console.log('🔧 Fetching upcoming shows with episodes...');
+        try {
+          const shows = await tmdbService.getUpcomingTVShowsWithEpisodes(20);
+          console.log('🔧 Got upcoming shows:', shows);
+          setUpcomingShows(shows);
+        } catch (error) {
+          console.error('🔧 Failed to fetch from TMDB service, trying edge function...', error);
+          // Fallback to edge function
+          const { data, error: edgeError } = await supabase.functions.invoke('tmdb_popular_tv', {
+            body: { type: 'upcoming', limit: 20 }
+          });
+          if (!edgeError && data?.shows) {
+            setUpcomingShows(data.shows);
+          }
+        }
       } else if (activeTab === 'romanian') {
         const [apiShows, homepageShows] = await Promise.all([
           loadApiShows(),
@@ -105,6 +119,7 @@ export function TVShows() {
         
         setRomanianShows(uniqueShows);
       } else {
+        console.log('🔧 Fetching international shows...');
         const { data, error } = await supabase.functions.invoke('tmdb_popular_tv', {
           body: { 
             genre: selectedGenre,
@@ -112,6 +127,7 @@ export function TVShows() {
           }
         });
 
+        console.log('🔧 International shows response:', { data, error });
         if (error) throw error;
         setInternationalShows(data?.shows || []);
       }
