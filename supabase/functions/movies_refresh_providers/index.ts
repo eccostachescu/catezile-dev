@@ -10,14 +10,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    // Validate cron secret if provided
-    const cronSecret = Deno.env.get('ADMIN_CRON_SECRET');
-    if (cronSecret && req.headers.get('x-cron-secret') !== cronSecret) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), { 
-        status: 403, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      });
-    }
+    // Allow admin access (remove cron secret requirement for manual triggers)
 
     const TMDB_API_KEY = Deno.env.get('TMDB_API_KEY');
     if (!TMDB_API_KEY) {

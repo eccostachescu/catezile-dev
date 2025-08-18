@@ -94,7 +94,8 @@ serve(async (req) => {
     }
 
     const tmdb = new TMDBService(tmdbApiKey);
-    const { platform, limit = 20 } = await req.json();
+    const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+    const { platform = 'netflix', limit = 20 } = body;
 
     console.log(`Starting sync for platform: ${platform}, limit: ${limit}`);
 
