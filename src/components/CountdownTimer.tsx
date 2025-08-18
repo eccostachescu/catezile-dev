@@ -40,11 +40,11 @@ export default function CountdownTimer({ target, className, ariaLabel, onComplet
   const label = ariaLabel ?? `Au mai rămas ${days} zile, ${hours} ore, ${minutes} minute și ${seconds} secunde`;
 
   const segment = (value: number, title: string) => (
-    <div className="flex-1 rounded-lg border bg-muted/50 p-2 text-center min-w-0">
-      <div className="text-lg sm:text-xl font-bold tabular-nums leading-tight" aria-hidden>
+    <div className="flex-1 rounded-lg border bg-muted/50 p-1.5 text-center min-w-0 max-w-[60px]">
+      <div className="text-sm sm:text-base font-bold tabular-nums leading-tight truncate" aria-hidden>
         {String(value).padStart(2, "0")}
       </div>
-      <div className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate">{title}</div>
+      <div className="text-[8px] sm:text-[10px] text-muted-foreground font-medium truncate mt-0.5">{title}</div>
     </div>
   );
 
@@ -63,11 +63,11 @@ export default function CountdownTimer({ target, className, ariaLabel, onComplet
           <span className="sr-only"> – countdown complet</span>
         </div>
       ) : (
-        <div className="flex gap-1.5 sm:gap-2">
-          {segment(days, "Zile")}
-          {segment(hours, "Ore")}
-          {segment(minutes, "Min")}
-          {segment(seconds, "Sec")}
+        <div className="flex gap-1 justify-center">
+          {segment(days, "Z")}
+          {segment(hours, "O")}
+          {segment(minutes, "M")}
+          {segment(seconds, "S")}
         </div>
       )}
     </div>

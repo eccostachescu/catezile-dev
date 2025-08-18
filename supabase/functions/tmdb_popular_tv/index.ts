@@ -19,10 +19,10 @@ const popularInternationalShows = [
     vote_average: 8.5,
     popularity: 2847.0,
     next_episode_to_air: {
-      air_date: "2025-03-15",
+      air_date: "2025-06-01",
       episode_number: 1,
       season_number: 3,
-      name: "The Heirs of the Dragon"
+      name: "Season 3 Premiere"
     }
   },
   {
@@ -37,10 +37,10 @@ const popularInternationalShows = [
     vote_average: 8.5,
     popularity: 2103.0,
     next_episode_to_air: {
-      air_date: "2025-11-13",
+      air_date: "2025-09-01", 
       episode_number: 1,
       season_number: 2,
-      name: "A Murder of Woes"
+      name: "Return to Nevermore"
     }
   },
   {
@@ -109,10 +109,10 @@ const popularInternationalShows = [
     vote_average: 8.4,
     popularity: 1342.0,
     next_episode_to_air: {
-      air_date: "2025-02-25",
+      air_date: "2025-05-15",
       episode_number: 1,
       season_number: 4,
-      name: "The Return"
+      name: "Chapter One"
     }
   },
   {
