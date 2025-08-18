@@ -243,10 +243,10 @@ export function TVInternational() {
                               {show.next_episode_to_air?.name}
                             </div>
                             
-                            <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 backdrop-blur-sm border border-white/20">
+                            <div className="bg-white/80 dark:bg-black/40 rounded-lg p-2 backdrop-blur-sm border border-white/30">
                               <CountdownTimer 
                                 target={nextEpisodeDate}
-                                className="text-center"
+                                className="w-full"
                               />
                             </div>
                           </div>
@@ -255,11 +255,13 @@ export function TVInternational() {
 
                       <div className="space-y-3">
                         {hasUpcomingEpisode && nextEpisodeDate && (
-                          <ReminderButton
-                            when={nextEpisodeDate}
-                            kind="event"
-                            entityId={`tv-${show.id}`}
-                          />
+                          <div className="flex justify-center">
+                            <ReminderButton
+                              when={nextEpisodeDate}
+                              kind="event"
+                              entityId={`tv-${show.id}`}
+                            />
+                          </div>
                         )}
                         
                         <Button

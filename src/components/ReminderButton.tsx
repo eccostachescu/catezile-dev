@@ -83,10 +83,11 @@ export default function ReminderButton({ when, kind, entityId }: Props) {
           variant={set ? "secondary" : "default"}
           onClick={() => setOpen(!open)}
           aria-pressed={set}
-          className="transition-all duration-200"
+          size="sm"
+          className="transition-all duration-200 text-xs h-8 px-3"
         >
-          <Bell />
-          {set ? "Reminder activ" : "Setează reminder"}
+          <Bell className="w-3 h-3 mr-1" />
+          {set ? "Activ" : "Reminder"}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0 bg-background/95 backdrop-blur-lg border-border/50 shadow-2xl">
