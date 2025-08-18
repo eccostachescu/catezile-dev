@@ -23,6 +23,7 @@ interface InternationalShow {
   poster_url: string;
   backdrop_url: string;
   slug: string;
+  status?: string;
   next_episode_to_air?: {
     air_date: string;
     episode_number: number;
@@ -157,7 +158,7 @@ export function TVInternational() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
               {shows.map((show) => {
                 const nextEpisodeDate = getNextEpisodeDate(show);
-                const hasUpcomingEpisode = nextEpisodeDate && nextEpisodeDate > new Date();
+                const hasUpcomingEpisode = nextEpisodeDate && nextEpisodeDate > new Date() && show.status !== "Ended";
                 
                 return (
                   <div 

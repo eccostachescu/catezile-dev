@@ -180,12 +180,7 @@ const popularInternationalShows = [
     genres: ["Drama", "Mystery", "Sci-Fi & Fantasy"],
     vote_average: 8.3,
     popularity: 954.0,
-    next_episode_to_air: {
-      air_date: "2025-10-02",
-      episode_number: 1,
-      season_number: 16,
-      name: "Revival Season Episode 1"
-    }
+    status: "Ended"
   },
   {
     id: 237,
