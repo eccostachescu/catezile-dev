@@ -160,6 +160,7 @@ export function TVInternational() {
                 const nextEpisodeDate = getNextEpisodeDate(show);
                 const hasUpcomingEpisode = nextEpisodeDate && nextEpisodeDate > new Date() && show.status !== "Ended";
                 
+                
                 return (
                   <div 
                     key={show.id} 
@@ -244,12 +245,12 @@ export function TVInternational() {
                               {show.next_episode_to_air?.name}
                             </div>
                             
-                            <div className="bg-white/80 dark:bg-black/40 rounded-lg p-2 backdrop-blur-sm border border-white/30">
-                              <CountdownTimer 
-                                target={nextEpisodeDate}
-                                className="w-full"
-                              />
-                            </div>
+                             <div className="bg-white/80 dark:bg-black/40 rounded-lg p-2 backdrop-blur-sm border border-white/30">
+                               <CountdownTimer 
+                                 target={nextEpisodeDate!}
+                                 className="w-full"
+                               />
+                             </div>
                           </div>
                         </div>
                       )}
