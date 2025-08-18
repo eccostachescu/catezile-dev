@@ -35,13 +35,7 @@ const popularInternationalShows = [
     genre_ids: [35, 80, 9648],
     genres: ["Comedy", "Crime", "Mystery"],
     vote_average: 8.5,
-    popularity: 2103.0,
-    next_episode_to_air: {
-      air_date: "2025-09-01", 
-      episode_number: 1,
-      season_number: 2,
-      name: "Return to Nevermore"
-    }
+    popularity: 2103.0
   },
   {
     id: 46648,
