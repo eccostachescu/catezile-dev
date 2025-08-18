@@ -160,7 +160,6 @@ export function TVInternational() {
                 const nextEpisodeDate = getNextEpisodeDate(show);
                 const hasUpcomingEpisode = nextEpisodeDate && nextEpisodeDate > new Date() && show.status !== "Ended";
                 
-                
                 return (
                   <div 
                     key={show.id} 
