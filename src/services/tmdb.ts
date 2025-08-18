@@ -4,11 +4,10 @@ export class TMDBService {
   private imageBaseURL = 'https://image.tmdb.org/t/p';
 
   constructor() {
-    // Use environment variable if available, otherwise use demo key
-    this.apiKey = import.meta.env.VITE_TMDB_API_KEY || 'demo';
-    if (this.apiKey === 'demo') {
-      console.warn('TMDB API key not found. Add VITE_TMDB_API_KEY to your .env file');
-    }
+    // Note: TMDB API key should be configured in Supabase secrets for edge functions
+    // For frontend use, this will use a demo key - real API calls should go through edge functions
+    this.apiKey = 'demo';
+    console.warn('Frontend TMDB service using demo key. Use edge functions for actual API calls.');
   }
 
   // Check if using demo key
