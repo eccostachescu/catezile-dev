@@ -5,10 +5,8 @@ import Container from "@/components/Container";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Star, Play, Calendar, Tv, ExternalLink, Clock } from "lucide-react";
-import CountdownTimer from "@/components/CountdownTimer";
-import ReminderButton from "@/components/ReminderButton";
+import { Tv, Clock } from "lucide-react";
+import { MediaCard } from "@/components/media";
 
 interface InternationalShow {
   id: number;
@@ -160,126 +158,29 @@ export function TVInternational() {
                 const nextEpisodeDate = getNextEpisodeDate(show);
                 const hasUpcomingEpisode = nextEpisodeDate && nextEpisodeDate > new Date() && show.status !== "Ended";
                 
+                // Skip shows without images in the "Populare" section
+                if (!show.poster_url) return null;
+                
                 return (
-                  <div 
-                    key={show.id} 
-                    className="group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:border-primary/30 relative"
-                    onClick={() => handleShowClick(show)}
-                  >
-                    <div className="aspect-[2/3] relative overflow-hidden">
-                      {show.poster_url ? (
-                        <img 
-                          src={show.poster_url} 
-                          alt={show.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                          <Play className="w-8 h-8 text-primary/60" />
-                        </div>
-                      )}
-                      
-                      {/* Rating badge */}
-                      <div className="absolute top-3 right-3 bg-black/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs flex items-center shadow-lg">
-                        <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400 drop-shadow-sm" />
-                        <span className="font-semibold">{show.vote_average.toFixed(1)}</span>
-                      </div>
-
-                      {/* Next episode badge */}
-                      {hasUpcomingEpisode && (
-                        <div className="absolute top-3 left-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg shadow-primary/25 animate-pulse">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            Episod nou
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Overlay with play button */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
-                        <Play className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-                    </div>
-                    
-                    <div className="p-3">
-                      <h3 className="font-semibold text-sm line-clamp-2 mb-2">
-                        {show.name}
-                      </h3>
-                      
-                      <div className="flex items-center text-xs text-muted-foreground mb-2">
-                        <Calendar className="w-3 h-3 mr-1" />
-                        <span>{new Date(show.first_air_date).getFullYear()}</span>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {show.genres.slice(0, 2).map((genre) => (
-                          <Badge key={genre} variant="secondary" className="text-xs px-1 py-0">
-                            {genre}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      {/* Countdown for next episode */}
-                      {hasUpcomingEpisode && nextEpisodeDate && (
-                        <div className="mb-4 p-4 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 rounded-xl border border-primary/30 backdrop-blur-sm relative overflow-hidden">
-                          {/* Animated background elements */}
-                          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full blur-2xl animate-pulse"></div>
-                          <div className="absolute bottom-0 left-0 w-16 h-16 bg-primary/5 rounded-full blur-xl animate-pulse delay-1000"></div>
-                          
-                          <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                                <span className="text-sm font-semibold text-primary">Următorul episod</span>
-                              </div>
-                              {show.next_episode_to_air && (
-                                <Badge variant="default" className="text-xs font-semibold shadow-sm">
-                                  S{show.next_episode_to_air.season_number}E{show.next_episode_to_air.episode_number}
-                                </Badge>
-                              )}
-                            </div>
-                            
-                            <div className="text-xs text-muted-foreground mb-3 font-medium line-clamp-1">
-                              {show.next_episode_to_air?.name}
-                            </div>
-                            
-                            <div className="bg-white/80 dark:bg-black/40 rounded-lg p-2 backdrop-blur-sm border border-white/30">
-                              <CountdownTimer 
-                                target={nextEpisodeDate}
-                                className="w-full"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="space-y-3">
-                        {hasUpcomingEpisode && nextEpisodeDate && (
-                          <div className="flex justify-center">
-                            <ReminderButton
-                              when={nextEpisodeDate}
-                              kind="event"
-                              entityId={`tv-${show.id}`}
-                            />
-                          </div>
-                        )}
-                        
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full h-9 text-xs font-medium hover:bg-primary/10 hover:text-primary transition-all duration-300 border border-border/50 hover:border-primary/30"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`https://www.themoviedb.org/tv/${show.id}`, '_blank');
-                          }}
-                        >
-                          <ExternalLink className="w-3 h-3 mr-2" />
-                          Vezi pe TMDB
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <MediaCard
+                    key={show.id}
+                    id={show.id.toString()}
+                    href={`/tv/emisiuni/${show.slug || show.id}`}
+                    title={show.name}
+                    year={new Date(show.first_air_date).getFullYear()}
+                    genres={show.genres}
+                    rating={show.vote_average}
+                    imageUrl={show.poster_url}
+                    status={show.status === "Ended" ? "ended" : hasUpcomingEpisode ? "scheduled" : "ended"}
+                    nextEpisode={hasUpcomingEpisode && show.next_episode_to_air ? {
+                      season: show.next_episode_to_air.season_number,
+                      episode: show.next_episode_to_air.episode_number,
+                      title: show.next_episode_to_air.name,
+                      startsAt: show.next_episode_to_air.air_date
+                    } : undefined}
+                    canRemind={hasUpcomingEpisode}
+                    tmdbId={show.id}
+                  />
                 );
               })}
             </div>
