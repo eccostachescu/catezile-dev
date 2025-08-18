@@ -95,28 +95,54 @@ export function TVInternational() {
       
       <Container className="py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Seriale TV Internaționale
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <div className="text-center mb-16">
+          <div className="relative">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+              Seriale TV Internaționale
+            </h1>
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary/5 blur-3xl -z-10 rounded-full opacity-30"></div>
+          </div>
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
             Descoperă cele mai urmărite seriale TV din întreaga lume. 
             De la producții Netflix la seriale HBO și Amazon Prime Video.
           </p>
+          <div className="mt-8 flex items-center justify-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+              <span>Live Updates</span>
+            </div>
+            <div className="w-1 h-1 rounded-full bg-muted-foreground/30"></div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>Countdowns în timp real</span>
+            </div>
+          </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 justify-center mb-8">
-          {genres.map((genre) => (
-            <Button
-              key={genre.key}
-              variant={selectedGenre === genre.key ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedGenre(genre.key)}
-            >
-              {genre.label}
-            </Button>
-          ))}
+        <div className="relative mb-12">
+          <div className="flex flex-wrap gap-3 justify-center p-4 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 shadow-lg">
+            {genres.map((genre) => (
+              <Button
+                key={genre.key}
+                variant={selectedGenre === genre.key ? 'default' : 'ghost'}
+                size="sm"
+                className={`
+                  relative overflow-hidden transition-all duration-300 rounded-full px-4 py-2
+                  ${selectedGenre === genre.key 
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105' 
+                    : 'hover:bg-primary/10 hover:scale-105'
+                  }
+                `}
+                onClick={() => setSelectedGenre(genre.key)}
+              >
+                {selectedGenre === genre.key && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 -z-10"></div>
+                )}
+                <span className="relative z-10">{genre.label}</span>
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Content */}
@@ -136,7 +162,7 @@ export function TVInternational() {
                 return (
                   <div 
                     key={show.id} 
-                    className="group bg-card rounded-lg overflow-hidden border shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    className="group bg-card rounded-2xl overflow-hidden border border-border/50 shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:border-primary/30 relative"
                     onClick={() => handleShowClick(show)}
                   >
                     <div className="aspect-[2/3] relative overflow-hidden">
@@ -154,15 +180,18 @@ export function TVInternational() {
                       )}
                       
                       {/* Rating badge */}
-                      <div className="absolute top-2 right-2 bg-black/80 text-white px-2 py-1 rounded-md text-xs flex items-center">
-                        <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
-                        {show.vote_average.toFixed(1)}
+                      <div className="absolute top-3 right-3 bg-black/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs flex items-center shadow-lg">
+                        <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400 drop-shadow-sm" />
+                        <span className="font-semibold">{show.vote_average.toFixed(1)}</span>
                       </div>
 
                       {/* Next episode badge */}
                       {hasUpcomingEpisode && (
-                        <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-md text-xs">
-                          Episod nou
+                        <div className="absolute top-3 left-3 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg shadow-primary/25 animate-pulse">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            Episod nou
+                          </div>
                         </div>
                       )}
 
@@ -192,26 +221,39 @@ export function TVInternational() {
 
                       {/* Countdown for next episode */}
                       {hasUpcomingEpisode && nextEpisodeDate && (
-                        <div className="mb-3 p-2 bg-primary/10 rounded-lg border border-primary/20">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-primary">Următorul episod:</span>
-                            {show.next_episode_to_air && (
-                              <Badge variant="default" className="text-xs">
-                                S{show.next_episode_to_air.season_number}E{show.next_episode_to_air.episode_number}
-                              </Badge>
-                            )}
+                        <div className="mb-4 p-4 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 rounded-xl border border-primary/30 backdrop-blur-sm relative overflow-hidden">
+                          {/* Animated background elements */}
+                          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full blur-2xl animate-pulse"></div>
+                          <div className="absolute bottom-0 left-0 w-16 h-16 bg-primary/5 rounded-full blur-xl animate-pulse delay-1000"></div>
+                          
+                          <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                                <span className="text-sm font-semibold text-primary">Următorul episod</span>
+                              </div>
+                              {show.next_episode_to_air && (
+                                <Badge variant="default" className="text-xs font-semibold shadow-sm">
+                                  S{show.next_episode_to_air.season_number}E{show.next_episode_to_air.episode_number}
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <div className="text-xs text-muted-foreground mb-3 font-medium line-clamp-1">
+                              {show.next_episode_to_air?.name}
+                            </div>
+                            
+                            <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 backdrop-blur-sm border border-white/20">
+                              <CountdownTimer 
+                                target={nextEpisodeDate}
+                                className="text-center"
+                              />
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground mb-2">
-                            {show.next_episode_to_air?.name}
-                          </div>
-                          <CountdownTimer 
-                            target={nextEpisodeDate}
-                            className="text-center text-xs font-mono"
-                          />
                         </div>
                       )}
 
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {hasUpcomingEpisode && nextEpisodeDate && (
                           <ReminderButton
                             when={nextEpisodeDate}
@@ -221,15 +263,15 @@ export function TVInternational() {
                         )}
                         
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          className="w-full h-8 text-xs"
+                          className="w-full h-9 text-xs font-medium hover:bg-primary/10 hover:text-primary transition-all duration-300 border border-border/50 hover:border-primary/30"
                           onClick={(e) => {
                             e.stopPropagation();
                             window.open(`https://www.themoviedb.org/tv/${show.id}`, '_blank');
                           }}
                         >
-                          <ExternalLink className="w-3 h-3 mr-1" />
+                          <ExternalLink className="w-3 h-3 mr-2" />
                           Vezi pe TMDB
                         </Button>
                       </div>
@@ -250,19 +292,38 @@ export function TVInternational() {
             )}
 
             {/* CTA Section */}
-            <div className="mt-16 text-center bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-8">
-              <h2 className="text-2xl font-bold mb-4">Explorează Programul TV</h2>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                Vezi ce este la TV acum și ce urmează în program. Găsește serialele tale preferate pe canalele românești.
-              </p>
-              <div className="flex gap-4 justify-center flex-wrap">
-                <Button onClick={() => navigate('/tv/program')} size="lg">
-                  <Tv className="w-5 h-5 mr-2" />
-                  Program TV
-                </Button>
-                <Button onClick={() => navigate('/tv/emisiuni')} variant="outline" size="lg">
-                  Emisiuni Românești
-                </Button>
+            <div className="mt-20 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-3xl blur-3xl"></div>
+              <div className="relative bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm rounded-3xl p-12 border border-border/50 shadow-2xl">
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/70 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-primary/25">
+                    <Tv className="w-10 h-10 text-white" />
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    Explorează Programul TV
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+                    Vezi ce este la TV acum și ce urmează în program. Găsește serialele tale preferate pe canalele românești și internaționale.
+                  </p>
+                  <div className="flex gap-4 justify-center flex-wrap">
+                    <Button 
+                      onClick={() => navigate('/tv/program')} 
+                      size="lg"
+                      className="h-12 px-8 rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                    >
+                      <Tv className="w-5 h-5 mr-3" />
+                      Program TV Live
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/tv/emisiuni')} 
+                      variant="outline" 
+                      size="lg"
+                      className="h-12 px-8 rounded-full border-2 hover:bg-primary/10 hover:border-primary/50 transition-all duration-300"
+                    >
+                      Emisiuni Românești
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </>
