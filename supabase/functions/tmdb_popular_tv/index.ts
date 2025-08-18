@@ -19,10 +19,10 @@ const popularInternationalShows = [
     vote_average: 8.5,
     popularity: 2847.0,
     next_episode_to_air: {
-      air_date: "2025-06-16",
+      air_date: "2025-03-15",
       episode_number: 1,
       season_number: 3,
-      name: "Season 3 Episode 1"
+      name: "The Heirs of the Dragon"
     }
   },
   {
@@ -40,7 +40,7 @@ const popularInternationalShows = [
       air_date: "2025-11-13",
       episode_number: 1,
       season_number: 2,
-      name: "Season 2 Part 2 - Episode 1"
+      name: "A Murder of Woes"
     }
   },
   {
@@ -94,7 +94,7 @@ const popularInternationalShows = [
       air_date: "2025-04-13",
       episode_number: 1,
       season_number: 2,
-      name: "Season 2 Episode 1"
+      name: "Infected"
     }
   },
   {
@@ -109,10 +109,10 @@ const popularInternationalShows = [
     vote_average: 8.4,
     popularity: 1342.0,
     next_episode_to_air: {
-      air_date: "2025-05-01",
+      air_date: "2025-02-25",
       episode_number: 1,
       season_number: 4,
-      name: "Season 4 Episode 1"
+      name: "The Return"
     }
   },
   {
@@ -202,7 +202,7 @@ const popularInternationalShows = [
       air_date: "2025-07-04",
       episode_number: 1,
       season_number: 5,
-      name: "Final Season Episode 1"
+      name: "The Crawl"
     }
   },
   {
@@ -220,7 +220,7 @@ const popularInternationalShows = [
       air_date: "2025-02-14",
       episode_number: 1,
       season_number: 3,
-      name: "Season 3 Episode 1"
+      name: "Perfect Day"
     }
   }
 ];
