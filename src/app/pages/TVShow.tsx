@@ -1,150 +1,159 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { SEO } from '@/seo/SEO';
 import Container from '@/components/Container';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
-import { TVEpisodeCard } from '@/components/cards/TVEpisodeCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calendar, Clock, Star, Tv, ExternalLink } from 'lucide-react';
+import { 
+  Calendar, 
+  Clock, 
+  Star, 
+  Play, 
+  Bell, 
+  ArrowLeft, 
+  ExternalLink,
+  Tv,
+  Users,
+  Globe
+} from 'lucide-react';
+import { tmdbService } from '@/services/tmdb';
 
-interface TVShow {
-  tvmaze_id: number;
+interface TVShowDetails {
+  id: number;
   name: string;
-  summary?: string;
-  status?: string;
-  language?: string;
-  genres?: string[];
-  network?: any;
-  official_site?: string;
-  premiered?: string;
-  image?: any;
-  rating?: any;
+  overview: string;
+  poster_path: string;
+  backdrop_path: string;
+  first_air_date: string;
+  last_air_date: string;
+  genres: Array<{ id: number; name: string }>;
+  vote_average: number;
+  vote_count: number;
+  popularity: number;
+  number_of_seasons: number;
+  number_of_episodes: number;
+  status: string;
+  tagline: string;
+  networks: Array<{ id: number; name: string; logo_path: string }>;
+  created_by: Array<{ id: number; name: string }>;
+  next_episode_to_air?: {
+    id: number;
+    name: string;
+    overview: string;
+    air_date: string;
+    episode_number: number;
+    season_number: number;
+    runtime: number;
+  };
+  last_episode_to_air?: {
+    id: number;
+    name: string;
+    overview: string;
+    air_date: string;
+    episode_number: number;
+    season_number: number;
+  };
+  external_ids: {
+    imdb_id: string;
+    facebook_id: string;
+    instagram_id: string;
+    twitter_id: string;
+  };
 }
 
-interface TVEpisode {
-  id: number;
-  tvmaze_episode_id: number;
-  name?: string;
-  season?: number;
-  number?: number;
-  airstamp: string;
-  show_name: string;
-  show_genres?: string[];
-  show_image_url?: string;
-  show_slug?: string;
-  network_name?: string;
-  runtime?: number;
-  summary?: string;
+interface CountdownTime {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
 }
 
 export function TVShow() {
-  const { slug } = useParams();
+  const { showId, slug } = useParams<{ showId: string; slug: string }>();
   const navigate = useNavigate();
-  const [show, setShow] = useState<TVShow | null>(null);
-  const [episodes, setEpisodes] = useState<TVEpisode[]>([]);
+  const [show, setShow] = useState<TVShowDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [episodesLoading, setEpisodesLoading] = useState(true);
+  const [countdown, setCountdown] = useState<CountdownTime | null>(null);
+  const [isAiring, setIsAiring] = useState(false);
 
   useEffect(() => {
-    if (slug) {
-      loadShow();
+    if (showId) {
+      loadShowDetails();
     }
-  }, [slug]);
+  }, [showId]);
 
-  const loadShow = async () => {
-    try {
-      // First try to find the show through show_mapping
-      const { data: mapping } = await supabase
-        .from('show_mapping')
-        .select(`
-          *,
-          tvmaze_show!inner(*)
-        `)
-        .eq('slug', slug)
-        .single();
+  useEffect(() => {
+    if (!show?.next_episode_to_air?.air_date) return;
 
-      if (mapping?.tvmaze_show) {
-        setShow(mapping.tvmaze_show);
-        await loadEpisodes(mapping.tvmaze_show.tvmaze_id);
+    const updateCountdown = () => {
+      const timeData = tmdbService.getTimeUntilAiring(show.next_episode_to_air!.air_date);
+      
+      if (timeData) {
+        setCountdown({
+          days: timeData.days,
+          hours: timeData.hours,
+          minutes: timeData.minutes,
+          seconds: timeData.seconds
+        });
+        setIsAiring(false);
       } else {
-        // Fallback: try to find by tvmaze_show name
-        const { data: tvmazeShow } = await supabase
-          .from('tvmaze_show')
-          .select('*')
-          .ilike('name', `%${slug?.replace(/-/g, ' ')}%`)
-          .single();
-
-        if (tvmazeShow) {
-          setShow(tvmazeShow);
-          await loadEpisodes(tvmazeShow.tvmaze_id);
-        } else {
-          // Final fallback: check if it's a countdown URL that should redirect to /tv/emisiuni/
-          const cleanSlug = slug?.replace('insula-iubirii', 'insula-iubirii')
-            .replace(/countdown\/tv\//, '');
-          
-          if (cleanSlug && cleanSlug !== slug) {
-            const { data: fallbackShow } = await supabase
-              .from('tvmaze_show')
-              .select('*')
-              .ilike('name', `%${cleanSlug.replace(/-/g, ' ')}%`)
-              .single();
-              
-            if (fallbackShow) {
-              setShow(fallbackShow);
-              await loadEpisodes(fallbackShow.tvmaze_id);
-            }
-          }
-        }
+        setCountdown(null);
+        setIsAiring(true);
       }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [show?.next_episode_to_air?.air_date]);
+
+  const loadShowDetails = async () => {
+    try {
+      setLoading(true);
+      const details = await tmdbService.getTVShowDetails(parseInt(showId!));
+      setShow(details);
     } catch (error) {
-      console.error('Error loading show:', error);
+      console.error('Error loading show details:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadEpisodes = async (tvmazeId: number) => {
-    try {
-      const { data, error } = await supabase
-        .from('v_tv_episodes_upcoming')
-        .select('*')
-        .eq('tvmaze_show_id', tvmazeId)
-        .order('airstamp', { ascending: true })
-        .limit(20);
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ro-RO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
-      if (error) {
-        console.error('Error loading episodes:', error);
-        return;
-      }
-
-      setEpisodes((data || []) as TVEpisode[]);
-    } catch (error) {
-      console.error('Error loading episodes:', error);
-    } finally {
-      setEpisodesLoading(false);
-    }
+  const getStatusText = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      'Returning Series': 'În producție',
+      'Ended': 'Terminat',
+      'Canceled': 'Anulat',
+      'In Production': 'În producție',
+      'Planned': 'Planificat'
+    };
+    return statusMap[status] || status;
   };
 
   if (loading) {
     return (
-      <Container>
-        <div className="py-8">
-          <div className="mb-6">
-            <Skeleton className="h-8 w-32 mb-4" />
-            <Skeleton className="h-12 w-96 mb-4" />
-          </div>
-          
+      <Container className="py-8">
+        <div className="space-y-6">
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-96 w-full rounded-lg" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
-              <Skeleton className="h-96 w-full mb-4" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-4">
+              <Skeleton className="h-8 w-64" />
               <Skeleton className="h-32 w-full" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-64 w-full" />
             </div>
           </div>
         </div>
@@ -154,165 +163,317 @@ export function TVShow() {
 
   if (!show) {
     return (
-      <Container>
-        <div className="py-8 text-center">
-          <Tv className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Emisiunea nu a fost găsită</h2>
-          <p className="text-muted-foreground mb-4">
-            Nu am putut găsi informații despre această emisiune.
-          </p>
-          <Button onClick={() => navigate('/tv/emisiuni')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Înapoi la emisiuni
+      <Container className="py-8">
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold mb-4">Serial not found</h1>
+          <Button onClick={() => navigate('/tv')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to TV Shows
           </Button>
         </div>
       </Container>
     );
   }
 
-  const posterUrl = show.image?.original || show.image?.medium;
-  const cleanSummary = show.summary?.replace(/<[^>]*>/g, '') || '';
+  const posterUrl = tmdbService.getImageURL(show.poster_path, 'w500');
+  const backdropUrl = tmdbService.getImageURL(show.backdrop_path, 'w1280');
 
   return (
     <>
       <SEO 
-        title={`${show.name} - Emisiuni TV România`}
-        description={cleanSummary.slice(0, 160) || `Urmărește episoadele din ${show.name}. Countdown-uri pentru următoarele episoade.`}
-        path={`/tv/emisiuni/${slug}`}
+        title={`${show.name} — Detalii Serial TV`}
+        description={show.overview || `Informații complete despre serialul ${show.name}`}
+        path={`/tv/show/${showId}/${slug}`}
       />
       
-      <Container>
-        <div className="py-8">
-          {/* Back button */}
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/tv/emisiuni')}
-            className="mb-6"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Înapoi la emisiuni
-          </Button>
+      <div className="min-h-screen">
+        {/* Hero Section with Backdrop */}
+        <div 
+          className="relative h-96 bg-cover bg-center"
+          style={{ backgroundImage: `url(${backdropUrl})` }}
+        >
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+          
+          <Container className="relative h-full flex flex-col justify-between py-8">
+            {/* Back Button */}
+            <div>
+              <Button 
+                variant="ghost" 
+                className="text-white hover:bg-white/20"
+                onClick={() => navigate('/tv')}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Înapoi la Seriale
+              </Button>
+            </div>
 
-          {/* Show header */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            {/* Poster */}
-            <div className="lg:col-span-1">
-              <Card className="overflow-hidden">
+            {/* Show Title and Basic Info */}
+            <div className="text-white">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                  <Tv className="w-3 h-3 mr-1" />
+                  TV Series
+                </Badge>
+                {isAiring && (
+                  <Badge variant="destructive" className="animate-pulse">
+                    LIVE ACUM
+                  </Badge>
+                )}
+              </div>
+              
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">{show.name}</h1>
+              
+              {show.tagline && (
+                <p className="text-xl text-white/90 mb-4 italic">"{show.tagline}"</p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-4 text-white/90">
+                <div className="flex items-center">
+                  <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
+                  <span>{show.vote_average.toFixed(1)}</span>
+                  <span className="ml-1 text-sm">({show.vote_count} voturi)</span>
+                </div>
+                <span>•</span>
+                <span>{show.number_of_seasons} {show.number_of_seasons === 1 ? 'sezon' : 'sezoane'}</span>
+                <span>•</span>
+                <span>{show.number_of_episodes} episoade</span>
+                <span>•</span>
+                <span>{getStatusText(show.status)}</span>
+              </div>
+            </div>
+          </Container>
+        </div>
+
+        <Container className="py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Next Episode Countdown */}
+              {show.next_episode_to_air && (
+                <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Tv className="w-5 h-5" />
+                      Următorul Episod
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          S{show.next_episode_to_air.season_number}E{show.next_episode_to_air.episode_number}: {show.next_episode_to_air.name}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          Difuzare: {formatDate(show.next_episode_to_air.air_date)}
+                        </p>
+                      </div>
+
+                      {countdown && (
+                        <div className="p-4 bg-background rounded-lg border">
+                          <p className="text-center text-sm font-medium text-muted-foreground mb-3">
+                            Începe în:
+                          </p>
+                          <div className="grid grid-cols-4 gap-4 text-center">
+                            <div>
+                              <div className="text-2xl font-bold text-primary">{countdown.days}</div>
+                              <div className="text-sm text-muted-foreground">Zile</div>
+                            </div>
+                            <div>
+                              <div className="text-2xl font-bold text-primary">{countdown.hours}</div>
+                              <div className="text-sm text-muted-foreground">Ore</div>
+                            </div>
+                            <div>
+                              <div className="text-2xl font-bold text-primary">{countdown.minutes}</div>
+                              <div className="text-sm text-muted-foreground">Min</div>
+                            </div>
+                            <div>
+                              <div className="text-2xl font-bold text-primary">{countdown.seconds}</div>
+                              <div className="text-sm text-muted-foreground">Sec</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {show.next_episode_to_air.overview && (
+                        <p className="text-sm text-muted-foreground">
+                          {show.next_episode_to_air.overview}
+                        </p>
+                      )}
+
+                      <div className="flex gap-2">
+                        <Button className="flex-1">
+                          <Bell className="w-4 h-4 mr-2" />
+                          Setează Reminder
+                        </Button>
+                        <Button variant="outline">
+                          <Star className="w-4 h-4 mr-2" />
+                          Adaugă la Favorite
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* What is this show section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ce este {show.name}?</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {show.overview || 'Nu există descriere disponibilă pentru acest serial.'}
+                  </p>
+
+                  {/* Genres */}
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {show.genres.map((genre) => (
+                      <Badge key={genre.id} variant="secondary">
+                        {genre.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Creators */}
+              {show.created_by && show.created_by.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Creatori
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {show.created_by.map((creator) => (
+                        <Badge key={creator.id} variant="outline">
+                          {creator.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Poster */}
+              <div className="aspect-[2/3] overflow-hidden rounded-lg border">
                 {posterUrl ? (
-                  <img
-                    src={posterUrl}
+                  <img 
+                    src={posterUrl} 
                     alt={show.name}
-                    className="w-full h-auto object-cover"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="aspect-[2/3] bg-muted flex items-center justify-center">
-                    <Tv className="h-16 w-16 text-muted-foreground" />
+                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <Play className="w-16 h-16 text-muted-foreground" />
                   </div>
-                )}
-              </Card>
-              
-              {/* Quick info */}
-              <div className="mt-4 space-y-3">
-                {show.status && (
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">Status: {show.status}</span>
-                  </div>
-                )}
-                
-                {show.premiered && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">
-                      Premiera: {new Date(show.premiered).getFullYear()}
-                    </span>
-                  </div>
-                )}
-                
-                {show.network?.name && (
-                  <div className="flex items-center gap-2">
-                    <Tv className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{show.network.name}</span>
-                  </div>
-                )}
-                
-                {show.official_site && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    asChild 
-                    className="w-full"
-                  >
-                    <a href={show.official_site} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Site oficial
-                    </a>
-                  </Button>
                 )}
               </div>
-            </div>
 
-            {/* Info */}
-            <div className="lg:col-span-2">
-              <h1 className="text-3xl font-bold mb-4">{show.name}</h1>
-              
-              {/* Genres */}
-              {show.genres && show.genres.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {show.genres.map((genre, index) => (
-                    <Badge key={index} variant="secondary">
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
+              {/* Show Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Informații</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <h4 className="font-medium text-sm text-muted-foreground">Prima difuzare</h4>
+                    <p>{formatDate(show.first_air_date)}</p>
+                  </div>
+                  
+                  {show.last_air_date && (
+                    <div>
+                      <h4 className="font-medium text-sm text-muted-foreground">Ultima difuzare</h4>
+                      <p>{formatDate(show.last_air_date)}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 className="font-medium text-sm text-muted-foreground">Status</h4>
+                    <p>{getStatusText(show.status)}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-sm text-muted-foreground">Sezoane</h4>
+                    <p>{show.number_of_seasons}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-sm text-muted-foreground">Episoade</h4>
+                    <p>{show.number_of_episodes}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Networks */}
+              {show.networks && show.networks.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Rețele</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {show.networks.map((network) => (
+                        <div key={network.id} className="flex items-center gap-2">
+                          {network.logo_path && (
+                            <img 
+                              src={tmdbService.getImageURL(network.logo_path, 'w92')}
+                              alt={network.name}
+                              className="h-6 object-contain"
+                            />
+                          )}
+                          <span>{network.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               )}
-              
-              {/* Summary */}
-              {cleanSummary && (
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-muted-foreground leading-relaxed">
-                    {cleanSummary}
-                  </p>
-                </div>
-              )}
+
+              {/* External Links */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="w-5 h-5" />
+                    Link-uri Externe
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {show.external_ids.imdb_id && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-start"
+                        onClick={() => window.open(`https://www.imdb.com/title/${show.external_ids.imdb_id}`, '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Vizualizează pe IMDB
+                      </Button>
+                    )}
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full justify-start"
+                      onClick={() => window.open(`https://www.themoviedb.org/tv/${show.id}`, '_blank')}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Vizualizează pe TMDB
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          {/* Episodes section */}
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Următoarele episoade</h2>
-            
-            {episodesLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="space-y-4">
-                    <Skeleton className="h-48 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                ))}
-              </div>
-            ) : episodes.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nu sunt episoade programate</h3>
-                <p className="text-muted-foreground">
-                  Nu există episoade programate în viitorul apropiat pentru această emisiune.
-                </p>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {episodes.map((episode) => (
-                  <TVEpisodeCard 
-                    key={episode.tvmaze_episode_id} 
-                    episode={episode}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </Container>
+        </Container>
+      </div>
     </>
   );
 }
