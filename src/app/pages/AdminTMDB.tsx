@@ -107,8 +107,10 @@ export default function AdminTMDB() {
 
     setIsSearching(true);
     try {
+      // Note: This should be migrated to use edge functions for production
+      console.warn('Using direct TMDB API call - should use edge function in production');
       const response = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${import.meta.env.VITE_TMDB_API_KEY || 'demo'}&language=ro-RO&query=${encodeURIComponent(searchQuery)}&include_adult=false`
+        `https://api.themoviedb.org/3/search/movie?api_key=placeholder&language=ro-RO&query=${encodeURIComponent(searchQuery)}&include_adult=false`
       );
       
       if (!response.ok) throw new Error('Search failed');

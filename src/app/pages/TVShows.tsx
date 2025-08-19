@@ -204,8 +204,8 @@ export function TVShows() {
           const shows = await tmdbService.getUpcomingTVShowsWithEpisodes(20);
           console.log('🔧 Got upcoming shows:', shows);
           
-          // If no shows or TMDB key is demo, add mock data with countdowns
-          if (shows.length === 0 || tmdbService.isUsingDemoKey()) {
+          // If no shows, add mock data with countdowns
+          if (shows.length === 0) {
             console.log('🔧 Adding mock countdown data...');
             const mockShows = getMockCountdownShows();
             setUpcomingShows(mockShows);

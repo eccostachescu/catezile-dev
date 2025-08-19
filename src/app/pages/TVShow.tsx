@@ -113,10 +113,13 @@ export function TVShow() {
   const loadShowDetails = async () => {
     try {
       setLoading(true);
-      const details = await tmdbService.getTVShowDetails(parseInt(showId!));
-      setShow(details);
+      // For now, TV show details are not available via edge functions
+      // This would need a new edge function to be implemented
+      console.warn('TV show details page not fully implemented - needs edge function');
+      setShow(null);
     } catch (error) {
       console.error('Error loading show details:', error);
+      setShow(null);
     } finally {
       setLoading(false);
     }
