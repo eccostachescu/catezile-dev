@@ -46,13 +46,17 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
 
   useEffect(() => {
     console.log('🔧 TVShowCard effect:', { showCountdown, airDate: show.air_date, showName: show.name });
-    if (!showCountdown || !show.air_date) return;
+    if (!showCountdown || !show.air_date) {
+      setCountdown(null);
+      setIsAiring(false);
+      return;
+    }
 
     const updateCountdown = () => {
       const timeData = tmdbService.getTimeUntilAiring(show.air_date!);
       console.log('🔧 Countdown calculation for', show.name, ':', timeData);
       
-      if (timeData) {
+      if (timeData && timeData.totalMs > 0) {
         setCountdown({
           days: timeData.days,
           hours: timeData.hours,
@@ -61,8 +65,9 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
         });
         setIsAiring(false);
       } else {
+        // Don't show as "airing" unless it's actually supposed to be live
         setCountdown(null);
-        setIsAiring(true);
+        setIsAiring(false);
       }
     };
 
@@ -70,7 +75,7 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, [show.air_date, showCountdown]);
+  }, [show.air_date, showCountdown, show.name]);
 
   const posterUrl = show.poster_url || tmdbService.getImageURL(show.poster_path, 'w500');
   const backdropUrl = show.backdrop_url || tmdbService.getImageURL(show.backdrop_path, 'w1280');
@@ -122,7 +127,8 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
             <Tv className="w-3 h-3 mr-1" />
             TV
           </Badge>
-          {isAiring && (
+          {/* Only show LIVE badge if episode is actually airing right now */}
+          {isAiring && showCountdown && (
             <Badge variant="destructive" className="animate-pulse">
               LIVE ACUM
             </Badge>
@@ -147,8 +153,8 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
       </div>
 
       <CardContent className="p-4">
-        {/* Countdown Timer */}
-        {showCountdown && countdown && (
+        {/* Show countdown only if we have a valid future date */}
+        {showCountdown && countdown && show.air_date && (
           <div className="mb-4 p-3 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
             <div className="text-center">
               <p className="text-sm font-medium text-muted-foreground mb-2">
@@ -172,20 +178,6 @@ export function TVShowCard({ show, onClick, showCountdown = true }: TVShowCardPr
                   <div className="text-xs text-muted-foreground">Sec</div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Show countdown even if no data for debugging */}
-        {showCountdown && !countdown && show.air_date && (
-          <div className="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-            <div className="text-center">
-              <p className="text-sm font-medium text-yellow-800 mb-1">
-                Episode airing: {show.air_date}
-              </p>
-              <p className="text-xs text-yellow-600">
-                Debug: Countdown calculation failed
-              </p>
             </div>
           </div>
         )}
