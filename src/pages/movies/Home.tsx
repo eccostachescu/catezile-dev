@@ -45,121 +45,117 @@ export default function MoviesHome() {
   const loadMoviesData = async () => {
     try {
       setIsLoading(true);
-      console.log('Loading movies data...');
+      console.log('Loading movies data from TMDB...');
       
-      // Get current date for filtering
+      // Import tmdb service
+      const { tmdbService } = await import('@/services/tmdb');
+      
+      // Get fresh movie data from TMDB API via edge function
+      const popularMovies = await tmdbService.getPopularMovies(40);
+      console.log('🔧 Got popular movies:', popularMovies.length);
+      
+      if (popularMovies.length === 0) {
+        console.warn('No movies returned from TMDB, falling back to database');
+        // Fallback to database if TMDB fails
+        const { data: dbMovies } = await supabase
+          .from('movie')
+          .select('*')
+          .order('popularity', { ascending: false })
+          .limit(40);
+        
+        const fallbackMovies = (dbMovies || []).map(movie => ({
+          ...movie,
+          next_date: movie.cinema_release_ro ? {
+            date: movie.cinema_release_ro,
+            type: movie.cinema_release_ro <= new Date().toISOString().split('T')[0] ? 'released' as const : 'cinema' as const,
+            platform: 'Cinema'
+          } : undefined
+        }));
+        
+        // Split fallback movies
+        const today = new Date().toISOString().split('T')[0];
+        setCinemaMovies(fallbackMovies.filter(m => m.cinema_release_ro && m.cinema_release_ro <= today));
+        setUpcomingMovies(fallbackMovies.filter(m => m.cinema_release_ro && m.cinema_release_ro > today));
+        return;
+      }
+
+      // Process movies from TMDB
       const today = new Date();
-      const currentMonth = today.getMonth() + 1;
-      const currentYear = today.getFullYear();
-      const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
-      const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+      const todayStr = today.toISOString().split('T')[0];
+      const futureDate = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       
-      // Format dates for query
-      const currentMonthStart = `${currentYear}-${String(currentMonth).padStart(2, '0')}-01`;
-      const currentMonthEnd = new Date(currentYear, currentMonth, 0).toISOString().split('T')[0];
-      const nextMonthStart = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
-      const nextMonthEnd = new Date(nextYear, nextMonth, 0).toISOString().split('T')[0];
-
-      // Fetch movies currently in cinema (released in last 60 days)
-      const sixtyDaysAgo = new Date();
-      sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+      // Split into categories
+      const cinema: Movie[] = [];
+      const upcoming: Movie[] = [];
+      const streaming: Record<string, Movie[]> = {};
       
-      const { data: inCinema, error: cinemaError } = await supabase
-        .from('movie')
-        .select('*')
-        .lte('cinema_release_ro', today.toISOString().split('T')[0])
-        .gte('cinema_release_ro', sixtyDaysAgo.toISOString().split('T')[0])
-        .order('popularity', { ascending: false })
-        .limit(20);
-
-      if (cinemaError) {
-        console.error('Error fetching cinema movies:', cinemaError);
-      } else {
-        console.log('Raw cinema movies:', inCinema);
-        const moviesWithNextDate = (inCinema || []).map(movie => ({
-          ...movie,
+      popularMovies.forEach((movie: any) => {
+        const processedMovie = {
+          id: movie.tmdb_id?.toString() || movie.id?.toString(),
+          title: movie.title,
+          slug: movie.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || movie.tmdb_id?.toString(),
+          poster_path: movie.poster_url,
+          cinema_release_ro: movie.cinema_release_ro,
+          overview: movie.overview,
+          genres: movie.genres || [],
+          runtime: movie.runtime,
+          popularity: movie.popularity,
           next_date: movie.cinema_release_ro ? {
             date: movie.cinema_release_ro,
-            type: 'released' as const,
+            type: movie.cinema_release_ro <= todayStr ? 'released' as const : 'cinema' as const,
             platform: 'Cinema'
           } : undefined
-        }));
-        console.log('Cinema movies with next_date:', moviesWithNextDate);
-        setCinemaMovies(moviesWithNextDate);
-      }
+        };
 
-      // Fetch upcoming cinema movies (current + next month)
-      const { data: upcoming, error: upcomingError } = await supabase
-        .from('movie')
-        .select('*')
-        .gte('cinema_release_ro', today.toISOString().split('T')[0])
-        .lte('cinema_release_ro', nextMonthEnd)
-        .order('cinema_release_ro', { ascending: true })
-        .limit(20);
-
-      if (upcomingError) {
-        console.error('Error fetching upcoming movies:', upcomingError);
-      } else {
-        console.log('Raw upcoming movies:', upcoming);
-        const moviesWithNextDate = (upcoming || []).map(movie => ({
-          ...movie,
-          next_date: movie.cinema_release_ro ? {
-            date: movie.cinema_release_ro,
-            type: 'cinema' as const,
-            platform: 'Cinema'
-          } : undefined
-        }));
-        console.log('Upcoming movies with next_date:', moviesWithNextDate);
-        setUpcomingMovies(moviesWithNextDate);
-      }
-
-      // Fetch streaming movies from platforms
-      const { data: streamingData, error: streamingError } = await supabase
-        .from('movie_platform')
-        .select(`
-          available_from,
-          movie:movie_id (
-            id,
-            title,
-            slug,
-            poster_path,
-            overview,
-            genres,
-            runtime,
-            popularity
-          ),
-          platform:platform_id (
-            slug,
-            name
-          )
-        `)
-        .gte('available_from', today.toISOString().split('T')[0])
-        .lte('available_from', new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-        .order('available_from', { ascending: true });
-
-      if (streamingError) {
-        console.error('Error fetching streaming movies:', streamingError);
-      } else {
-        // Group by platform
-        const grouped: Record<string, Movie[]> = {};
-        (streamingData || []).forEach((item: any) => {
-          if (item.movie && item.platform) {
-            const platformName = item.platform.name;
-            if (!grouped[platformName]) {
-              grouped[platformName] = [];
+        // Categorize movies
+        if (movie.cinema_release_ro) {
+          if (movie.cinema_release_ro <= todayStr) {
+            // Released in cinema (within last 60 days)
+            const releaseDate = new Date(movie.cinema_release_ro);
+            const sixtyDaysAgo = new Date(today.getTime() - 60 * 24 * 60 * 60 * 1000);
+            if (releaseDate >= sixtyDaysAgo) {
+              cinema.push(processedMovie);
             }
-            grouped[platformName].push({
-              ...item.movie,
+          } else if (movie.cinema_release_ro <= futureDate) {
+            // Upcoming in cinema
+            upcoming.push(processedMovie);
+          }
+        }
+
+        // Check for streaming info
+        if (movie.streaming_ro && Object.keys(movie.streaming_ro).length > 0) {
+          Object.entries(movie.streaming_ro).forEach(([platform, info]: [string, any]) => {
+            if (!streaming[platform]) streaming[platform] = [];
+            streaming[platform].push({
+              ...processedMovie,
               next_date: {
-                date: item.available_from,
+                date: todayStr, // Assume available now if no specific date
                 type: 'streaming',
-                platform: platformName
+                platform
               }
             });
-          }
-        });
-        setStreamingMovies(grouped);
-      }
+          });
+        }
+      });
+
+      // Sort by popularity and release date
+      cinema.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      upcoming.sort((a, b) => {
+        if (a.cinema_release_ro && b.cinema_release_ro) {
+          return new Date(a.cinema_release_ro).getTime() - new Date(b.cinema_release_ro).getTime();
+        }
+        return (b.popularity || 0) - (a.popularity || 0);
+      });
+
+      console.log('🔧 Processed categories:', {
+        cinema: cinema.length,
+        upcoming: upcoming.length,
+        streaming: Object.keys(streaming).length
+      });
+
+      setCinemaMovies(cinema);
+      setUpcomingMovies(upcoming);
+      setStreamingMovies(streaming);
 
     } catch (error) {
       console.error('Error loading movies data:', error);
