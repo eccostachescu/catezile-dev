@@ -3269,6 +3269,16 @@ export type Database = {
           id: string
         }[]
       }
+      get_public_profile_safe: {
+        Args: { profile_id: string }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          handle: string
+          id: string
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
