@@ -1302,6 +1302,13 @@ export type Database = {
             referencedRelation: "profile_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ip_allowlist_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ip_blocklist: {
@@ -1342,6 +1349,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profile_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ip_blocklist_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2158,6 +2172,13 @@ export type Database = {
             referencedRelation: "profile_public"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "security_event_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       seo_template: {
@@ -2962,6 +2983,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          handle: string | null
+          id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          handle?: string | null
+          id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          handle?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
       standings_regular: {
         Row: {
           draws: number | null
@@ -3270,6 +3315,16 @@ export type Database = {
         }[]
       }
       get_public_profile_safe: {
+        Args: { profile_id: string }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          handle: string
+          id: string
+        }[]
+      }
+      get_safe_profile: {
         Args: { profile_id: string }
         Returns: {
           avatar_url: string
